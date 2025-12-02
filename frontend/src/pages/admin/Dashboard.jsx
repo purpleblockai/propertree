@@ -24,7 +24,8 @@ const Dashboard = () => {
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/admin/dashboard/stats/', {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_BASE_URL}/admin/dashboard/stats/`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
         }
@@ -43,7 +44,8 @@ const Dashboard = () => {
 
   const fetchAnalytics = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/admin/dashboard/analytics/', {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_BASE_URL}/admin/dashboard/analytics/`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
         }

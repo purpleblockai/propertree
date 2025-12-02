@@ -36,7 +36,8 @@ const PropertySearch = () => {
       if (filters.city) params.append('city', filters.city);
       if (searchQuery) params.append('search', searchQuery);
 
-      const url = `http://localhost:8000/api/properties/?${params.toString()}`;
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const url = `${API_BASE_URL}/properties/?${params.toString()}`;
       const response = await fetch(url);
       
       if (response.ok) {

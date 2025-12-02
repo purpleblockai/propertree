@@ -79,7 +79,8 @@ const LandingPage = () => {
 
   const fetchCities = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/properties/');
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_BASE_URL}/properties/`);
       if (response.ok) {
         const data = await response.json();
         const allProperties = data.results || data;
@@ -126,7 +127,8 @@ const LandingPage = () => {
         }
       }
 
-      const url = `http://localhost:8000/api/properties/?${params.toString()}`;
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const url = `${API_BASE_URL}/properties/?${params.toString()}`;
       const response = await fetch(url);
       
       if (response.ok) {

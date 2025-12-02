@@ -30,7 +30,8 @@ const PropertyDetail = () => {
   const fetchProperty = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:8000/api/properties/${id}/`);
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_BASE_URL}/properties/${id}/`);
       
       if (response.ok) {
         const data = await response.json();

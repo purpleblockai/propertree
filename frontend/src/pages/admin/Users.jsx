@@ -20,7 +20,8 @@ const Users = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      let url = 'http://localhost:8000/api/admin/users/';
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      let url = `${API_BASE_URL}/admin/users/`;
       if (roleFilter && roleFilter !== 'all') {
         url += `?role=${roleFilter}`;
       }

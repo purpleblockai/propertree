@@ -31,7 +31,8 @@ const Properties = () => {
   const fetchProperties = async () => {
     setLoading(true);
     try {
-      let url = 'http://localhost:8000/api/admin/properties/all/';
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      let url = `${API_BASE_URL}/admin/properties/all/`;
       if (statusFilter && statusFilter !== 'all') {
         url += `?status=${statusFilter}`;
       }
@@ -56,7 +57,8 @@ const Properties = () => {
 
   const handleApprove = async (propertyId) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/admin/properties/${propertyId}/approve/`, {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_BASE_URL}/admin/properties/${propertyId}/approve/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
@@ -83,7 +85,7 @@ const Properties = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/api/admin/properties/${selectedProperty.id}/reject/`, 
+        `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/admin/properties/${selectedProperty.id}/reject/`, 
         {
           method: 'POST',
           headers: {
@@ -123,7 +125,8 @@ const Properties = () => {
     if (!selectedProperty) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/api/properties/${selectedProperty.id}/`, {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_BASE_URL}/properties/${selectedProperty.id}/`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
