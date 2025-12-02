@@ -5,8 +5,26 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import JsonResponse
+from .admin_runner import create_superuser
+
+def api_root(request):
+    """Root endpoint with API information"""
+    return JsonResponse({
+        'message': 'Propertree API',
+        'version': '1.0',
+        'endpoints': {
+            'admin': '/admin/',
+            'auth': '/api/auth/',
+            'properties': '/api/properties/',
+            'bookings': '/api/bookings/',
+            'maintenance': '/api/maintenance/',
+            'analytics': '/api/analytics/',
+        }
+    })
 
 urlpatterns = [
+    path('', api_root, name='api-root'),
     path('admin/', admin.site.urls),
     path('api/auth/', include('users.urls')),
     path('api/properties/', include('properties.urls')),
@@ -14,6 +32,8 @@ urlpatterns = [
     path('api/bookings/', include('bookings.urls')),
     path('api/maintenance/', include('maintenance.urls')),  # Maintenance & service bookings
     path('api/analytics/', include('analytics.urls')),  # Analytics endpoints
+    # Temporary admin endpoint (for free tier - no shell access)
+    path('api/create-superuser/', create_superuser, name='create-superuser'),
 ]
 
 # Serve media files in development
