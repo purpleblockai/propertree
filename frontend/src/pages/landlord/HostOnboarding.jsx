@@ -110,10 +110,15 @@ const HostOnboarding = () => {
   const handleSaveDraft = async () => {
     try {
       // Map form data to simplified property model
+      // Ensure property_type is a string (not array)
+      const propertyType = Array.isArray(formData.property_type) 
+        ? formData.property_type[0] 
+        : formData.property_type || 'apartment';
+      
       const propertyData = {
         title: formData.title || 'Untitled Property',
         description: formData.description || 'No description provided',
-        property_type: formData.property_type,
+        property_type: propertyType,
         address: formData.address,
         city: formData.city,
         state: formData.state,
@@ -158,10 +163,15 @@ const HostOnboarding = () => {
   const handleSubmit = async () => {
     try {
       // Step 1: Create property as draft first
+      // Ensure property_type is a string (not array)
+      const propertyType = Array.isArray(formData.property_type) 
+        ? formData.property_type[0] 
+        : formData.property_type || 'apartment';
+      
       const propertyData = {
         title: formData.title || 'Untitled Property',
         description: formData.description || 'No description provided',
-        property_type: formData.property_type,
+        property_type: propertyType,
         address: formData.address,
         city: formData.city,
         state: formData.state,
