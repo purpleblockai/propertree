@@ -96,6 +96,17 @@ class RegisterView(generics.CreateAPIView):
                 'message': 'Invalid request',
                 'errors': e.detail
             }, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            # Log the full error for debugging
+            import traceback
+            error_trace = traceback.format_exc()
+            print(f"Registration error: {str(e)}")
+            print(f"Traceback: {error_trace}")
+            return Response({
+                'message': 'Registration failed',
+                'error': str(e),
+                'detail': 'Please check server logs for more information'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class LoginView(APIView):
