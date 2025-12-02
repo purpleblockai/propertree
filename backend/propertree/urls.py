@@ -6,6 +6,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import JsonResponse
+from .migration_runner import run_migrations, collect_static
 
 def api_root(request):
     """Root endpoint with API information"""
@@ -31,6 +32,9 @@ urlpatterns = [
     path('api/bookings/', include('bookings.urls')),
     path('api/maintenance/', include('maintenance.urls')),  # Maintenance & service bookings
     path('api/analytics/', include('analytics.urls')),  # Analytics endpoints
+    # Temporary migration endpoints (remove after initial setup)
+    path('api/migrate/', run_migrations, name='run-migrations'),
+    path('api/collectstatic/', collect_static, name='collect-static'),
 ]
 
 # Serve media files in development
