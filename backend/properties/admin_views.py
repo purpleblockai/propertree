@@ -29,67 +29,72 @@ class AdminDashboardStatsView(APIView):
     
     def get(self, request):
         """Get dashboard statistics for admin."""
-        
-        # Property stats
-        total_properties = Property.objects.count()
-        pending_properties = Property.objects.filter(status='pending_approval').count()
-        active_properties = Property.objects.filter(status='approved').count()
-        rejected_properties = Property.objects.filter(status='rejected').count()
-        
-        # User stats
-        total_users = CustomUser.objects.count()
-        total_landlords = CustomUser.objects.filter(role='landlord').count()
-        total_tenants = CustomUser.objects.filter(role='tenant').count()
-        
-        # Booking stats
-        total_bookings = Booking.objects.count()
-        pending_bookings = Booking.objects.filter(status='pending').count()
-        confirmed_bookings = Booking.objects.filter(status='confirmed').count()
-        
-        # Revenue stats
-        total_revenue = Booking.objects.filter(
-            status__in=['confirmed', 'completed']
-        ).aggregate(Sum('total_price'))['total_price__sum'] or 0
-        
-        # Monthly revenue (last 30 days)
-        thirty_days_ago = timezone.now() - timedelta(days=30)
-        monthly_revenue = Booking.objects.filter(
-            status__in=['confirmed', 'completed'],
-            created_at__gte=thirty_days_ago
-        ).aggregate(Sum('total_price'))['total_price__sum'] or 0
-        
-        # Recent activity (last 7 days)
-        seven_days_ago = timezone.now() - timedelta(days=7)
-        recent_properties = Property.objects.filter(created_at__gte=seven_days_ago).count()
-        recent_bookings = Booking.objects.filter(created_at__gte=seven_days_ago).count()
-        recent_users = CustomUser.objects.filter(created_at__gte=seven_days_ago).count()
-        
-        return Response({
-            'properties': {
-                'total': total_properties,
-                'pending': pending_properties,
-                'active': active_properties,
-                'rejected': rejected_properties,
-                'recent': recent_properties
-            },
-            'users': {
-                'total': total_users,
-                'landlords': total_landlords,
-                'tenants': total_tenants,
-                'recent': recent_users
-            },
-            'bookings': {
-                'total': total_bookings,
-                'pending': pending_bookings,
-                'confirmed': confirmed_bookings,
-                'recent': recent_bookings
-            },
-            'revenue': {
-                'total': float(total_revenue),
-                'monthly': float(monthly_revenue),
-                'average_booking': float(total_revenue / total_bookings) if total_bookings > 0 else 0
-            }
-        })
+        try:
+            # Property stats
+            total_properties = Property.objects.count()
+            pending_properties = Property.objects.filter(status='pending_approval').count()
+            active_properties = Property.objects.filter(status='approved').count()
+            rejected_properties = Property.objects.filter(status='rejected').count()
+            
+            # User stats
+            total_users = CustomUser.objects.count()
+            total_landlords = CustomUser.objects.filter(role='landlord').count()
+            total_tenants = CustomUser.objects.filter(role='tenant').count()
+            
+            # Booking stats
+            total_bookings = Booking.objects.count()
+            pending_bookings = Booking.objects.filter(status='pending').count()
+            confirmed_bookings = Booking.objects.filter(status='confirmed').count()
+            
+            # Revenue stats
+            total_revenue = Booking.objects.filter(
+                status__in=['confirmed', 'completed']
+            ).aggregate(Sum('total_price'))['total_price__sum'] or 0
+            
+            # Monthly revenue (last 30 days)
+            thirty_days_ago = timezone.now() - timedelta(days=30)
+            monthly_revenue = Booking.objects.filter(
+                status__in=['confirmed', 'completed'],
+                created_at__gte=thirty_days_ago
+            ).aggregate(Sum('total_price'))['total_price__sum'] or 0
+            
+            # Recent activity (last 7 days)
+            seven_days_ago = timezone.now() - timedelta(days=7)
+            recent_properties = Property.objects.filter(created_at__gte=seven_days_ago).count()
+            recent_bookings = Booking.objects.filter(created_at__gte=seven_days_ago).count()
+            recent_users = CustomUser.objects.filter(created_at__gte=seven_days_ago).count()
+            
+            return Response({
+                'properties': {
+                    'total': total_properties,
+                    'pending': pending_properties,
+                    'active': active_properties,
+                    'rejected': rejected_properties,
+                    'recent': recent_properties
+                },
+                'users': {
+                    'total': total_users,
+                    'landlords': total_landlords,
+                    'tenants': total_tenants,
+                    'recent': recent_users
+                },
+                'bookings': {
+                    'total': total_bookings,
+                    'pending': pending_bookings,
+                    'confirmed': confirmed_bookings,
+                    'recent': recent_bookings
+                },
+                'revenue': {
+                    'total': float(total_revenue),
+                    'monthly': float(monthly_revenue),
+                    'average_booking': float(total_revenue / total_bookings) if total_bookings > 0 else 0
+                }
+            })
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class PendingPropertiesView(generics.ListAPIView):
@@ -251,49 +256,54 @@ class PropertyAnalyticsView(APIView):
     
     def get(self, request):
         """Get property analytics data."""
-        
-        # Properties by type
-        by_type = Property.objects.values('property_type').annotate(
-            count=Count('id')
-        ).order_by('-count')
-        
-        # Properties by status
-        by_status = Property.objects.values('status').annotate(
-            count=Count('id')
-        )
-        
-        # Properties by city (top 10)
-        by_city = Property.objects.values('city').annotate(
-            count=Count('id')
-        ).order_by('-count')[:10]
-        
-        # Average price by property type
-        avg_price_by_type = Property.objects.values('property_type').annotate(
-            avg_price=Avg('base_price')
-        )
-        
-        # Properties created over time (last 12 months)
-        twelve_months_ago = timezone.now() - timedelta(days=365)
-        monthly_data = []
-        for i in range(12):
-            month_start = timezone.now() - timedelta(days=30 * (11 - i))
-            month_end = timezone.now() - timedelta(days=30 * (10 - i))
-            count = Property.objects.filter(
-                created_at__gte=month_start,
-                created_at__lt=month_end
-            ).count()
-            monthly_data.append({
-                'month': month_start.strftime('%b %Y'),
-                'count': count
+        try:
+            # Properties by type
+            by_type = Property.objects.values('property_type').annotate(
+                count=Count('id')
+            ).order_by('-count')
+            
+            # Properties by status
+            by_status = Property.objects.values('status').annotate(
+                count=Count('id')
+            )
+            
+            # Properties by city (top 10)
+            by_city = Property.objects.values('city').annotate(
+                count=Count('id')
+            ).order_by('-count')[:10]
+            
+            # Average price by property type
+            avg_price_by_type = Property.objects.values('property_type').annotate(
+                avg_price=Avg('base_price')
+            )
+            
+            # Properties created over time (last 12 months)
+            twelve_months_ago = timezone.now() - timedelta(days=365)
+            monthly_data = []
+            for i in range(12):
+                month_start = timezone.now() - timedelta(days=30 * (11 - i))
+                month_end = timezone.now() - timedelta(days=30 * (10 - i))
+                count = Property.objects.filter(
+                    created_at__gte=month_start,
+                    created_at__lt=month_end
+                ).count()
+                monthly_data.append({
+                    'month': month_start.strftime('%b %Y'),
+                    'count': count
+                })
+            
+            return Response({
+                'by_type': list(by_type),
+                'by_status': list(by_status),
+                'by_city': list(by_city),
+                'avg_price_by_type': list(avg_price_by_type),
+                'monthly_trend': monthly_data
             })
-        
-        return Response({
-            'by_type': list(by_type),
-            'by_status': list(by_status),
-            'by_city': list(by_city),
-            'avg_price_by_type': list(avg_price_by_type),
-            'monthly_trend': monthly_data
-        })
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class AssetPerformanceView(APIView):

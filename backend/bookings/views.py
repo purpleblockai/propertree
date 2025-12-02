@@ -279,21 +279,20 @@ class BookingStatusUpdateView(APIView):
 
 class AdminBookingListView(generics.ListAPIView):
     """
-    API endpoint for admins to view all bookings for properties with admin approval type.
+    API endpoint for admins to view all bookings across all properties.
     """
 
     serializer_class = BookingListSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        """Return bookings for properties with admin approval type."""
+        """Return all bookings for admin users."""
         # Only allow admin users
         if self.request.user.role != 'admin':
             return Booking.objects.none()
 
-        return Booking.objects.filter(
-            property__approval_type='admin'
-        ).order_by('-created_at')
+        # Return ALL bookings, not just admin-approval properties
+        return Booking.objects.select_related('property', 'tenant').order_by('-created_at')
 
 
 class AdminBookingDetailView(generics.RetrieveAPIView):
