@@ -30,7 +30,7 @@ class RegisterView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         """Create a new user."""
-        # Handle FormData with nested profile fields
+        # Initialize data - handle both JSON and FormData
         if hasattr(request.data, '_mutable'):
             # This is a QueryDict (FormData)
             data = request.data.copy()
@@ -80,6 +80,9 @@ class RegisterView(generics.CreateAPIView):
                 if request.FILES:
                     for key, file in request.FILES.items():
                         data[key] = file
+        else:
+            # This is JSON data (already a dict)
+            data = request.data
         
         try:
             serializer = self.get_serializer(data=data, context={'request': request})
