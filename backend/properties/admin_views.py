@@ -210,43 +210,49 @@ class AdminUsersListView(generics.ListAPIView):
     
     def get(self, request):
         """Get all users with statistics."""
-        users = CustomUser.objects.all().order_by('-created_at')
-        
-        # Filter by role
-        role_filter = request.query_params.get('role')
-        if role_filter:
-            users = users.filter(role=role_filter)
-        
-        users_data = []
-        for user in users:
-            # Get user's property count if landlord
-            property_count = 0
-            if user.role == 'landlord':
-                property_count = Property.objects.filter(owner=user).count()
+        try:
+            users = CustomUser.objects.all().order_by('-created_at')
             
-            # Get user's booking count if tenant
-            booking_count = 0
-            if user.role == 'tenant':
-                booking_count = Booking.objects.filter(tenant=user).count()
+            # Filter by role
+            role_filter = request.query_params.get('role')
+            if role_filter:
+                users = users.filter(role=role_filter)
             
-            users_data.append({
-                'id': str(user.id),
-                'email': user.email,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'full_name': user.get_full_name(),
-                'role': user.role,
-                'is_active': user.is_active,
-                'is_verified': user.is_verified,
-                'created_at': user.created_at,
-                'property_count': property_count,
-                'booking_count': booking_count
+            users_data = []
+            for user in users:
+                # Get user's property count if landlord
+                property_count = 0
+                if user.role == 'landlord':
+                    property_count = Property.objects.filter(landlord=user).count()
+                
+                # Get user's booking count if tenant
+                booking_count = 0
+                if user.role == 'tenant':
+                    booking_count = Booking.objects.filter(tenant=user).count()
+                
+                users_data.append({
+                    'id': str(user.id),
+                    'email': user.email,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'full_name': user.get_full_name(),
+                    'role': user.role,
+                    'is_active': user.is_active,
+                    'is_verified': user.is_verified,
+                    'created_at': user.created_at,
+                    'property_count': property_count,
+                    'booking_count': booking_count
+                })
+            
+            return Response({
+                'count': len(users_data),
+                'results': users_data
             })
-        
-        return Response({
-            'count': len(users_data),
-            'results': users_data
-        })
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class PropertyAnalyticsView(APIView):

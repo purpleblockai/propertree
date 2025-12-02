@@ -141,24 +141,30 @@ class ServiceBookingViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def pending(self, request):
         """Get pending service bookings (for admin review)."""
-        if not hasattr(request.user, 'role') or request.user.role != 'admin':
-            return Response(
-                {'error': 'Admin access required'},
-                status=status.HTTP_403_FORBIDDEN
+        try:
+            if not hasattr(request.user, 'role') or request.user.role != 'admin':
+                return Response(
+                    {'error': 'Admin access required'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            pending_bookings = self.get_queryset().filter(
+                status='open',
+                admin_confirmed_at__isnull=True
+            ).select_related(
+                'rental_property',
+                'reported_by',
+                'service_catalog',
+                'assigned_to'
             )
 
-        pending_bookings = self.get_queryset().filter(
-            status='open',
-            admin_confirmed_at__isnull=True
-        ).select_related(
-            'rental_property',
-            'reported_by',
-            'service_catalog',
-            'assigned_to'
-        )
-
-        serializer = self.get_serializer(pending_bookings, many=True)
-        return Response(serializer.data)
+            serializer = self.get_serializer(pending_bookings, many=True)
+            return Response(serializer.data)
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     @action(detail=True, methods=['post'])
     def confirm(self, request, pk=None):

@@ -288,11 +288,23 @@ class AdminBookingListView(generics.ListAPIView):
     def get_queryset(self):
         """Return all bookings for admin users."""
         # Only allow admin users
-        if self.request.user.role != 'admin':
+        if not hasattr(self.request.user, 'role') or self.request.user.role != 'admin':
             return Booking.objects.none()
 
         # Return ALL bookings, not just admin-approval properties
         return Booking.objects.select_related('property', 'tenant').order_by('-created_at')
+    
+    def list(self, request, *args, **kwargs):
+        """Override list to add error handling."""
+        try:
+            return super().list(request, *args, **kwargs)
+        except Exception as e:
+            from rest_framework.response import Response
+            from rest_framework import status
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class AdminBookingDetailView(generics.RetrieveAPIView):
