@@ -162,14 +162,16 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://propertree.purpleblock.ai",
+    "https://propertree-frontend.onrender.com",  # Render frontend subdomain
 ]
 
-# Allow Render frontend subdomain (for testing before custom domain)
+# Allow all Render subdomains (for testing)
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https://.*\.onrender\.com$",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = False  # Keep this False for security
 
 # Celery Configuration
 CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
