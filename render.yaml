@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: propertree-backend
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && gunicorn propertree.wsgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: propertree.settings
+      - key: PYTHON_VERSION
+        value: 3.11.9
+
+  - type: web
+    name: propertree-frontend
+    env: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+

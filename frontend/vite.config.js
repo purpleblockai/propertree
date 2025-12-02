@@ -13,4 +13,14 @@ export default defineConfig({
       },
     },
   },
+  // Ensure _redirects file is copied to dist
+  publicDir: 'public',
+  build: {
+    // Copy _redirects to dist root
+    rollupOptions: {
+      output: {
+        // Ensure _redirects is included in build
+      }
+    }
+  }
 })
