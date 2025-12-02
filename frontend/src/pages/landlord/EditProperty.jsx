@@ -60,7 +60,8 @@ const EditProperty = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:8000/api/properties/landlord/${id}/`, {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_BASE_URL}/properties/landlord/${id}/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -232,7 +233,8 @@ const EditProperty = () => {
       };
 
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:8000/api/properties/landlord/${id}/`, {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_BASE_URL}/properties/landlord/${id}/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

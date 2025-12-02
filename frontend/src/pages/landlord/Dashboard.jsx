@@ -47,7 +47,7 @@ const Dashboard = () => {
       startDate.setDate(startDate.getDate() - parseInt(dateRange));
 
       const response = await fetch(
-        `http://localhost:8000/api/analytics/landlord/dashboard/?start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`,
+        `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}/analytics/landlord/dashboard/?start_date=${startDate.toISOString().split('T')[0]}&end_date=${endDate.toISOString().split('T')[0]}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`,

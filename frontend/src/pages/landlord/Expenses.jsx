@@ -64,7 +64,8 @@ const Expenses = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:8000/api/properties/expenses/', {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_BASE_URL}/properties/expenses/`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -87,7 +88,8 @@ const Expenses = () => {
   const fetchProperties = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:8000/api/properties/landlord/', {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_BASE_URL}/properties/landlord/`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -107,7 +109,8 @@ const Expenses = () => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:8000/api/properties/expenses/create/', {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_BASE_URL}/properties/expenses/create/`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -145,7 +148,8 @@ const Expenses = () => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:8000/api/properties/expenses/${expenseId}/`, {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_BASE_URL}/properties/expenses/${expenseId}/`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

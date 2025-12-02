@@ -20,7 +20,8 @@ const LandlordBookings = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch('http://localhost:8000/api/bookings/landlord/', {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_BASE_URL}/bookings/landlord/`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -43,7 +44,8 @@ const LandlordBookings = () => {
   const handleStatusUpdate = async (bookingId, newStatus) => {
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await fetch(`http://localhost:8000/api/bookings/${bookingId}/status/`, {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_BASE_URL}/bookings/${bookingId}/status/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

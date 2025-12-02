@@ -129,7 +129,8 @@ const HostOnboarding = () => {
         status: 'draft'
       };
 
-      const response = await fetch('http://localhost:8000/api/properties/landlord/create/', {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_BASE_URL}/properties/landlord/create/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -176,7 +177,8 @@ const HostOnboarding = () => {
         status: 'draft'
       };
 
-      const createResponse = await fetch('http://localhost:8000/api/properties/landlord/create/', {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const createResponse = await fetch(`${API_BASE_URL}/properties/landlord/create/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -193,9 +195,8 @@ const HostOnboarding = () => {
       }
 
       const createdProperty = await createResponse.json();
-      
       // Step 2: Submit for approval
-      const submitResponse = await fetch(`http://localhost:8000/api/properties/landlord/${createdProperty.id}/submit/`, {
+      const submitResponse = await fetch(`${API_BASE_URL}/properties/landlord/${createdProperty.id}/submit/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
