@@ -7,6 +7,8 @@ import { Container } from '../components/layout';
 import { Card, Button, Badge, Loading, EmptyState } from '../components/common';
 import { MapPin, Users, Bed, Bath, Home, ChevronLeft, ChevronRight, Check, X, Wifi, Car, Utensils, Tv, Wind, Waves, Dumbbell, Coffee } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const PropertyDetail = () => {
   const { id } = useParams();
@@ -26,6 +28,64 @@ const PropertyDetail = () => {
   useEffect(() => {
     fetchProperty();
   }, [id]);
+
+  // Helper function to check if a date is available
+  const isDateAvailable = (dateString) => {
+    if (!property?.booked_dates || property.booked_dates.length === 0) {
+      return true;
+    }
+
+    const date = new Date(dateString);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Don't allow past dates
+    if (date < today) {
+      return false;
+    }
+
+    // Check if date falls within any booked range
+    for (const booking of property.booked_dates) {
+      const checkIn = new Date(booking.check_in);
+      const checkOut = new Date(booking.check_out);
+      
+      // Date is unavailable if it's >= check_in and < check_out
+      if (date >= checkIn && date < checkOut) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  // Helper function to check if a date should be disabled in the date picker
+  const isDateDisabled = (date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
+
+    // Disable past dates
+    if (date < today) {
+      return true;
+    }
+
+    // Disable dates that fall within booked ranges
+    if (property?.booked_dates && property.booked_dates.length > 0) {
+      for (const booking of property.booked_dates) {
+        const checkIn = new Date(booking.check_in);
+        const checkOut = new Date(booking.check_out);
+        checkIn.setHours(0, 0, 0, 0);
+        checkOut.setHours(0, 0, 0, 0);
+        
+        // Date is disabled if it's >= check_in and < check_out
+        if (date >= checkIn && date < checkOut) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  };
 
   const fetchProperty = async () => {
     setLoading(true);
@@ -68,6 +128,24 @@ const PropertyDetail = () => {
 
     if (checkIn < new Date()) {
       toast.error('Check-in date cannot be in the past');
+      return;
+    }
+
+    // Validate that selected dates are available
+    if (!isDateAvailable(bookingData.check_in)) {
+      toast.error('Check-in date is not available. Please select a different date.');
+      return;
+    }
+
+    // Check if any date in the range is unavailable
+    const dateRange = [];
+    for (let d = new Date(checkIn); d < checkOut; d.setDate(d.getDate() + 1)) {
+      dateRange.push(new Date(d).toISOString().split('T')[0]);
+    }
+
+    const unavailableDates = dateRange.filter(date => !isDateAvailable(date));
+    if (unavailableDates.length > 0) {
+      toast.error('Selected dates include unavailable dates. Please choose different dates.');
       return;
     }
 
@@ -367,27 +445,75 @@ const PropertyDetail = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Check-in
                 </label>
-                <input
-                  type="date"
+                <DatePicker
+                  selected={bookingData.check_in ? new Date(bookingData.check_in) : null}
+                  onChange={(date) => {
+                    if (date) {
+                      const dateString = date.toISOString().split('T')[0];
+                      setBookingData({ ...bookingData, check_in: dateString });
+                    }
+                  }}
+                  filterDate={(date) => !isDateDisabled(date)}
+                  minDate={new Date()}
+                  dateFormat="dd-MM-yyyy"
+                  placeholderText="Select check-in date"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-propertree-green"
-                  value={bookingData.check_in}
-                  onChange={(e) => setBookingData({ ...bookingData, check_in: e.target.value })}
                   required
-                  min={new Date().toISOString().split('T')[0]}
+                  wrapperClassName="w-full"
                 />
+                {property?.booked_dates && property.booked_dates.length > 0 && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Booked dates are disabled and cannot be selected
+                  </p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Check-out
                 </label>
-                <input
-                  type="date"
+                <DatePicker
+                  selected={bookingData.check_out ? new Date(bookingData.check_out) : null}
+                  onChange={(date) => {
+                    if (date) {
+                      const dateString = date.toISOString().split('T')[0];
+                      const checkInDate = bookingData.check_in ? new Date(bookingData.check_in) : null;
+                      const checkOutDate = date;
+                      
+                      if (checkInDate && checkOutDate <= checkInDate) {
+                        toast.error('Check-out date must be after check-in date');
+                        return;
+                      }
+
+                      // Check if the date range overlaps with any booking
+                      let hasConflict = false;
+                      if (checkInDate && property?.booked_dates) {
+                        for (const booking of property.booked_dates) {
+                          const bookedCheckIn = new Date(booking.check_in);
+                          const bookedCheckOut = new Date(booking.check_out);
+                          
+                          // Check for overlap: new booking overlaps if check_in < booked_check_out AND check_out > booked_check_in
+                          if (checkInDate < bookedCheckOut && checkOutDate > bookedCheckIn) {
+                            hasConflict = true;
+                            break;
+                          }
+                        }
+                      }
+
+                      if (hasConflict) {
+                        toast.error('Selected dates conflict with an existing booking. Please choose different dates.');
+                      } else {
+                        setBookingData({ ...bookingData, check_out: dateString });
+                      }
+                    }
+                  }}
+                  filterDate={(date) => !isDateDisabled(date)}
+                  minDate={bookingData.check_in ? new Date(bookingData.check_in) : new Date()}
+                  dateFormat="dd-MM-yyyy"
+                  placeholderText="Select check-out date"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-propertree-green"
-                  value={bookingData.check_out}
-                  onChange={(e) => setBookingData({ ...bookingData, check_out: e.target.value })}
                   required
-                  min={bookingData.check_in || new Date().toISOString().split('T')[0]}
+                  wrapperClassName="w-full"
                 />
               </div>
 

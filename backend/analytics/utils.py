@@ -20,7 +20,7 @@ class LandlordAnalytics:
         from properties.models import Property
         from bookings.models import Booking
 
-        properties = Property.objects.filter(landlord=self.landlord, status__in=['approved', 'booked'])
+        properties = Property.objects.filter(landlord=self.landlord, status='approved')
         total_units = properties.count()
 
         if total_units == 0:
@@ -365,7 +365,7 @@ class LandlordAnalytics:
         return {
             'total': properties.count(),
             'approved': properties.filter(status='approved').count(),
-            'booked': properties.filter(status='booked').count(),
+            'booked': 0,  # Properties no longer use 'booked' status - availability is date-based
             'pending': properties.filter(status='pending_approval').count(),
             'draft': properties.filter(status='draft').count()
         }

@@ -10,13 +10,15 @@ class PropertyListSerializer(serializers.ModelSerializer):
     
     landlord_name = serializers.SerializerMethodField()
     primary_photo = serializers.SerializerMethodField()
+    booked_dates = serializers.SerializerMethodField()
     
     class Meta:
         model = Property
         fields = [
             'id', 'title', 'description', 'property_type', 'city', 'state', 'country',
             'bedrooms', 'bathrooms', 'max_guests', 'price_per_night', 'approval_type',
-            'status', 'primary_photo', 'landlord_name', 'rejection_reason', 'created_at'
+            'status', 'primary_photo', 'landlord_name', 'rejection_reason', 'created_at',
+            'booked_dates'
         ]
     
     def get_landlord_name(self, obj):
@@ -32,6 +34,22 @@ class PropertyListSerializer(serializers.ModelSerializer):
             # Handle both 'preview' (base64) and 'url' (uploaded file URL)
             return photo_obj.get('preview') or photo_obj.get('url')
         return None
+    
+    def get_booked_dates(self, obj):
+        """Get list of booked date ranges for confirmed bookings."""
+        from bookings.models import Booking
+        confirmed_bookings = Booking.objects.filter(
+            property=obj,
+            status='confirmed'
+        ).values('check_in', 'check_out')
+        
+        return [
+            {
+                'check_in': booking['check_in'].isoformat(),
+                'check_out': booking['check_out'].isoformat()
+            }
+            for booking in confirmed_bookings
+        ]
 
 
 class PropertyDetailSerializer(serializers.ModelSerializer):
@@ -39,6 +57,7 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
     
     landlord_name = serializers.SerializerMethodField()
     landlord_email = serializers.SerializerMethodField()
+    booked_dates = serializers.SerializerMethodField()
     
     class Meta:
         model = Property
@@ -47,7 +66,7 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
             'property_type', 'address', 'city', 'state', 'country', 'postal_code',
             'bedrooms', 'bathrooms', 'max_guests', 'price_per_night', 'approval_type',
             'amenities', 'photos', 'status', 'rejection_reason',
-            'approved_by', 'approved_at', 'created_at', 'updated_at'
+            'approved_by', 'approved_at', 'created_at', 'updated_at', 'booked_dates'
         ]
         read_only_fields = ['id', 'landlord', 'approved_by', 'approved_at', 'created_at', 'updated_at']
     
@@ -60,6 +79,22 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
     def get_landlord_email(self, obj):
         """Get landlord email."""
         return obj.landlord.email
+    
+    def get_booked_dates(self, obj):
+        """Get list of booked date ranges for confirmed bookings."""
+        from bookings.models import Booking
+        confirmed_bookings = Booking.objects.filter(
+            property=obj,
+            status='confirmed'
+        ).values('check_in', 'check_out')
+        
+        return [
+            {
+                'check_in': booking['check_in'].isoformat(),
+                'check_out': booking['check_out'].isoformat()
+            }
+            for booking in confirmed_bookings
+        ]
 
 
 class PropertyCreateSerializer(serializers.ModelSerializer):

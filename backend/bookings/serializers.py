@@ -85,6 +85,12 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         if property_obj.status != 'approved':
             raise serializers.ValidationError('Property is not available for booking.')
         
+        # Check if property is available for the requested dates
+        if not property_obj.is_available_for_dates(check_in, check_out):
+            raise serializers.ValidationError(
+                'Property is not available for the selected dates. Please choose different dates.'
+            )
+        
         return attrs
     
     def create(self, validated_data):

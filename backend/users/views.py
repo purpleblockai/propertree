@@ -30,7 +30,7 @@ class RegisterView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         """Create a new user."""
-        # Initialize data - handle both JSON and FormData
+        # Handle FormData with nested profile fields
         if hasattr(request.data, '_mutable'):
             # This is a QueryDict (FormData)
             data = request.data.copy()
@@ -81,7 +81,7 @@ class RegisterView(generics.CreateAPIView):
                     for key, file in request.FILES.items():
                         data[key] = file
         else:
-            # This is JSON data (already a dict)
+            # JSON request - data is already a dict, use as-is
             data = request.data
         
         try:
@@ -99,17 +99,6 @@ class RegisterView(generics.CreateAPIView):
                 'message': 'Invalid request',
                 'errors': e.detail
             }, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            # Log the full error for debugging
-            import traceback
-            error_trace = traceback.format_exc()
-            print(f"Registration error: {str(e)}")
-            print(f"Traceback: {error_trace}")
-            return Response({
-                'message': 'Registration failed',
-                'error': str(e),
-                'detail': 'Please check server logs for more information'
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class LoginView(APIView):

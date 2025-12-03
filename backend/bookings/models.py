@@ -70,9 +70,6 @@ class Booking(models.Model):
     def confirm(self):
         """Confirm the booking."""
         self.status = 'confirmed'
-        # Update property status to booked
-        self.property.status = 'booked'
-        self.property.save()
         self.save()
     
     def cancel(self, reason=None):
@@ -80,19 +77,11 @@ class Booking(models.Model):
         self.status = 'cancelled'
         if reason:
             self.cancellation_reason = reason
-        # Update property status back to approved
-        if self.property.status == 'booked':
-            self.property.status = 'approved'
-            self.property.save()
         self.save()
     
     def complete(self):
         """Mark booking as completed."""
         self.status = 'completed'
-        # Update property status back to approved
-        if self.property.status == 'booked':
-            self.property.status = 'approved'
-            self.property.save()
         self.save()
     
     def calculate_total_price(self):

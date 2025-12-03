@@ -3,6 +3,7 @@ Simplified Property model for Propertree.
 """
 import uuid
 from django.db import models
+from django.db.models import Q
 from django.conf import settings
 
 
@@ -109,6 +110,30 @@ class Property(models.Model):
     def is_available(self):
         """Check if property is available for booking."""
         return self.status == 'approved'
+    
+    def is_available_for_dates(self, check_in, check_out, exclude_booking_id=None):
+        """
+        Check if property is available for a specific date range.
+        Returns True if no confirmed or pending bookings overlap with the given dates.
+        exclude_booking_id: Optional booking ID to exclude from check (useful when updating existing booking)
+        """
+        if self.status != 'approved':
+            return False
+        
+        # Check for overlapping confirmed or pending bookings
+        from bookings.models import Booking
+        overlapping_bookings = Booking.objects.filter(
+            property=self,
+            status__in=['confirmed', 'pending']
+        ).filter(
+            Q(check_in__lt=check_out, check_out__gt=check_in)
+        )
+        
+        # Exclude a specific booking if provided (for updates)
+        if exclude_booking_id:
+            overlapping_bookings = overlapping_bookings.exclude(id=exclude_booking_id)
+        
+        return not overlapping_bookings.exists()
     
     def get_primary_photo(self):
         """Get the first photo URL or None."""

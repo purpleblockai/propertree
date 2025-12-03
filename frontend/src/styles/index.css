@@ -27,4 +27,41 @@
   .custom-scrollbar::-webkit-scrollbar-thumb {
     @apply bg-propertree-green rounded-full hover:bg-propertree-green-600;
   }
+
+  /* React DatePicker custom styles */
+  .react-datepicker-wrapper {
+    @apply w-full;
+  }
+
+  .react-datepicker__input-container input {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-propertree-green;
+  }
+
+  .react-datepicker {
+    @apply border border-gray-200 rounded-lg shadow-lg;
+  }
+
+  .react-datepicker__header {
+    @apply bg-propertree-green text-white rounded-t-lg;
+  }
+
+  .react-datepicker__current-month {
+    @apply text-white font-semibold;
+  }
+
+  .react-datepicker__day-name {
+    @apply text-white font-medium;
+  }
+
+  .react-datepicker__day--disabled {
+    @apply text-gray-300 cursor-not-allowed opacity-50;
+  }
+
+  .react-datepicker__day--selected {
+    @apply bg-propertree-green text-white;
+  }
+
+  .react-datepicker__day:hover:not(.react-datepicker__day--disabled):not(.react-datepicker__day--selected) {
+    @apply bg-propertree-green/20;
+  }
 }
