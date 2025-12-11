@@ -162,8 +162,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://propertree.purpleblock.ai",
+    "https://propertree.site",
     "https://www.propertree.site",
     "https://propertree-frontend.onrender.com",  # Render frontend subdomain
+    "https://propertree-backend.onrender.com",   # Render backend subdomain
 ]
 
 # Allow all Render subdomains (for testing)
