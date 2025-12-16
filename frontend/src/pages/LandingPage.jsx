@@ -1,7 +1,7 @@
 /**
  * Landing Page - Home page with integrated property search
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Container } from '../components/layout';
 import { Button, Input, Select, Card, Loading, Badge } from '../components/common';
@@ -13,6 +13,7 @@ import { useFavorite, useFavorites } from '../hooks/useProperties';
 const LandingPage = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const resultsRef = useRef(null);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -113,6 +114,10 @@ const LandingPage = () => {
       if (activeFilters.guests) params.append('guests', activeFilters.guests);
       if (activeFilters.city) params.append('city', activeFilters.city);
       if (activeFilters.property_type) params.append('property_type', activeFilters.property_type);
+
+      // Apply date range filters so backend can exclude already-booked properties
+      if (activeFilters.check_in) params.append('check_in', activeFilters.check_in);
+      if (activeFilters.check_out) params.append('check_out', activeFilters.check_out);
       
       // Handle sorting
       if (activeFilters.sort_by) {
@@ -149,11 +154,55 @@ const LandingPage = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     fetchProperties(filters);
+
+    // Smoothly scroll near the results so users
+    // immediately see updated properties after applying filters.
+    // Use window.scrollTo with an offset so the section title
+    // appears just below the navbar.
+    if (resultsRef.current) {
+      const element = resultsRef.current;
+      const headerOffset = 96; // adjust if your navbar height changes
+      const elementTop = element.getBoundingClientRect().top + window.scrollY;
+      const targetPosition = Math.max(elementTop - headerOffset, 0);
+
+      window.scrollTo({
+        top: targetPosition,
+        behavior: 'smooth',
+      });
+    }
   };
 
   const handleFilterChange = (name, value) => {
+    // Prevent selecting past dates in the search filters
+    if (name === 'check_in' || name === 'check_out') {
+      if (value) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selected = new Date(value);
+        selected.setHours(0, 0, 0, 0);
+
+        if (selected < today) {
+          toast.error('You cannot search with past dates');
+          return;
+        }
+      }
+
+      // Ensure check-out is always after check-in
+      if (name === 'check_in' && filters.check_out && value && value >= filters.check_out) {
+        toast.error('Check-out date must be after check-in date');
+        return;
+      }
+
+      if (name === 'check_out' && filters.check_in && value && value <= filters.check_in) {
+        toast.error('Check-out date must be after check-in date');
+        return;
+      }
+    }
+
     setFilters(prev => ({ ...prev, [name]: value }));
   };
+
+  const todayString = new Date().toISOString().split('T')[0];
 
   const handleFavoriteClick = async (e, property) => {
     e.preventDefault();
@@ -192,15 +241,15 @@ const LandingPage = () => {
     <div className="min-h-screen">
       {/* Hero Section with Search */}
       <section 
-        className="relative bg-gradient-to-br from-propertree-green via-propertree-blue to-propertree-green-700 py-20 text-white"
+        className="relative bg-gradient-to-br from-propertree-green via-propertree-blue to-propertree-green-700 py-14 md:py-16 lg:py-20 text-white"
       >
         <Container>
           <div className="text-center mb-8">
             <h1 className="text-5xl md:text-6xl font-bold mb-4 leading-tight">
-              Discover Your Next Home
+              Connect. Manage. Grow.
             </h1>
             <p className="text-xl mb-12 text-white/90 max-w-3xl mx-auto">
-              Professional property management for landlords, seamless experiences for tenants
+              Beyond bookings: short-, mid- and long-term rentals on one platform.
             </p>
 
             {/* Search Form */}
@@ -279,6 +328,7 @@ const LandingPage = () => {
                       value={filters.check_in}
                       onChange={(e) => handleFilterChange('check_in', e.target.value)}
                       className="w-full"
+                      min={todayString}
                     />
                   </div>
 
@@ -292,6 +342,7 @@ const LandingPage = () => {
                       value={filters.check_out}
                       onChange={(e) => handleFilterChange('check_out', e.target.value)}
                       className="w-full"
+                      min={filters.check_in || todayString}
                     />
                   </div>
 
@@ -342,7 +393,11 @@ const LandingPage = () => {
       </section>
 
       {/* Properties Grid */}
-      <section className="py-16 bg-gray-50">
+      <section
+        ref={resultsRef}
+        id="properties-section"
+        className="py-12 md:py-16 bg-gray-50"
+      >
         <Container>
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">

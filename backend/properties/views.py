@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
+from datetime import datetime
 
 from .models import Property, PropertyExpense, Favorite
 from .serializers import (
@@ -51,6 +52,33 @@ class PropertyListView(generics.ListAPIView):
         guests = self.request.query_params.get('guests')
         if guests:
             queryset = queryset.filter(max_guests__gte=guests)
+
+        # Filter by availability for a given date range.
+        # Only return properties that are not already booked (pending or confirmed)
+        # for any of the requested dates.
+        check_in_str = self.request.query_params.get('check_in')
+        check_out_str = self.request.query_params.get('check_out')
+
+        if check_in_str and check_out_str:
+            try:
+                check_in = datetime.strptime(check_in_str, '%Y-%m-%d').date()
+                check_out = datetime.strptime(check_out_str, '%Y-%m-%d').date()
+
+                # Only apply availability filter for valid ranges
+                if check_in < check_out:
+                    from bookings.models import Booking
+
+                    overlapping_property_ids = Booking.objects.filter(
+                        property__in=queryset,
+                        status__in=['pending', 'confirmed'],
+                    ).filter(
+                        Q(check_in__lt=check_out, check_out__gt=check_in)
+                    ).values_list('property_id', flat=True)
+
+                    queryset = queryset.exclude(id__in=overlapping_property_ids)
+            except ValueError:
+                # If dates are invalid, ignore availability filter and return basic results
+                pass
         
         return queryset
 

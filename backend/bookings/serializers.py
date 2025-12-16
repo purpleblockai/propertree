@@ -2,6 +2,7 @@
 Simplified serializers for Bookings app.
 """
 from rest_framework import serializers
+from datetime import date
 from .models import Booking
 from properties.serializers import PropertyListSerializer
 
@@ -77,6 +78,10 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         check_in = attrs.get('check_in')
         check_out = attrs.get('check_out')
         
+        # Do not allow bookings that start in the past
+        if check_in < date.today():
+            raise serializers.ValidationError('Check-in date cannot be in the past.')
+
         if check_in >= check_out:
             raise serializers.ValidationError('Check-out date must be after check-in date.')
         

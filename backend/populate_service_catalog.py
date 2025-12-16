@@ -15,247 +15,386 @@ django.setup()
 
 from maintenance.models import ServiceCatalog
 
-# Sample service catalog data - all prices under $100
+# Unified service catalog for property operations.
+# All services are currently priced at £25 (stored as 25.00).
 SERVICES = [
-    # Plumbing Services
+    # Cleaning & Housekeeping
     {
-        'name': 'Leak Repair',
-        'category': 'plumbing',
-        'description': 'Professional leak detection and repair for pipes, faucets, and fixtures',
-        'price': 75,
-        'estimated_duration_minutes': 120,
-        'icon': 'droplets',
-    },
-    {
-        'name': 'Drain Cleaning',
-        'category': 'plumbing',
-        'description': 'Clear clogged drains and sewers using professional equipment',
-        'price': 60,
-        'estimated_duration_minutes': 90,
-        'icon': 'droplets',
-    },
-    {
-        'name': 'Faucet Repair',
-        'category': 'plumbing',
-        'description': 'Repair or replace faucets and fixtures',
-        'price': 50,
-        'estimated_duration_minutes': 60,
-        'icon': 'droplets',
-    },
-
-    # Electrical Services
-    {
-        'name': 'Outlet Installation',
-        'category': 'electrical',
-        'description': 'Install new electrical outlets or replace existing ones',
-        'price': 65,
-        'estimated_duration_minutes': 60,
-        'icon': 'zap',
-    },
-    {
-        'name': 'Light Fixture Installation',
-        'category': 'electrical',
-        'description': 'Install ceiling lights, chandeliers, and other fixtures',
-        'price': 70,
-        'estimated_duration_minutes': 90,
-        'icon': 'zap',
-    },
-    {
-        'name': 'Circuit Breaker Repair',
-        'category': 'electrical',
-        'description': 'Repair or replace circuit breakers',
-        'price': 80,
-        'estimated_duration_minutes': 60,
-        'icon': 'zap',
-    },
-
-    # HVAC Services
-    {
-        'name': 'AC Maintenance',
-        'category': 'hvac',
-        'description': 'Annual air conditioning system maintenance and tune-up',
-        'price': 85,
-        'estimated_duration_minutes': 90,
-        'icon': 'wind',
-    },
-    {
-        'name': 'Furnace Repair',
-        'category': 'hvac',
-        'description': 'Diagnose and repair heating system issues',
-        'price': 90,
-        'estimated_duration_minutes': 120,
-        'icon': 'wind',
-    },
-    {
-        'name': 'Filter Replacement',
-        'category': 'hvac',
-        'description': 'Replace HVAC air filters',
-        'price': 40,
-        'estimated_duration_minutes': 30,
-        'icon': 'wind',
-    },
-
-    # Cleaning Services
-    {
-        'name': 'Deep Cleaning',
+        'name': 'Turnover cleaning',
         'category': 'cleaning',
-        'description': 'Thorough deep cleaning of entire property including hard-to-reach areas',
-        'price': 95,
+        'description': 'Full property cleaning between guest stays, including linens, bathrooms, kitchen and common areas.',
+        'price': 25,
+        'estimated_duration_minutes': 180,
+        'icon': 'sparkles',
+    },
+    {
+        'name': 'Mid-stay cleaning',
+        'category': 'cleaning',
+        'description': 'Light clean during an ongoing stay, focusing on high-traffic areas and refresh of essentials.',
+        'price': 25,
+        'estimated_duration_minutes': 90,
+        'icon': 'sparkles',
+    },
+    {
+        'name': 'Deep cleaning',
+        'category': 'cleaning',
+        'description': 'Intensive deep clean of the entire property including inside appliances and hard-to-reach areas.',
+        'price': 25,
         'estimated_duration_minutes': 240,
         'icon': 'sparkles',
     },
     {
-        'name': 'Move-Out Cleaning',
+        'name': 'Housekeeping',
         'category': 'cleaning',
-        'description': 'Complete cleaning after tenant move-out to prepare for new tenants',
-        'price': 90,
-        'estimated_duration_minutes': 300,
-        'icon': 'sparkles',
-    },
-    {
-        'name': 'Carpet Cleaning',
-        'category': 'cleaning',
-        'description': 'Professional carpet shampooing and stain removal',
-        'price': 70,
+        'description': 'Regular housekeeping service including tidying, surface cleaning and linen refresh.',
+        'price': 25,
         'estimated_duration_minutes': 120,
-        'icon': 'sparkles',
+        'icon': 'broom',
     },
 
-    # Painting Services
+    # Maintenance & Repairs
     {
-        'name': 'Touch-Up Painting',
-        'category': 'painting',
-        'description': 'Small area touch-up painting and patch work',
-        'price': 55,
-        'estimated_duration_minutes': 120,
-        'icon': 'paintbrush',
+        'name': 'Maintenance',
+        'category': 'general_maintenance',
+        'description': 'General maintenance visit for small fixes and routine checks around the property.',
+        'price': 25,
+        'estimated_duration_minutes': 60,
+        'icon': 'wrench',
     },
     {
-        'name': 'Room Painting',
-        'category': 'painting',
-        'description': 'Paint a single room including walls and trim',
-        'price': 85,
-        'estimated_duration_minutes': 240,
-        'icon': 'paintbrush',
+        'name': 'Preventive maintenance',
+        'category': 'general_maintenance',
+        'description': 'Scheduled preventive checks to reduce breakdowns and extend asset life (e.g. filters, seals, wear items).',
+        'price': 25,
+        'estimated_duration_minutes': 90,
+        'icon': 'shield-check',
     },
-
-    # Carpentry Services
     {
-        'name': 'Door Repair',
-        'category': 'carpentry',
-        'description': 'Repair or adjust interior and exterior doors',
-        'price': 60,
+        'name': 'Repair service',
+        'category': 'general_maintenance',
+        'description': 'Generic repair visit for minor issues reported by guests or owners.',
+        'price': 25,
         'estimated_duration_minutes': 90,
         'icon': 'wrench',
     },
     {
-        'name': 'Cabinet Repair',
+        'name': 'Handyman service',
         'category': 'carpentry',
-        'description': 'Repair kitchen or bathroom cabinets',
-        'price': 75,
+        'description': 'Handyman tasks such as mounting, patching, furniture assembly and small carpentry jobs.',
+        'price': 25,
         'estimated_duration_minutes': 120,
-        'icon': 'wrench',
+        'icon': 'hammer',
+    },
+    {
+        'name': 'Plumbing repair',
+        'category': 'plumbing',
+        'description': 'Plumbing repairs such as leaks, blockages and fixture issues.',
+        'price': 25,
+        'estimated_duration_minutes': 90,
+        'icon': 'droplets',
+    },
+    {
+        'name': 'Electrical repair',
+        'category': 'electrical',
+        'description': 'Electrical troubleshooting and repair for outlets, lights and circuits.',
+        'price': 25,
+        'estimated_duration_minutes': 90,
+        'icon': 'zap',
+    },
+    {
+        'name': 'Appliance repair',
+        'category': 'appliance',
+        'description': 'Repair of household appliances such as fridge, washer, dryer and oven.',
+        'price': 25,
+        'estimated_duration_minutes': 120,
+        'icon': 'settings',
+    },
+    {
+        'name': 'HVAC service',
+        'category': 'hvac',
+        'description': 'Heating and cooling system inspection, cleaning and basic servicing.',
+        'price': 25,
+        'estimated_duration_minutes': 120,
+        'icon': 'wind',
+    },
+    {
+        'name': '24/7 emergency service',
+        'category': 'general_maintenance',
+        'description': 'Round-the-clock emergency response for urgent property issues.',
+        'price': 25,
+        'estimated_duration_minutes': 60,
+        'icon': 'alarm-bell',
+    },
+    {
+        'name': 'On-call technician',
+        'category': 'general_maintenance',
+        'description': 'Technician on standby to respond rapidly to issues as they arise.',
+        'price': 25,
+        'estimated_duration_minutes': 60,
+        'icon': 'phone-call',
     },
 
-    # Locksmith Services
+    # Inspections & Safety
     {
-        'name': 'Lock Replacement',
-        'category': 'locksmith',
-        'description': 'Replace door locks and provide new keys',
-        'price': 65,
-        'estimated_duration_minutes': 60,
-        'icon': 'lock',
+        'name': 'Property inspection',
+        'category': 'general_maintenance',
+        'description': 'Comprehensive inspection of the property condition with documented findings.',
+        'price': 25,
+        'estimated_duration_minutes': 90,
+        'icon': 'clipboard-list',
     },
     {
-        'name': 'Rekey Service',
-        'category': 'locksmith',
-        'description': 'Rekey existing locks for new tenants',
-        'price': 45,
+        'name': 'Safety inspection',
+        'category': 'general_maintenance',
+        'description': 'Safety-focused inspection covering hazards, access, lighting and emergency routes.',
+        'price': 25,
+        'estimated_duration_minutes': 90,
+        'icon': 'shield',
+    },
+    {
+        'name': 'Fire safety check',
+        'category': 'general_maintenance',
+        'description': 'Check of fire extinguishers, exits and basic fire safety equipment.',
+        'price': 25,
+        'estimated_duration_minutes': 60,
+        'icon': 'flame',
+    },
+    {
+        'name': 'Smoke detector check',
+        'category': 'general_maintenance',
+        'description': 'Test and basic maintenance of smoke and CO detectors.',
+        'price': 25,
         'estimated_duration_minutes': 45,
+        'icon': 'alarm-smoke',
+    },
+
+    # Outdoor & Seasonal
+    {
+        'name': 'Garden maintenance',
+        'category': 'gardening',
+        'description': 'Ongoing garden and outdoor area maintenance including mowing and trimming.',
+        'price': 25,
+        'estimated_duration_minutes': 120,
+        'icon': 'leaf',
+    },
+    {
+        'name': 'Snow removal',
+        'category': 'general_maintenance',
+        'description': 'Snow and ice removal from access paths, driveways and entrances.',
+        'price': 25,
+        'estimated_duration_minutes': 90,
+        'icon': 'snowflake',
+    },
+
+    # Access & Smart Locks
+    {
+        'name': 'Key exchange',
+        'category': 'locksmith',
+        'description': 'In-person key handover between guests, tenants and hosts.',
+        'price': 25,
+        'estimated_duration_minutes': 30,
+        'icon': 'key',
+    },
+    {
+        'name': 'Key handover',
+        'category': 'locksmith',
+        'description': 'Organised key handover at check-in or check-out with identity confirmation.',
+        'price': 25,
+        'estimated_duration_minutes': 30,
+        'icon': 'key-round',
+    },
+    {
+        'name': 'Smart lock installation',
+        'category': 'locksmith',
+        'description': 'Installation and setup of smart locks at the property.',
+        'price': 25,
+        'estimated_duration_minutes': 90,
         'icon': 'lock',
     },
-
-    # Gardening Services
     {
-        'name': 'Lawn Maintenance',
-        'category': 'gardening',
-        'description': 'Regular lawn mowing, trimming, and edging',
-        'price': 50,
-        'estimated_duration_minutes': 90,
-        'icon': 'leaf',
-    },
-    {
-        'name': 'Garden Cleanup',
-        'category': 'gardening',
-        'description': 'Clean up garden beds and remove debris',
-        'price': 55,
-        'estimated_duration_minutes': 120,
-        'icon': 'leaf',
+        'name': 'Smart lock management',
+        'category': 'locksmith',
+        'description': 'Ongoing management of smart lock codes and digital access.',
+        'price': 25,
+        'estimated_duration_minutes': 30,
+        'icon': 'lock-open',
     },
 
-    # Pest Control
+    # Guest Experience & Mobility
     {
-        'name': 'General Pest Control',
-        'category': 'pest_control',
-        'description': 'Comprehensive pest control treatment for common pests',
-        'price': 80,
-        'estimated_duration_minutes': 90,
-        'icon': 'bug',
-    },
-    {
-        'name': 'Pest Inspection',
-        'category': 'pest_control',
-        'description': 'Professional pest inspection and assessment',
-        'price': 60,
+        'name': 'Fridge stocking',
+        'category': 'other',
+        'description': 'Pre-arrival grocery and essentials stocking based on guest preferences.',
+        'price': 25,
         'estimated_duration_minutes': 60,
-        'icon': 'bug',
+        'icon': 'shopping-basket',
+    },
+    {
+        'name': 'Airport transfer',
+        'category': 'other',
+        'description': 'Organised transport between the property and the nearest airport.',
+        'price': 25,
+        'estimated_duration_minutes': 60,
+        'icon': 'car',
+    },
+    {
+        'name': 'Chauffeur service',
+        'category': 'other',
+        'description': 'Private driver service for guests or owners during their stay.',
+        'price': 25,
+        'estimated_duration_minutes': 120,
+        'icon': 'steering-wheel',
+    },
+    {
+        'name': 'Car rental',
+        'category': 'other',
+        'description': 'Coordination of car hire for guests or owners.',
+        'price': 25,
+        'estimated_duration_minutes': 30,
+        'icon': 'car-front',
+    },
+    {
+        'name': 'Bike rental',
+        'category': 'other',
+        'description': 'Arrangement of bicycle rentals for guests.',
+        'price': 25,
+        'estimated_duration_minutes': 30,
+        'icon': 'bike',
+    },
+    {
+        'name': 'Equipment rental',
+        'category': 'other',
+        'description': 'Rental of additional equipment such as cots, high chairs or sports gear.',
+        'price': 25,
+        'estimated_duration_minutes': 30,
+        'icon': 'package',
+    },
+    {
+        'name': 'Workspace setup',
+        'category': 'other',
+        'description': 'Prepare a dedicated workspace with desk, chair and connectivity for remote work.',
+        'price': 25,
+        'estimated_duration_minutes': 60,
+        'icon': 'laptop',
     },
 
-    # Appliance Repair
+    # Operations & Management
     {
-        'name': 'Refrigerator Repair',
-        'category': 'appliance',
-        'description': 'Diagnose and repair refrigerator issues',
-        'price': 75,
-        'estimated_duration_minutes': 120,
-        'icon': 'settings',
+        'name': 'Contractor management',
+        'category': 'general_maintenance',
+        'description': 'Coordination and oversight of third-party contractors for property works.',
+        'price': 25,
+        'estimated_duration_minutes': 60,
+        'icon': 'users',
     },
     {
-        'name': 'Washer/Dryer Repair',
-        'category': 'appliance',
-        'description': 'Repair washing machines and dryers',
-        'price': 70,
+        'name': 'Dynamic pricing',
+        'category': 'other',
+        'description': 'Setup and optimisation of dynamic nightly rates across booking channels.',
+        'price': 25,
+        'estimated_duration_minutes': 60,
+        'icon': 'line-chart',
+    },
+    {
+        'name': 'Revenue management',
+        'category': 'other',
+        'description': 'Ongoing analysis and optimisation of property revenue performance.',
+        'price': 25,
         'estimated_duration_minutes': 90,
-        'icon': 'settings',
+        'icon': 'bar-chart-3',
+    },
+    {
+        'name': 'Yield management',
+        'category': 'other',
+        'description': 'Strategic control of occupancy and pricing to maximise yield.',
+        'price': 25,
+        'estimated_duration_minutes': 90,
+        'icon': 'percent',
+    },
+    {
+        'name': 'Booking calendar sync',
+        'category': 'other',
+        'description': 'Setup and monitoring of channel calendar sync to avoid double bookings.',
+        'price': 25,
+        'estimated_duration_minutes': 45,
+        'icon': 'calendar-sync',
+    },
+    {
+        'name': 'Multilingual support',
+        'category': 'other',
+        'description': 'Guest communication support in multiple languages.',
+        'price': 25,
+        'estimated_duration_minutes': 60,
+        'icon': 'languages',
+    },
+
+    # Risk, Compliance & Identity
+    {
+        'name': 'Damage reporting',
+        'category': 'other',
+        'description': 'Structured documentation and reporting of property damage after stays.',
+        'price': 25,
+        'estimated_duration_minutes': 45,
+        'icon': 'alert-triangle',
+    },
+    {
+        'name': 'Insurance claim handling',
+        'category': 'other',
+        'description': 'Support with preparing and submitting insurance claims for property incidents.',
+        'price': 25,
+        'estimated_duration_minutes': 90,
+        'icon': 'file-text',
+    },
+    {
+        'name': 'Deposit management',
+        'category': 'other',
+        'description': 'Management of security deposits including disputes and settlements.',
+        'price': 25,
+        'estimated_duration_minutes': 45,
+        'icon': 'wallet-cards',
+    },
+    {
+        'name': 'Compliance support',
+        'category': 'other',
+        'description': 'Assistance with local regulations, registrations and compliance documentation.',
+        'price': 25,
+        'estimated_duration_minutes': 90,
+        'icon': 'file-badge-check',
+    },
+    {
+        'name': 'Guest identity verification',
+        'category': 'other',
+        'description': 'Verification of guest identity and documentation prior to arrival.',
+        'price': 25,
+        'estimated_duration_minutes': 30,
+        'icon': 'id-card',
     },
 ]
 
 def populate_services():
-    """Populate the service catalog with sample data."""
-    print("Populating Service Catalog...")
+    """Reset and populate the service catalog with the unified list."""
+    print("Clearing existing Service Catalog entries...")
+    deleted_count, _ = ServiceCatalog.objects.all().delete()
+    print(f"Removed {deleted_count} existing services.")
+
+    print("Populating Service Catalog with new services...")
 
     created_count = 0
     updated_count = 0
 
     for service_data in SERVICES:
-        service, created = ServiceCatalog.objects.update_or_create(
+        service = ServiceCatalog.objects.create(
             name=service_data['name'],
             category=service_data['category'],
-            defaults={
-                'description': service_data['description'],
-                'price': service_data.get('price'),
-                'estimated_duration_minutes': service_data.get('estimated_duration_minutes'),
-                'icon': service_data.get('icon', 'wrench'),
-                'is_active': True,
-            }
+            description=service_data['description'],
+            price=service_data.get('price', 25),
+            estimated_duration_minutes=service_data.get('estimated_duration_minutes'),
+            icon=service_data.get('icon', 'wrench'),
+            is_active=True,
         )
 
-        if created:
-            created_count += 1
-            print(f"  ✓ Created: {service.name} - ${service.price}")
-        else:
-            updated_count += 1
-            print(f"  ↻ Updated: {service.name} - ${service.price}")
+        created_count += 1
+        print(f"  ✓ Created: {service.name} - £{service.price}")
 
     print(f"\n✅ Done! Created {created_count} services, updated {updated_count} services.")
     print(f"📊 Total services in catalog: {ServiceCatalog.objects.count()}")
