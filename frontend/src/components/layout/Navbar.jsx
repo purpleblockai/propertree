@@ -3,11 +3,13 @@
  */
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks';
-import { Avatar, Button } from '../common';
-import { Menu, X, Home, Heart, Calendar, LayoutDashboard, LogOut, User, Wrench, TrendingUp, Activity } from 'lucide-react';
+import { Avatar, Button, LanguageSwitcher } from '../common';
+import { Menu, X, Home, Heart, Calendar, LayoutDashboard, LogOut, User, Wrench, TrendingUp, Activity, Building } from 'lucide-react';
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const { user, isAuthenticated, logout, isLandlord, isTenant, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -27,125 +29,134 @@ const Navbar = () => {
   return (
     <nav className="bg-white shadow-subtle sticky top-0 z-40 border-b border-propertree-cream-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex justify-between items-center h-16 gap-4">
           {/* Logo */}
-          <div className="flex items-center">
+          <div className="flex items-center flex-shrink-0">
             <Link to="/" className="flex items-center space-x-3">
               <img src="/logo.jpg" alt="Propertree" className="h-10 w-auto object-contain" />
-              <span className="text-2xl font-bold text-propertree-dark">Propertree</span>
+              <span className="text-2xl font-bold text-propertree-dark whitespace-nowrap">Propertree</span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-1 lg:space-x-2 flex-1 min-w-0 justify-end">
             {isAuthenticated ? (
               <>
-                {isTenant() && (
-                  <>
-                    <Link
-                      to="/tenant/bookings"
-                      className="text-propertree-dark hover:text-propertree-green px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-                    >
-                      <Calendar className="w-4 h-4" />
-                      My Bookings
-                    </Link>
-                    <Link
-                      to="/tenant/favorites"
-                      className="text-propertree-dark hover:text-propertree-green px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-                    >
-                      <Heart className="w-4 h-4" />
-                      Favorites
-                    </Link>
-                  </>
-                )}
+                <div className="flex items-center space-x-1 lg:space-x-2">
+                  {isTenant() && (
+                    <>
+                      <Link
+                        to="/tenant/bookings"
+                        className="text-propertree-dark hover:text-propertree-green px-2 lg:px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap"
+                      >
+                        <Calendar className="w-4 h-4 flex-shrink-0" />
+                        {t('navbar.myBookings')}
+                      </Link>
+                      <Link
+                        to="/tenant/favorites"
+                        className="text-propertree-dark hover:text-propertree-green px-2 lg:px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap"
+                      >
+                        <Heart className="w-4 h-4 flex-shrink-0" />
+                        {t('navbar.favorites')}
+                      </Link>
+                    </>
+                  )}
 
-                {isLandlord() && (
-                  <>
-                    <Link
-                      to="/landlord/dashboard"
-                      className="text-propertree-dark hover:text-propertree-green px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-                    >
-                      <LayoutDashboard className="w-4 h-4" />
-                      Dashboard
-                    </Link>
-                    <Link
-                      to="/landlord/properties"
-                      className="text-propertree-dark hover:text-propertree-green px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-                    >
-                      My Properties
-                    </Link>
-                    <Link
-                      to="/landlord/bookings"
-                      className="text-propertree-dark hover:text-propertree-green px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-                    >
-                      <Calendar className="w-4 h-4" />
-                      Bookings
-                    </Link>
-                    <Link
-                      to="/landlord/services"
-                      className="text-propertree-dark hover:text-propertree-green px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-                    >
-                      <Wrench className="w-4 h-4" />
-                      Services
-                    </Link>
-                  </>
-                )}
+                  {isLandlord() && (
+                    <>
+                      <Link
+                        to="/landlord/dashboard"
+                        className="text-propertree-dark hover:text-propertree-green px-2 lg:px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap"
+                      >
+                        <LayoutDashboard className="w-4 h-4 flex-shrink-0" />
+                        {t('common.dashboard')}
+                      </Link>
+                      <Link
+                        to="/landlord/properties"
+                        className="text-propertree-dark hover:text-propertree-green px-2 lg:px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap"
+                      >
+                        <Building className="w-4 h-4 flex-shrink-0" />
+                        {t('navbar.myProperties')}
+                      </Link>
+                      <Link
+                        to="/landlord/bookings"
+                        className="text-propertree-dark hover:text-propertree-green px-2 lg:px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap"
+                      >
+                        <Calendar className="w-4 h-4 flex-shrink-0" />
+                        {t('navbar.bookings')}
+                      </Link>
+                      <Link
+                        to="/landlord/services"
+                        className="text-propertree-dark hover:text-propertree-green px-2 lg:px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap"
+                      >
+                        <Wrench className="w-4 h-4 flex-shrink-0" />
+                        {t('navbar.services')}
+                      </Link>
+                    </>
+                  )}
 
-                {isAdmin() && (
-                  <>
-                    <Link
-                      to="/admin/dashboard"
-                      className="text-propertree-dark hover:text-propertree-green px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-                    >
-                      <LayoutDashboard className="w-4 h-4" />
-                      Dashboard
-                    </Link>
-                    <Link
-                      to="/admin/properties"
-                      className="text-propertree-dark hover:text-propertree-green px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-                    >
-                      Properties
-                    </Link>
-                    <Link
-                      to="/admin/bookings"
-                      className="text-propertree-dark hover:text-propertree-green px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-                    >
-                      <Calendar className="w-4 h-4" />
-                      Bookings
-                    </Link>
-                    <Link
-                      to="/admin/service-bookings"
-                      className="text-propertree-dark hover:text-propertree-green px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-                    >
-                      <Wrench className="w-4 h-4" />
-                      Service Requests
-                    </Link>
-                    <Link
-                      to="/admin/users"
-                      className="text-propertree-dark hover:text-propertree-green px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-                    >
-                      <User className="w-4 h-4" />
-                      Users
-                    </Link>
-                    <Link
-                      to="/admin/analytics"
-                      className="text-propertree-dark hover:text-propertree-green px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-                    >
-                      <TrendingUp className="w-4 h-4" />
-                      Analytics
-                    </Link>
-                    <Link
-                      to="/admin/performance"
-                      className="text-propertree-dark hover:text-propertree-green px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-                    >
-                      <Activity className="w-4 h-4" />
-                      Performance
-                    </Link>
-                  </>
-                )}
+                  {isAdmin() && (
+                    <>
+                      <Link
+                        to="/admin/dashboard"
+                        className="text-propertree-dark hover:text-propertree-green px-2 lg:px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap"
+                      >
+                        <LayoutDashboard className="w-4 h-4 flex-shrink-0" />
+                        {t('common.dashboard')}
+                      </Link>
+                      <Link
+                        to="/admin/properties"
+                        className="text-propertree-dark hover:text-propertree-green px-2 lg:px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap"
+                      >
+                        <Building className="w-4 h-4 flex-shrink-0" />
+                        {t('navbar.properties')}
+                      </Link>
+                      <Link
+                        to="/admin/bookings"
+                        className="text-propertree-dark hover:text-propertree-green px-2 lg:px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap"
+                      >
+                        <Calendar className="w-4 h-4 flex-shrink-0" />
+                        {t('navbar.bookings')}
+                      </Link>
+                      <Link
+                        to="/admin/service-bookings"
+                        className="text-propertree-dark hover:text-propertree-green px-2 lg:px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap"
+                      >
+                        <Wrench className="w-4 h-4 flex-shrink-0" />
+                        {t('navbar.serviceRequests')}
+                      </Link>
+                      <Link
+                        to="/admin/users"
+                        className="text-propertree-dark hover:text-propertree-green px-2 lg:px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap"
+                      >
+                        <User className="w-4 h-4 flex-shrink-0" />
+                        {t('navbar.users')}
+                      </Link>
+                      <Link
+                        to="/admin/analytics"
+                        className="text-propertree-dark hover:text-propertree-green px-2 lg:px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap"
+                      >
+                        <TrendingUp className="w-4 h-4 flex-shrink-0" />
+                        {t('navbar.analytics')}
+                      </Link>
+                      <Link
+                        to="/admin/performance"
+                        className="text-propertree-dark hover:text-propertree-green px-2 lg:px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap"
+                      >
+                        <Activity className="w-4 h-4 flex-shrink-0" />
+                        {t('navbar.performance')}
+                      </Link>
+                    </>
+                  )}
+                </div>
+
+                {/* Language Switcher */}
+                <div className="flex-shrink-0 ml-2">
+                  <LanguageSwitcher />
+                </div>
 
                 {/* Profile Dropdown */}
-                <div className="relative">
+                <div className="relative flex-shrink-0 ml-2">
                   <button
                     onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                     className="flex items-center space-x-2 focus:outline-none"
@@ -165,7 +176,7 @@ const Navbar = () => {
                         onClick={() => setProfileMenuOpen(false)}
                       >
                         <LayoutDashboard className="w-4 h-4 mr-2" />
-                        Dashboard
+                        {t('common.dashboard')}
                       </Link>
                       <Link
                         to="/profile"
@@ -173,7 +184,7 @@ const Navbar = () => {
                         onClick={() => setProfileMenuOpen(false)}
                       >
                         <User className="w-4 h-4 mr-2" />
-                        Profile
+                        {t('common.profile')}
                       </Link>
                       <hr className="my-1" />
                       <button
@@ -181,27 +192,28 @@ const Navbar = () => {
                         className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                       >
                         <LogOut className="w-4 h-4 mr-2" />
-                        Logout
+                        {t('common.logout')}
                       </button>
                     </div>
                   )}
                 </div>
               </>
             ) : (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 flex-shrink-0">
+                <LanguageSwitcher />
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => navigate('/login')}
                 >
-                  Login
+                  {t('common.login')}
                 </Button>
                 <Button
                   variant="primary"
                   size="sm"
                   onClick={() => navigate('/register')}
                 >
-                  Sign Up
+                  {t('common.signUp')}
                 </Button>
               </div>
             )}
@@ -234,7 +246,7 @@ const Navbar = () => {
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Dashboard
+                  {t('common.dashboard')}
                 </Link>
                 {isLandlord() && (
                   <>
@@ -243,21 +255,21 @@ const Navbar = () => {
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      My Properties
+                      {t('navbar.myProperties')}
                     </Link>
                     <Link
                       to="/landlord/bookings"
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      Bookings
+                      {t('navbar.bookings')}
                     </Link>
                     <Link
                       to="/landlord/services"
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      Services
+                      {t('navbar.services')}
                     </Link>
                   </>
                 )}
@@ -268,14 +280,14 @@ const Navbar = () => {
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      My Bookings
+                      {t('navbar.myBookings')}
                     </Link>
                     <Link
                       to="/tenant/favorites"
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      Favorites
+                      {t('navbar.favorites')}
                     </Link>
                   </>
                 )}
@@ -286,42 +298,42 @@ const Navbar = () => {
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      Properties
+                      {t('navbar.properties')}
                     </Link>
                     <Link
                       to="/admin/bookings"
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      Bookings
+                      {t('navbar.bookings')}
                     </Link>
                     <Link
                       to="/admin/service-bookings"
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      Service Requests
+                      {t('navbar.serviceRequests')}
                     </Link>
                     <Link
                       to="/admin/users"
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      Users
+                      {t('navbar.users')}
                     </Link>
                     <Link
                       to="/admin/analytics"
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      Analytics
+                      {t('navbar.analytics')}
                     </Link>
                     <Link
                       to="/admin/performance"
                       className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      Performance
+                      {t('navbar.performance')}
                     </Link>
                   </>
                 )}
@@ -330,7 +342,7 @@ const Navbar = () => {
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Profile
+                  {t('common.profile')}
                 </Link>
                 <button
                   onClick={() => {
@@ -339,24 +351,27 @@ const Navbar = () => {
                   }}
                   className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50"
                 >
-                  Logout
+                  {t('common.logout')}
                 </button>
               </>
             ) : (
               <>
+                <div className="px-3 py-2">
+                  <LanguageSwitcher />
+                </div>
                 <Link
                   to="/login"
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Login
+                  {t('common.login')}
                 </Link>
                 <Link
                   to="/register"
                   className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Sign Up
+                  {t('common.signUp')}
                 </Link>
               </>
             )}

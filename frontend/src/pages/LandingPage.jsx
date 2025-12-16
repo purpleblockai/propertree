@@ -3,6 +3,7 @@
  */
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Container } from '../components/layout';
 import { Button, Input, Select, Card, Loading, Badge } from '../components/common';
 import { Home as HomeIcon, MapPin, Users, Bed, Heart } from 'lucide-react';
@@ -11,6 +12,7 @@ import { useAuth } from '../hooks';
 import { useFavorite, useFavorites } from '../hooks/useProperties';
 
 const LandingPage = () => {
+  const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const resultsRef = useRef(null);
@@ -47,30 +49,30 @@ const LandingPage = () => {
   });
 
   const propertyTypes = [
-    { value: '', label: 'All Types' },
-    { value: 'apartment', label: 'Apartment' },
-    { value: 'house', label: 'House' },
-    { value: 'condo', label: 'Condo' },
-    { value: 'villa', label: 'Villa' },
-    { value: 'studio', label: 'Studio' },
-    { value: 'townhouse', label: 'Townhouse' },
+    { value: '', label: t('landing.allTypes') },
+    { value: 'apartment', label: t('propertyTypes.apartment') },
+    { value: 'house', label: t('propertyTypes.house') },
+    { value: 'condo', label: t('propertyTypes.condo') },
+    { value: 'villa', label: t('propertyTypes.villa') },
+    { value: 'studio', label: t('propertyTypes.studio') },
+    { value: 'townhouse', label: t('propertyTypes.townhouse') },
   ];
 
   const guestOptions = [
-    { value: '', label: '1 Guest' },
-    { value: '1', label: '1 Guest' },
-    { value: '2', label: '2 Guests' },
-    { value: '3', label: '3 Guests' },
-    { value: '4', label: '4 Guests' },
-    { value: '5', label: '5 Guests' },
-    { value: '6', label: '6+ Guests' },
+    { value: '', label: `1 ${t('landing.guest')}` },
+    { value: '1', label: `1 ${t('landing.guest')}` },
+    { value: '2', label: `2 ${t('landing.guests')}` },
+    { value: '3', label: `3 ${t('landing.guests')}` },
+    { value: '4', label: `4 ${t('landing.guests')}` },
+    { value: '5', label: `5 ${t('landing.guests')}` },
+    { value: '6', label: `6+ ${t('landing.guests')}` },
   ];
 
   const sortOptions = [
-    { value: 'price_low_high', label: 'Price: Low to High' },
-    { value: 'price_high_low', label: 'Price: High to Low' },
-    { value: 'newest', label: 'Newest First' },
-    { value: 'bedrooms', label: 'Most Bedrooms' },
+    { value: 'price_low_high', label: t('sortOptions.priceLowHigh') },
+    { value: 'price_high_low', label: t('sortOptions.priceHighLow') },
+    { value: 'newest', label: t('sortOptions.newest') },
+    { value: 'bedrooms', label: t('sortOptions.bedrooms') },
   ];
 
   useEffect(() => {
@@ -87,7 +89,7 @@ const LandingPage = () => {
         const allProperties = data.results || data;
         const uniqueCities = [...new Set(allProperties.map(p => p.city))].sort();
         setCities([
-          { value: '', label: 'All Cities' },
+          { value: '', label: t('landing.allCities') },
           ...uniqueCities.map(city => ({ value: city, label: city }))
         ]);
       }
@@ -140,11 +142,11 @@ const LandingPage = () => {
         const data = await response.json();
         setProperties(data.results || data);
       } else {
-        toast.error('Failed to load properties');
+        toast.error(t('errors.failedToLoadProperties'));
       }
     } catch (error) {
       console.error('Error fetching properties:', error);
-      toast.error('Error loading properties');
+      toast.error(t('errors.errorLoadingProperties'));
     } finally {
       setLoading(false);
       setSearchLoading(false);
@@ -182,19 +184,19 @@ const LandingPage = () => {
         selected.setHours(0, 0, 0, 0);
 
         if (selected < today) {
-          toast.error('You cannot search with past dates');
+          toast.error(t('errors.cannotSearchWithPastDates'));
           return;
         }
       }
 
       // Ensure check-out is always after check-in
       if (name === 'check_in' && filters.check_out && value && value >= filters.check_out) {
-        toast.error('Check-out date must be after check-in date');
+        toast.error(t('errors.checkoutMustBeAfterCheckin'));
         return;
       }
 
       if (name === 'check_out' && filters.check_in && value && value <= filters.check_in) {
-        toast.error('Check-out date must be after check-in date');
+        toast.error(t('errors.checkoutMustBeAfterCheckin'));
         return;
       }
     }
@@ -209,7 +211,7 @@ const LandingPage = () => {
     e.stopPropagation();
     
     if (!isAuthenticated) {
-      toast.error('Please log in to add favorites');
+      toast.error(t('landing.pleaseLoginToAddFavorites'));
       navigate('/login');
       return;
     }
@@ -246,10 +248,10 @@ const LandingPage = () => {
         <Container>
           <div className="text-center mb-8">
             <h1 className="text-5xl md:text-6xl font-bold mb-4 leading-tight">
-              Connect. Manage. Grow.
+              {t('landing.title')}
             </h1>
             <p className="text-xl mb-12 text-white/90 max-w-3xl mx-auto">
-              Beyond bookings: short-, mid- and long-term rentals on one platform.
+              {t('landing.subtitle')}
             </p>
 
             {/* Search Form */}
@@ -259,14 +261,14 @@ const LandingPage = () => {
                   {/* City */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2 text-left">
-                      City
+                      {t('landing.city')}
                     </label>
                     <Select
                       name="city"
                       value={filters.city}
                       onChange={(e) => handleFilterChange('city', e.target.value)}
                       options={cities}
-                      placeholder="All Cities"
+                      placeholder={t('landing.allCities')}
                       className="w-full"
                     />
                   </div>
@@ -274,14 +276,14 @@ const LandingPage = () => {
                   {/* Property Type */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2 text-left">
-                      Property Type
+                      {t('landing.propertyType')}
                     </label>
                     <Select
                       name="property_type"
                       value={filters.property_type}
                       onChange={(e) => handleFilterChange('property_type', e.target.value)}
                       options={propertyTypes}
-                      placeholder="All Types"
+                      placeholder={t('landing.allTypes')}
                       className="w-full"
                     />
                   </div>
@@ -289,14 +291,14 @@ const LandingPage = () => {
                   {/* Guests */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2 text-left">
-                      Guests
+                      {t('landing.guests')}
                     </label>
                     <Select
                       name="guests"
                       value={filters.guests}
                       onChange={(e) => handleFilterChange('guests', e.target.value)}
                       options={guestOptions}
-                      placeholder="1 Guest"
+                      placeholder={`1 ${t('landing.guest')}`}
                       className="w-full"
                     />
                   </div>
@@ -304,14 +306,14 @@ const LandingPage = () => {
                   {/* Sort By */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2 text-left">
-                      Sort By
+                      {t('landing.sortBy')}
                     </label>
                     <Select
                       name="sort_by"
                       value={filters.sort_by}
                       onChange={(e) => handleFilterChange('sort_by', e.target.value)}
                       options={sortOptions}
-                      placeholder="Sort By"
+                      placeholder={t('landing.sortBy')}
                       className="w-full"
                     />
                   </div>
@@ -321,9 +323,10 @@ const LandingPage = () => {
                   {/* Check-in */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2 text-left">
-                      Check-in
+                      {t('landing.checkIn')}
                     </label>
                     <Input
+                      name="check_in"
                       type="date"
                       value={filters.check_in}
                       onChange={(e) => handleFilterChange('check_in', e.target.value)}
@@ -335,9 +338,10 @@ const LandingPage = () => {
                   {/* Check-out */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2 text-left">
-                      Check-out
+                      {t('landing.checkOut')}
                     </label>
                     <Input
+                      name="check_out"
                       type="date"
                       value={filters.check_out}
                       onChange={(e) => handleFilterChange('check_out', e.target.value)}
@@ -349,9 +353,10 @@ const LandingPage = () => {
                   {/* Min Price */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2 text-left">
-                      Min Price (€)
+                      {t('landing.minPrice')}
                     </label>
                     <Input
+                      name="min_price"
                       type="number"
                       placeholder="0"
                       value={filters.min_price}
@@ -363,9 +368,10 @@ const LandingPage = () => {
                   {/* Max Price */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2 text-left">
-                      Max Price (€)
+                      {t('landing.maxPrice')}
                     </label>
                     <Input
+                      name="max_price"
                       type="number"
                       placeholder="500"
                       value={filters.max_price}
@@ -383,7 +389,7 @@ const LandingPage = () => {
                     className="w-full md:w-auto px-16"
                     disabled={searchLoading}
                   >
-                    {searchLoading ? 'Searching...' : 'Search Properties'}
+                    {searchLoading ? t('landing.searching') : t('landing.searchProperties')}
                   </Button>
                 </div>
               </form>
@@ -401,10 +407,10 @@ const LandingPage = () => {
         <Container>
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              {filters.city || filters.property_type || filters.guests ? 'Search Results' : 'Featured Properties'}
+              {filters.city || filters.property_type || filters.guests ? t('landing.searchResults') : t('landing.featuredProperties')}
             </h2>
             <p className="text-gray-600">
-              {properties.length} {properties.length === 1 ? 'property' : 'properties'} available
+              {t('landing.propertiesAvailable', { count: properties.length })}
             </p>
           </div>
 
@@ -415,8 +421,8 @@ const LandingPage = () => {
           ) : properties.length === 0 ? (
             <div className="text-center py-12">
               <HomeIcon className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No properties found</h3>
-              <p className="text-gray-600">Try adjusting your search filters</p>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('landing.noPropertiesFound')}</h3>
+              <p className="text-gray-600">{t('landing.tryAdjustingFilters')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -440,7 +446,7 @@ const LandingPage = () => {
                       <button
                         onClick={(e) => handleFavoriteClick(e, property)}
                         className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 z-10"
-                        aria-label={isPropertyFavorited(property.id) ? 'Remove from favorites' : 'Add to favorites'}
+                        aria-label={isPropertyFavorited(property.id) ? t('landing.removeFromFavorites') : t('landing.addToFavorites')}
                       >
                         <Heart 
                           className={`w-5 h-5 transition-colors ${
@@ -473,11 +479,11 @@ const LandingPage = () => {
                       <div className="flex items-center gap-5 text-sm text-gray-600 mb-5">
                         <div className="flex items-center">
                           <Bed className="w-4 h-4 mr-1.5" />
-                          {property.bedrooms} bed{property.bedrooms > 1 ? 's' : ''}
+                          {property.bedrooms} {property.bedrooms > 1 ? t('landing.beds') : t('landing.bed')}
                         </div>
                         <div className="flex items-center">
                           <Users className="w-4 h-4 mr-1.5" />
-                          {property.max_guests} guest{property.max_guests > 1 ? 's' : ''}
+                          {property.max_guests} {property.max_guests > 1 ? t('landing.guests') : t('landing.guest')}
                         </div>
                       </div>
 
@@ -487,14 +493,14 @@ const LandingPage = () => {
                           <span className="text-2xl font-bold text-propertree-green">
                             ${property.price_per_night}
                           </span>
-                          <span className="text-gray-600 text-sm ml-1"> / night</span>
+                          <span className="text-gray-600 text-sm ml-1">{t('landing.night')}</span>
                         </div>
-                        <Badge variant="success">{property.property_type}</Badge>
+                        <Badge variant="success">{propertyTypes.find(pt => pt.value === property.property_type)?.label || property.property_type}</Badge>
                       </div>
 
                       {/* Landlord */}
                       <div className="pt-4 border-t border-gray-200 text-xs text-gray-500">
-                        Hosted by {property.landlord_name}
+                        {t('landing.hostedBy')} {property.landlord_name}
                       </div>
                     </Card.Body>
                   </Card>

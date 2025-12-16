@@ -12,6 +12,7 @@ class BookingListSerializer(serializers.ModelSerializer):
 
     property_title = serializers.CharField(source='property.title', read_only=True)
     property_city = serializers.CharField(source='property.city', read_only=True)
+    property_country = serializers.CharField(source='property.country', read_only=True)
     property_approval_type = serializers.CharField(source='property.approval_type', read_only=True)
     tenant_name = serializers.SerializerMethodField()
     tenant_email = serializers.CharField(source='tenant.email', read_only=True)
@@ -20,7 +21,7 @@ class BookingListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = [
-            'id', 'property', 'property_title', 'property_city', 'property_approval_type',
+            'id', 'property', 'property_title', 'property_city', 'property_country', 'property_approval_type',
             'tenant_name', 'tenant_email', 'check_in', 'check_out', 'guests_count',
             'total_price', 'status', 'duration_nights', 'cancellation_reason', 'created_at'
         ]

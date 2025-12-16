@@ -2,15 +2,17 @@
  * Property Detail Page - Shows detailed property information
  */
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container } from '../components/layout';
 import { Card, Button, Badge, Loading, EmptyState } from '../components/common';
-import { MapPin, Users, Bed, Bath, Home, ChevronLeft, ChevronRight, Check, X, Wifi, Car, Utensils, Tv, Wind, Waves, Dumbbell, Coffee } from 'lucide-react';
+import { MapPin, Users, Bed, Bath, Home, ChevronLeft, ChevronRight, Check, X, Wifi, Car, Utensils, Tv, Wind, Waves, Dumbbell, Coffee, Phone } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const PropertyDetail = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [property, setProperty] = useState(null);
@@ -97,12 +99,12 @@ const PropertyDetail = () => {
         const data = await response.json();
         setProperty(data);
       } else {
-        toast.error('Failed to load property');
+        toast.error(t('propertyDetail.failedToLoadProperty'));
         navigate('/search');
       }
     } catch (error) {
       console.error('Error fetching property:', error);
-      toast.error('Error loading property');
+      toast.error(t('propertyDetail.errorLoadingProperty'));
       navigate('/search');
     } finally {
       setLoading(false);
@@ -114,7 +116,7 @@ const PropertyDetail = () => {
     
     // Validate dates
     if (!bookingData.check_in || !bookingData.check_out) {
-      toast.error('Please select check-in and check-out dates');
+      toast.error(t('propertyDetail.pleaseSelectDates'));
       return;
     }
 
@@ -122,18 +124,18 @@ const PropertyDetail = () => {
     const checkOut = new Date(bookingData.check_out);
     
     if (checkIn >= checkOut) {
-      toast.error('Check-out date must be after check-in date');
+      toast.error(t('propertyDetail.checkoutAfterCheckin'));
       return;
     }
 
     if (checkIn < new Date()) {
-      toast.error('Check-in date cannot be in the past');
+      toast.error(t('propertyDetail.checkinNotPast'));
       return;
     }
 
     // Validate that selected dates are available
     if (!isDateAvailable(bookingData.check_in)) {
-      toast.error('Check-in date is not available. Please select a different date.');
+      toast.error(t('propertyDetail.checkinNotAvailable'));
       return;
     }
 
@@ -145,7 +147,7 @@ const PropertyDetail = () => {
 
     const unavailableDates = dateRange.filter(date => !isDateAvailable(date));
     if (unavailableDates.length > 0) {
-      toast.error('Selected dates include unavailable dates. Please choose different dates.');
+      toast.error(t('propertyDetail.datesIncludeUnavailable'));
       return;
     }
 
@@ -154,7 +156,7 @@ const PropertyDetail = () => {
       const token = localStorage.getItem('accessToken');
       
       if (!token) {
-        toast.error('Please login to make a booking');
+        toast.error(t('propertyDetail.pleaseLoginToBook'));
         navigate('/login');
         return;
       }
@@ -176,17 +178,17 @@ const PropertyDetail = () => {
 
       if (response.ok) {
         const data = await response.json();
-        toast.success('Booking request submitted successfully!');
+        toast.success(t('propertyDetail.bookingSubmitted'));
         setShowBookingModal(false);
         setBookingData({ check_in: '', check_out: '', guests_count: 1 });
         navigate('/tenant/bookings');
       } else {
         const errorData = await response.json();
-        toast.error(errorData.error || 'Failed to create booking');
+        toast.error(errorData.error || t('propertyDetail.failedToCreateBooking'));
       }
     } catch (error) {
       console.error('Error creating booking:', error);
-      toast.error('Error submitting booking');
+      toast.error(t('propertyDetail.errorSubmittingBooking'));
     } finally {
       setBookingLoading(false);
     }
@@ -205,10 +207,10 @@ const PropertyDetail = () => {
       <Container className="py-8">
         <EmptyState
           icon={<Home className="w-16 h-16" />}
-          title="Property not found"
-          message="The property you're looking for doesn't exist or has been removed."
+          title={t('propertyDetail.propertyNotFound')}
+          message={t('propertyDetail.propertyNotFoundMessage')}
           action={() => navigate('/search')}
-          actionLabel="Back to Search"
+          actionLabel={t('propertyDetail.backToSearch')}
         />
       </Container>
     );
@@ -228,20 +230,24 @@ const PropertyDetail = () => {
 
   // Common amenity icons and names mapping
   const amenityConfig = {
-    'wifi': { name: 'WiFi', icon: Wifi },
-    'parking': { name: 'Parking', icon: Car },
-    'kitchen': { name: 'Kitchen', icon: Utensils },
-    'gym': { name: 'Gym', icon: Dumbbell },
-    'pool': { name: 'Pool', icon: Waves },
-    'ac': { name: 'Air Conditioning', icon: Wind },
-    'air_conditioning': { name: 'Air Conditioning', icon: Wind },
-    'tv': { name: 'TV', icon: Tv },
-    'breakfast': { name: 'Breakfast', icon: Coffee },
+    'wifi': { nameKey: 'amenities.wifi', icon: Wifi },
+    'parking': { nameKey: 'amenities.parking', icon: Car },
+    'kitchen': { nameKey: 'amenities.kitchen', icon: Utensils },
+    'gym': { nameKey: 'amenities.gym', icon: Dumbbell },
+    'pool': { nameKey: 'amenities.pool', icon: Waves },
+    'ac': { nameKey: 'amenities.airConditioning', icon: Wind },
+    'air_conditioning': { nameKey: 'amenities.airConditioning', icon: Wind },
+    'tv': { nameKey: 'amenities.tv', icon: Tv },
+    'breakfast': { nameKey: 'amenities.breakfast', icon: Coffee },
   };
 
   const getAmenityConfig = (amenity) => {
     const key = amenity.toLowerCase();
-    return amenityConfig[key] || { name: amenity, icon: Check };
+    const config = amenityConfig[key];
+    if (config) {
+      return { name: t(config.nameKey), icon: config.icon };
+    }
+    return { name: amenity, icon: Check };
   };
 
   return (
@@ -346,7 +352,7 @@ const PropertyDetail = () => {
               <div className="text-4xl font-bold text-gray-900">
                 €{property.price_per_night}
               </div>
-              <div className="text-gray-600">per night</div>
+              <div className="text-gray-600">{t('propertyDetail.perNight')}</div>
             </div>
           </div>
 
@@ -354,21 +360,21 @@ const PropertyDetail = () => {
           <div className="flex flex-wrap gap-6 mb-8 pb-8 border-b">
             <div className="flex items-center gap-2 text-gray-700">
               <Bed className="w-5 h-5 text-gray-600" />
-              <span><span className="font-semibold">{property.bedrooms}</span> bedroom{property.bedrooms > 1 ? 's' : ''}</span>
+              <span><span className="font-semibold">{property.bedrooms}</span> {property.bedrooms > 1 ? t('propertyDetail.bedrooms') : t('propertyDetail.bedroom')}</span>
             </div>
             <div className="flex items-center gap-2 text-gray-700">
               <Bath className="w-5 h-5 text-gray-600" />
-              <span><span className="font-semibold">{Math.round(property.bathrooms)}</span> bathroom{Math.round(property.bathrooms) > 1 ? 's' : ''}</span>
+              <span><span className="font-semibold">{Math.round(property.bathrooms)}</span> {Math.round(property.bathrooms) > 1 ? t('propertyDetail.bathrooms') : t('propertyDetail.bathroom')}</span>
             </div>
             <div className="flex items-center gap-2 text-gray-700">
               <Users className="w-5 h-5 text-gray-600" />
-              <span>Up to <span className="font-semibold">{property.max_guests}</span> guest{property.max_guests > 1 ? 's' : ''}</span>
+              <span>{t('propertyDetail.upTo')} <span className="font-semibold">{property.max_guests}</span> {property.max_guests > 1 ? t('propertyDetail.guests') : t('propertyDetail.guest')}</span>
             </div>
           </div>
 
           {/* About Section */}
           <div className="mb-8 pb-8 border-b">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">About this place</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('propertyDetail.aboutThisPlace')}</h2>
             <p className="text-gray-700 leading-relaxed whitespace-pre-line">
               {property.description}
             </p>
@@ -377,7 +383,7 @@ const PropertyDetail = () => {
           {/* Amenities */}
           {property.amenities && property.amenities.length > 0 && (
             <div className="mb-8 pb-8 border-b">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Amenities</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('propertyDetail.amenities')}</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {property.amenities.map((amenity, index) => {
                   const config = getAmenityConfig(amenity);
@@ -397,8 +403,8 @@ const PropertyDetail = () => {
           <div className="bg-gray-50 rounded-2xl p-8 border border-gray-200">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Ready to book?</h3>
-                <p className="text-gray-600">Experience professional property management</p>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">{t('propertyDetail.readyToBook')}</h3>
+                <p className="text-gray-600">{t('propertyDetail.experienceProfessional')}</p>
               </div>
               <Button
                 onClick={() => setShowBookingModal(true)}
@@ -406,23 +412,92 @@ const PropertyDetail = () => {
                 size="lg"
                 className="md:w-auto whitespace-nowrap px-8"
               >
-                Book Now
+                {t('propertyDetail.bookNow')}
               </Button>
             </div>
           </div>
 
           {/* Host Information */}
           <div className="mt-8 pt-8 border-t">
-            <h2 className="text-xl font-semibold mb-4">Hosted by</h2>
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-propertree-green text-white flex items-center justify-center text-xl font-bold">
-                {property.landlord_name?.charAt(0) || property.landlord_email?.charAt(0) || 'H'}
+            <h2 className="text-xl font-semibold mb-6">{t('propertyDetail.hostedBy')}</h2>
+            <Card className="p-6">
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* Profile Picture */}
+                <div className="flex-shrink-0 relative">
+                  {property.landlord_profile?.profile_photo ? (
+                    <>
+                      <img
+                        src={property.landlord_profile.profile_photo}
+                        alt={property.landlord_name || 'Host'}
+                        className="w-24 h-24 rounded-full object-cover border-4 border-gray-100 shadow-md"
+                        onError={(e) => {
+                          // Hide image and show fallback
+                          e.target.style.display = 'none';
+                          const fallback = e.target.parentElement.querySelector('.profile-fallback');
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                      <div
+                        className="profile-fallback w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white items-center justify-center text-3xl font-bold shadow-md hidden"
+                      >
+                        {property.landlord_name?.charAt(0)?.toUpperCase() || property.landlord_email?.charAt(0)?.toUpperCase() || 'H'}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-3xl font-bold shadow-md">
+                      {property.landlord_name?.charAt(0)?.toUpperCase() || property.landlord_email?.charAt(0)?.toUpperCase() || 'H'}
+                    </div>
+                  )}
+                </div>
+
+                {/* Host Details */}
+                <div className="flex-1">
+                  <div className="mb-4">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-1">
+                      {property.landlord_name || t('propertyDetail.propertyHost')}
+                    </h3>
+                    <p className="text-gray-600 text-sm">{property.landlord_email}</p>
+                    {property.landlord_profile?.phone_number && (
+                      <p className="text-gray-600 text-sm mt-1">
+                        <Phone className="w-4 h-4 inline mr-1" />
+                        {property.landlord_profile.phone_number}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Bio */}
+                  {property.landlord_profile?.bio ? (
+                    <div className="mb-4">
+                      <p className="text-gray-700 leading-relaxed">
+                        {property.landlord_profile.bio}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="mb-4">
+                      <p className="text-gray-500 italic text-sm">
+                        {t('propertyDetail.noBioAvailable')}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Additional Info */}
+                  <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-gray-200">
+                    {property.landlord_profile?.address && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <MapPin className="w-4 h-4" />
+                        <span className="truncate max-w-xs">{property.landlord_profile.address}</span>
+                      </div>
+                    )}
+                    {property.created_at && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Users className="w-4 h-4" />
+                        <span>{t('propertyDetail.memberSince')} {new Date(property.created_at).getFullYear()}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div>
-                <div className="font-semibold text-lg">{property.landlord_name || 'Property Host'}</div>
-                <div className="text-gray-600">{property.landlord_email}</div>
-              </div>
-            </div>
+            </Card>
           </div>
         </div>
       </Container>
@@ -432,7 +507,7 @@ const PropertyDetail = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold">Book This Property</h3>
+              <h3 className="text-2xl font-bold">{t('propertyDetail.bookThisProperty')}</h3>
               <button
                 onClick={() => setShowBookingModal(false)}
                 className="text-gray-500 hover:text-gray-700"
@@ -443,7 +518,7 @@ const PropertyDetail = () => {
             <form onSubmit={handleBooking} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Check-in
+                  {t('propertyDetail.checkIn')}
                 </label>
                 <DatePicker
                   selected={bookingData.check_in ? new Date(bookingData.check_in) : null}
@@ -456,21 +531,21 @@ const PropertyDetail = () => {
                   filterDate={(date) => !isDateDisabled(date)}
                   minDate={new Date()}
                   dateFormat="dd-MM-yyyy"
-                  placeholderText="Select check-in date"
+                  placeholderText={t('propertyDetail.selectCheckInDate')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-propertree-green"
                   required
                   wrapperClassName="w-full"
                 />
                 {property?.booked_dates && property.booked_dates.length > 0 && (
                   <p className="text-xs text-gray-500 mt-1">
-                    Booked dates are disabled and cannot be selected
+                    {t('propertyDetail.bookedDatesDisabled')}
                   </p>
                 )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Check-out
+                  {t('propertyDetail.checkOut')}
                 </label>
                 <DatePicker
                   selected={bookingData.check_out ? new Date(bookingData.check_out) : null}
@@ -481,7 +556,7 @@ const PropertyDetail = () => {
                       const checkOutDate = date;
                       
                       if (checkInDate && checkOutDate <= checkInDate) {
-                        toast.error('Check-out date must be after check-in date');
+                        toast.error(t('propertyDetail.checkoutAfterCheckin'));
                         return;
                       }
 
@@ -501,7 +576,7 @@ const PropertyDetail = () => {
                       }
 
                       if (hasConflict) {
-                        toast.error('Selected dates conflict with an existing booking. Please choose different dates.');
+                        toast.error(t('propertyDetail.datesConflict'));
                       } else {
                         setBookingData({ ...bookingData, check_out: dateString });
                       }
@@ -510,7 +585,7 @@ const PropertyDetail = () => {
                   filterDate={(date) => !isDateDisabled(date)}
                   minDate={bookingData.check_in ? new Date(bookingData.check_in) : new Date()}
                   dateFormat="dd-MM-yyyy"
-                  placeholderText="Select check-out date"
+                  placeholderText={t('propertyDetail.selectCheckOutDate')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-propertree-green"
                   required
                   wrapperClassName="w-full"
@@ -519,7 +594,7 @@ const PropertyDetail = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Guests
+                  {t('propertyDetail.guests')}
                 </label>
                 <input
                   type="number"
@@ -530,7 +605,7 @@ const PropertyDetail = () => {
                   min="1"
                   max={property.max_guests}
                 />
-                <p className="text-xs text-gray-500 mt-1">Max: {property.max_guests} guests</p>
+                <p className="text-xs text-gray-500 mt-1">{t('propertyDetail.max')}: {property.max_guests} {t('propertyDetail.guests')}</p>
               </div>
 
               {/* Price Calculation */}
@@ -538,14 +613,14 @@ const PropertyDetail = () => {
                 <div className="border-t pt-4 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">
-                      €{property.price_per_night} x {Math.ceil((new Date(bookingData.check_out) - new Date(bookingData.check_in)) / (1000 * 60 * 60 * 24))} nights
+                      €{property.price_per_night} x {Math.ceil((new Date(bookingData.check_out) - new Date(bookingData.check_in)) / (1000 * 60 * 60 * 24))} {t('propertyDetail.nights')}
                     </span>
                     <span className="font-semibold">
                       €{(property.price_per_night * Math.ceil((new Date(bookingData.check_out) - new Date(bookingData.check_in)) / (1000 * 60 * 60 * 24))).toFixed(2)}
                     </span>
                   </div>
                   <div className="flex justify-between text-lg font-bold border-t pt-2">
-                    <span>Total</span>
+                    <span>{t('propertyDetail.total')}</span>
                     <span className="text-propertree-green">
                       €{(property.price_per_night * Math.ceil((new Date(bookingData.check_out) - new Date(bookingData.check_in)) / (1000 * 60 * 60 * 24))).toFixed(2)}
                     </span>
@@ -559,7 +634,7 @@ const PropertyDetail = () => {
                 className="w-full"
                 disabled={bookingLoading}
               >
-                {bookingLoading ? 'Processing...' : 'Confirm Booking'}
+                {bookingLoading ? t('propertyDetail.processing') : t('propertyDetail.confirmBooking')}
               </Button>
             </form>
           </div>

@@ -1,23 +1,25 @@
 /**
- * Admin Analytics - Detailed analytics and insights
+ * Admin Analytics - Comprehensive portfolio-wide analytics and insights
  */
 import React, { useState, useEffect } from 'react';
 import { 
-  TrendingUp, Home, Users, DollarSign, BarChart, 
-  PieChart as PieChartIcon, LineChart, Activity, Calendar
+  TrendingUp, TrendingDown, Home, Users, DollarSign, BarChart, 
+  PieChart as PieChartIcon, LineChart, Activity, Calendar,
+  MapPin, Building2, ArrowUpRight, ArrowDownRight, Info
 } from 'lucide-react';
 import { Container } from '../../components/layout';
-import { Card, Loading } from '../../components/common';
+import { Card, Loading, Modal } from '../../components/common';
 import { toast } from 'react-hot-toast';
 import { 
   LineChart as RechartsLineChart, Line, BarChart as RechartsBarChart, Bar, 
   PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, 
-  Tooltip, Legend, ResponsiveContainer, AreaChart, Area
+  Tooltip, Legend, ResponsiveContainer, AreaChart, Area, ComposedChart
 } from 'recharts';
 
 const Analytics = () => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [infoModal, setInfoModal] = useState({ isOpen: false, title: '', content: '' });
 
   useEffect(() => {
     fetchAnalytics();
@@ -35,6 +37,8 @@ const Analytics = () => {
       if (response.ok) {
         const data = await response.json();
         setAnalytics(data);
+      } else {
+        toast.error('Error loading analytics');
       }
     } catch (error) {
       console.error('Error fetching analytics:', error);
@@ -42,6 +46,14 @@ const Analytics = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const openInfoModal = (title, content) => {
+    setInfoModal({ isOpen: true, title, content });
+  };
+
+  const closeInfoModal = () => {
+    setInfoModal({ isOpen: false, title: '', content: '' });
   };
 
   if (loading) {
@@ -52,15 +64,130 @@ const Analytics = () => {
     );
   }
 
+  const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+
   return (
     <Container className="py-8">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Analytics & Insights</h1>
-        <p className="text-gray-600 mt-2">Detailed platform statistics and trends</p>
+        <p className="text-gray-600 mt-2">Portfolio-wide trends, comparisons and insights across cities, assets and time periods</p>
       </div>
 
-      {/* Properties by Type */}
+      {/* Summary KPIs */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Card>
+          <Card.Body>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Total Properties</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {analytics?.summary?.total_properties || 0}
+                </p>
+              </div>
+              <Home className="w-10 h-10 text-blue-600" />
+            </div>
+          </Card.Body>
+        </Card>
+
+        <Card>
+          <Card.Body>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Active Properties</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {analytics?.summary?.active_properties || 0}
+                </p>
+              </div>
+              <Activity className="w-10 h-10 text-green-600" />
+            </div>
+          </Card.Body>
+        </Card>
+
+        <Card>
+          <Card.Body>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
+                <p className="text-2xl font-bold text-purple-600">
+                  €{analytics?.summary?.total_revenue?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+                </p>
+              </div>
+              <DollarSign className="w-10 h-10 text-purple-600" />
+            </div>
+          </Card.Body>
+        </Card>
+
+        <Card>
+          <Card.Body>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Total Bookings</p>
+                <p className="text-2xl font-bold text-yellow-600">
+                  {analytics?.summary?.total_bookings || 0}
+                </p>
+              </div>
+              <Calendar className="w-10 h-10 text-yellow-600" />
+            </div>
+          </Card.Body>
+        </Card>
+      </div>
+
+      {/* Time Period Comparison */}
+      {analytics?.time_comparison && (
+        <Card className="mb-8">
+          <Card.Header>
+            <Card.Title className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-blue-600" />
+              Time Period Comparison (Last 3 Months vs Previous 3 Months)
+            </Card.Title>
+          </Card.Header>
+          <Card.Body>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="text-center p-4 bg-blue-50 rounded-lg">
+                <p className="text-sm text-gray-600 mb-2">Last 3 Months Revenue</p>
+                <p className="text-2xl font-bold text-blue-600">
+                  €{analytics.time_comparison.last_3_months.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
+              </div>
+              <div className="text-center p-4 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-600 mb-2">Previous 3 Months Revenue</p>
+                <p className="text-2xl font-bold text-gray-600">
+                  €{analytics.time_comparison.prev_3_months.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </p>
+              </div>
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <p className="text-sm text-gray-600 mb-2">Revenue Growth</p>
+                <div className="flex items-center justify-center gap-1">
+                  {analytics.time_comparison.revenue_growth >= 0 ? (
+                    <ArrowUpRight className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <ArrowDownRight className="w-5 h-5 text-red-600" />
+                  )}
+                  <p className={`text-2xl font-bold ${analytics.time_comparison.revenue_growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {analytics.time_comparison.revenue_growth >= 0 ? '+' : ''}{analytics.time_comparison.revenue_growth.toFixed(1)}%
+                  </p>
+                </div>
+              </div>
+              <div className="text-center p-4 bg-purple-50 rounded-lg">
+                <p className="text-sm text-gray-600 mb-2">Booking Growth</p>
+                <div className="flex items-center justify-center gap-1">
+                  {analytics.time_comparison.booking_growth >= 0 ? (
+                    <ArrowUpRight className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <ArrowDownRight className="w-5 h-5 text-red-600" />
+                  )}
+                  <p className={`text-2xl font-bold ${analytics.time_comparison.booking_growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {analytics.time_comparison.booking_growth >= 0 ? '+' : ''}{analytics.time_comparison.booking_growth.toFixed(1)}%
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Card.Body>
+        </Card>
+      )}
+
+      {/* Properties by Type and Status */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <Card>
           <Card.Header>
@@ -76,15 +203,6 @@ const Analytics = () => {
                   const total = analytics.by_type.reduce((sum, i) => sum + i.count, 0);
                   const percentage = ((item.count / total) * 100).toFixed(1);
                   
-                  const colors = [
-                    'bg-rose-500',
-                    'bg-blue-500',
-                    'bg-green-500',
-                    'bg-yellow-500',
-                    'bg-purple-500',
-                    'bg-pink-500',
-                  ];
-                  
                   return (
                     <div key={index}>
                       <div className="flex justify-between items-center mb-2">
@@ -97,8 +215,8 @@ const Analytics = () => {
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3">
                         <div 
-                          className={`${colors[index % colors.length]} h-3 rounded-full transition-all`}
-                          style={{ width: `${percentage}%` }}
+                          className={`${COLORS[index % COLORS.length]} h-3 rounded-full transition-all`}
+                          style={{ width: `${percentage}%`, backgroundColor: COLORS[index % COLORS.length] }}
                         />
                       </div>
                     </div>
@@ -111,7 +229,6 @@ const Analytics = () => {
           </Card.Body>
         </Card>
 
-        {/* Properties by Status */}
         <Card>
           <Card.Header>
             <Card.Title className="flex items-center gap-2">
@@ -127,18 +244,18 @@ const Analytics = () => {
                   const percentage = ((item.count / total) * 100).toFixed(1);
                   
                   const statusColors = {
-                    pending: 'bg-yellow-500',
-                    active: 'bg-green-500',
-                    rejected: 'bg-red-500',
-                    draft: 'bg-gray-500',
-                    inactive: 'bg-gray-400',
+                    'approved': '#10b981',
+                    'pending_approval': '#f59e0b',
+                    'rejected': '#ef4444',
+                    'draft': '#6b7280',
+                    'booked': '#3b82f6',
                   };
                   
                   return (
                     <div key={index}>
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm font-medium text-gray-700 capitalize">
-                          {item.status}
+                          {item.status?.replace('_', ' ')}
                         </span>
                         <span className="text-sm text-gray-600">
                           {item.count} ({percentage}%)
@@ -146,8 +263,11 @@ const Analytics = () => {
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3">
                         <div 
-                          className={`${statusColors[item.status] || 'bg-gray-500'} h-3 rounded-full transition-all`}
-                          style={{ width: `${percentage}%` }}
+                          className="h-3 rounded-full transition-all"
+                          style={{ 
+                            width: `${percentage}%`,
+                            backgroundColor: statusColors[item.status] || '#6b7280'
+                          }}
                         />
                       </div>
                     </div>
@@ -161,35 +281,216 @@ const Analytics = () => {
         </Card>
       </div>
 
-      {/* Top Cities */}
-      <Card className="mb-6">
-        <Card.Header>
-          <Card.Title className="flex items-center gap-2">
-            <Home className="w-5 h-5 text-purple-600" />
-            Top 10 Cities by Property Count
-          </Card.Title>
-        </Card.Header>
-        <Card.Body>
-          {analytics?.by_city && analytics.by_city.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              {analytics.by_city.map((item, index) => (
-                <div 
-                  key={index}
-                  className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-purple-200"
-                >
-                  <div className="text-center">
-                    <p className="text-2xl font-bold text-purple-700">{item.count}</p>
-                    <p className="text-sm text-gray-700 font-medium">{item.city || 'Unknown'}</p>
-                    <p className="text-xs text-gray-500">properties</p>
+      {/* Revenue by City - Portfolio Comparison */}
+      {analytics?.revenue_by_city && analytics.revenue_by_city.length > 0 && (
+        <Card className="mb-6">
+          <Card.Header>
+            <Card.Title className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-purple-600" />
+                Revenue by City (Portfolio Comparison)
+              </div>
+              <button
+                onClick={() => openInfoModal('Revenue by City', 'This chart compares total revenue generated across different cities in your portfolio. It helps identify which locations are most profitable.')}
+                className="p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                title="Learn more"
+              >
+                <Info className="w-4 h-4" />
+              </button>
+            </Card.Title>
+          </Card.Header>
+          <Card.Body>
+            <ResponsiveContainer width="100%" height={300}>
+              <RechartsBarChart data={analytics.revenue_by_city}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="city" 
+                  angle={-45} 
+                  textAnchor="end" 
+                  height={100}
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis />
+                <Tooltip 
+                  formatter={(value) => `€${value.toLocaleString()}`}
+                  labelFormatter={(label) => `City: ${label}`}
+                />
+                <Legend />
+                <Bar dataKey="total_revenue" fill="#8b5cf6" name="Total Revenue" />
+              </RechartsBarChart>
+            </ResponsiveContainer>
+          </Card.Body>
+        </Card>
+      )}
+
+      {/* Revenue by Property Type - Asset Comparison */}
+      {analytics?.revenue_by_type && analytics.revenue_by_type.length > 0 && (
+        <Card className="mb-6">
+          <Card.Header>
+            <Card.Title className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-green-600" />
+                Revenue by Property Type (Asset Comparison)
+              </div>
+              <button
+                onClick={() => openInfoModal('Revenue by Property Type', 'This comparison shows which property types generate the most revenue across your portfolio. Use this to identify the most profitable asset types.')}
+                className="p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                title="Learn more"
+              >
+                <Info className="w-4 h-4" />
+              </button>
+            </Card.Title>
+          </Card.Header>
+          <Card.Body>
+            <ResponsiveContainer width="100%" height={300}>
+              <ComposedChart data={analytics.revenue_by_type}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="property_type" angle={-45} textAnchor="end" height={80} />
+                <YAxis yAxisId="left" />
+                <YAxis yAxisId="right" orientation="right" />
+                <Tooltip 
+                  formatter={(value, name) => {
+                    if (name === 'Total Revenue') return `€${value.toLocaleString()}`;
+                    if (name === 'Avg Price') return `€${value.toFixed(2)}/night`;
+                    return value;
+                  }}
+                />
+                <Legend />
+                <Bar yAxisId="left" dataKey="total_revenue" fill="#10b981" name="Total Revenue" />
+                <Line yAxisId="right" type="monotone" dataKey="avg_price" stroke="#3b82f6" strokeWidth={2} name="Avg Price/Night" />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </Card.Body>
+        </Card>
+      )}
+
+      {/* Occupancy by City */}
+      {analytics?.occupancy_by_city && analytics.occupancy_by_city.length > 0 && (
+        <Card className="mb-6">
+          <Card.Header>
+            <Card.Title className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-orange-600" />
+                Occupancy Rate by City
+              </div>
+              <button
+                onClick={() => openInfoModal('Occupancy by City', 'This chart shows the occupancy rates across different cities, helping you identify which locations have the highest demand and utilization.')}
+                className="p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                title="Learn more"
+              >
+                <Info className="w-4 h-4" />
+              </button>
+            </Card.Title>
+          </Card.Header>
+          <Card.Body>
+            <ResponsiveContainer width="100%" height={300}>
+              <RechartsBarChart data={analytics.occupancy_by_city}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="city" 
+                  angle={-45} 
+                  textAnchor="end" 
+                  height={100}
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis domain={[0, 100]} />
+                <Tooltip 
+                  formatter={(value) => `${value}%`}
+                  labelFormatter={(label) => `City: ${label}`}
+                />
+                <Legend />
+                <Bar dataKey="occupancy_rate" fill="#f59e0b" name="Occupancy Rate %" />
+              </RechartsBarChart>
+            </ResponsiveContainer>
+          </Card.Body>
+        </Card>
+      )}
+
+      {/* Top Cities and Top Properties */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Top Cities */}
+        <Card>
+          <Card.Header>
+            <Card.Title className="flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-purple-600" />
+              Top 10 Cities by Property Count
+            </Card.Title>
+          </Card.Header>
+          <Card.Body>
+            {analytics?.by_city && analytics.by_city.length > 0 ? (
+              <div className="space-y-3">
+                {analytics.by_city.map((item, index) => (
+                  <div 
+                    key={index}
+                    className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-purple-200 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-semibold text-gray-900">{item.city || 'Unknown'}</p>
+                        <p className="text-xs text-gray-500">{item.country || ''}</p>
+                        {item.avg_price && (
+                          <p className="text-xs text-gray-600 mt-1">
+                            Avg: €{item.avg_price.toFixed(2)}/night
+                          </p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-purple-700">{item.count}</p>
+                        <p className="text-xs text-gray-500">properties</p>
+                        {item.total_revenue && (
+                          <p className="text-xs text-green-600 mt-1">
+                            €{item.total_revenue.toLocaleString()}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500 text-center py-8">No data available</p>
-          )}
-        </Card.Body>
-      </Card>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-8">No data available</p>
+            )}
+          </Card.Body>
+        </Card>
+
+        {/* Top Performing Properties */}
+        <Card>
+          <Card.Header>
+            <Card.Title className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-green-600" />
+              Top Performing Properties
+            </Card.Title>
+          </Card.Header>
+          <Card.Body>
+            {analytics?.top_properties && analytics.top_properties.length > 0 ? (
+              <div className="space-y-3">
+                {analytics.top_properties.map((item, index) => (
+                  <div 
+                    key={index}
+                    className="p-4 bg-gradient-to-br from-green-50 to-blue-50 rounded-lg border border-green-200 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-900">{item.title}</p>
+                        <p className="text-xs text-gray-500">{item.city}, {item.country}</p>
+                        <p className="text-xs text-gray-600 mt-1 capitalize">{item.type?.replace('_', ' ')}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-green-600">
+                          €{item.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </p>
+                        <p className="text-xs text-gray-500">{item.bookings} bookings</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-8">No data available</p>
+            )}
+          </Card.Body>
+        </Card>
+      </div>
 
       {/* Average Price by Type */}
       <Card className="mb-6">
@@ -203,8 +504,8 @@ const Analytics = () => {
           {analytics?.avg_price_by_type && analytics.avg_price_by_type.length > 0 ? (
             <div className="space-y-4">
               {analytics.avg_price_by_type.map((item, index) => {
-                const maxPrice = Math.max(...analytics.avg_price_by_type.map(i => i.avg_price || 0));
-                const barWidth = maxPrice > 0 ? ((item.avg_price / maxPrice) * 100).toFixed(1) : 0;
+                const maxPrice = Math.max(...analytics.avg_price_by_type.map(i => parseFloat(i.avg_price) || 0));
+                const barWidth = maxPrice > 0 ? ((parseFloat(item.avg_price || 0) / maxPrice) * 100).toFixed(1) : 0;
                 
                 return (
                   <div key={index}>
@@ -213,7 +514,7 @@ const Analytics = () => {
                         {item.property_type?.replace('_', ' ')}
                       </span>
                       <span className="text-sm font-bold text-green-600">
-                        ${item.avg_price ? item.avg_price.toFixed(2) : '0.00'} / night
+                        €{parseFloat(item.avg_price || 0).toFixed(2)} / night
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-4">
@@ -222,7 +523,7 @@ const Analytics = () => {
                         style={{ width: `${barWidth}%` }}
                       >
                         <span className="text-xs text-white font-semibold">
-                          {barWidth > 15 ? `$${item.avg_price?.toFixed(0)}` : ''}
+                          {barWidth > 15 ? `€${parseFloat(item.avg_price || 0).toFixed(0)}` : ''}
                         </span>
                       </div>
                     </div>
@@ -236,25 +537,35 @@ const Analytics = () => {
         </Card.Body>
       </Card>
 
-      {/* Monthly Trend */}
+      {/* Property Creation Trend with Revenue and Bookings */}
       <Card>
         <Card.Header>
           <Card.Title className="flex items-center gap-2">
             <LineChart className="w-5 h-5 text-blue-600" />
-            Property Creation Trend (Last 12 Months)
+            Portfolio Trends (Last 12 Months)
           </Card.Title>
         </Card.Header>
         <Card.Body>
           {analytics?.monthly_trend && analytics.monthly_trend.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <RechartsLineChart data={analytics.monthly_trend}>
+            <ResponsiveContainer width="100%" height={400}>
+              <ComposedChart data={analytics.monthly_trend}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
-                <YAxis />
-                <Tooltip />
+                <YAxis yAxisId="left" label={{ value: 'Properties Created', angle: -90, position: 'insideLeft' }} />
+                <YAxis yAxisId="right" orientation="right" label={{ value: 'Revenue (€)', angle: 90, position: 'insideRight' }} />
+                <Tooltip 
+                  formatter={(value, name) => {
+                    if (name === 'Properties Created') return value;
+                    if (name === 'Revenue') return `€${value.toLocaleString()}`;
+                    if (name === 'Bookings') return value;
+                    return value;
+                  }}
+                />
                 <Legend />
-                <Line type="monotone" dataKey="count" stroke="#3b82f6" strokeWidth={2} name="Properties Created" />
-              </RechartsLineChart>
+                <Bar yAxisId="left" dataKey="count" fill="#3b82f6" name="Properties Created" />
+                <Area yAxisId="right" type="monotone" dataKey="revenue" fill="#10b981" fillOpacity={0.6} stroke="#10b981" name="Revenue" />
+                <Line yAxisId="left" type="monotone" dataKey="bookings" stroke="#f59e0b" strokeWidth={2} name="Bookings" />
+              </ComposedChart>
             </ResponsiveContainer>
           ) : (
             <p className="text-gray-500 text-center py-8">No data available</p>
@@ -262,58 +573,21 @@ const Analytics = () => {
         </Card.Body>
       </Card>
 
-      {/* Platform Metrics Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <Card.Body>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Total Properties</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {analytics?.by_type?.reduce((sum, item) => sum + item.count, 0) || 0}
-                </p>
-              </div>
-              <Home className="w-10 h-10 text-blue-600" />
-            </div>
-          </Card.Body>
-        </Card>
-
-        <Card>
-          <Card.Body>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Active Properties</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {analytics?.by_status?.find(s => s.status === 'approved')?.count || 0}
-                </p>
-              </div>
-              <Activity className="w-10 h-10 text-green-600" />
-            </div>
-          </Card.Body>
-        </Card>
-
-        <Card>
-          <Card.Body>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Top City</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {analytics?.by_city?.[0]?.city || 'N/A'}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {analytics?.by_city?.[0]?.count || 0} properties
-                </p>
-              </div>
-              <TrendingUp className="w-10 h-10 text-purple-600" />
-            </div>
-          </Card.Body>
-        </Card>
-      </div>
+      {/* Info Modal */}
+      <Modal
+        isOpen={infoModal.isOpen}
+        onClose={closeInfoModal}
+        title={infoModal.title}
+        size="md"
+      >
+        <div className="prose max-w-none">
+          <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+            {infoModal.content}
+          </p>
+        </div>
+      </Modal>
     </Container>
   );
 };
 
 export default Analytics;
-
-
-

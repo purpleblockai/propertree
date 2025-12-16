@@ -20,42 +20,6 @@ const Profile = () => {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const fileInputRef = useRef(null);
 
-  // Fetch profile data
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
-    try {
-      setLoading(true);
-      const data = await userService.getProfile();
-      setProfileData(data);
-
-      // Initialize form with fetched data
-      if (data.role === 'admin' && data.admin_profile) {
-        formik.setValues({
-          first_name: data.admin_profile.first_name || '',
-          last_name: data.admin_profile.last_name || '',
-          phone_number: data.admin_profile.phone_number || '',
-          department: data.admin_profile.department || '',
-        });
-      } else if (data.profile) {
-        formik.setValues({
-          first_name: data.profile.first_name || '',
-          last_name: data.profile.last_name || '',
-          phone_number: data.profile.phone_number || '',
-          bio: data.profile.bio || '',
-          address: data.profile.address || '',
-        });
-      }
-    } catch (err) {
-      setError('Failed to load profile data');
-      console.error('Profile fetch error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Formik setup with dynamic validation based on role
   const formik = useFormik({
     initialValues: {
@@ -66,18 +30,24 @@ const Profile = () => {
       address: '',
       department: '',
     },
+    enableReinitialize: true,
     validationSchema: Yup.object({
       first_name: Yup.string().required('First name is required'),
       last_name: Yup.string().required('Last name is required'),
-      phone_number: Yup.string().required('Phone number is required'),
-      bio: profileData?.role !== 'admin' ? Yup.string() : Yup.string().notRequired(),
-      address: profileData?.role !== 'admin' ? Yup.string() : Yup.string().notRequired(),
-      department: profileData?.role === 'admin' ? Yup.string() : Yup.string().notRequired(),
+      phone_number: Yup.string(),
+      bio: Yup.string(),
+      address: Yup.string(),
+      department: Yup.string(),
     }),
     onSubmit: async (values, { setSubmitting }) => {
       try {
         setError('');
         setSuccess('');
+
+        if (!profileData) {
+          setError('Profile data not loaded');
+          return;
+        }
 
         // Format data based on role
         const updateData = {};
@@ -105,8 +75,10 @@ const Profile = () => {
         setSuccess('Profile updated successfully!');
         setIsEditing(false);
         toast.success('Profile updated successfully!');
+        // Refresh form with updated data
+        await fetchProfile();
       } catch (err) {
-        const errorMsg = err.response?.data?.message || 'Failed to update profile';
+        const errorMsg = err.response?.data?.message || err.response?.data?.error || 'Failed to update profile';
         setError(errorMsg);
         toast.error(errorMsg);
         console.error('Profile update error:', err);
@@ -115,6 +87,70 @@ const Profile = () => {
       }
     },
   });
+
+  // Fetch profile data
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const data = await userService.getProfile();
+      setProfileData(data);
+
+      // Initialize form with fetched data
+      if (data.role === 'admin' && data.admin_profile) {
+        formik.setValues({
+          first_name: data.admin_profile.first_name || '',
+          last_name: data.admin_profile.last_name || '',
+          phone_number: data.admin_profile.phone_number || '',
+          department: data.admin_profile.department || '',
+          bio: '',
+          address: '',
+        });
+      } else if (data.profile) {
+        formik.setValues({
+          first_name: data.profile.first_name || '',
+          last_name: data.profile.last_name || '',
+          phone_number: data.profile.phone_number || '',
+          bio: data.profile.bio || '',
+          address: data.profile.address || '',
+          department: '',
+        });
+      }
+    } catch (err) {
+      setError('Failed to load profile data');
+      console.error('Profile fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  // Update form values when profileData changes
+  useEffect(() => {
+    if (profileData) {
+      if (profileData.role === 'admin' && profileData.admin_profile) {
+        formik.setValues({
+          first_name: profileData.admin_profile.first_name || '',
+          last_name: profileData.admin_profile.last_name || '',
+          phone_number: profileData.admin_profile.phone_number || '',
+          department: profileData.admin_profile.department || '',
+          bio: '',
+          address: '',
+        });
+      } else if (profileData.profile) {
+        formik.setValues({
+          first_name: profileData.profile.first_name || '',
+          last_name: profileData.profile.last_name || '',
+          phone_number: profileData.profile.phone_number || '',
+          bio: profileData.profile.bio || '',
+          address: profileData.profile.address || '',
+          department: '',
+        });
+      }
+    }
+  }, [profileData]);
 
   // Handle profile photo upload
   const handlePhotoUpload = async (e) => {
@@ -135,16 +171,24 @@ const Profile = () => {
 
     try {
       setUploadingPhoto(true);
+      setError('');
       const updatedData = await userService.uploadPhoto(file);
       setProfileData(updatedData);
       updateUser(updatedData);
       toast.success('Profile photo updated successfully!');
+      // Refresh the profile to show updated photo
+      await fetchProfile();
     } catch (err) {
-      const errorMsg = err.response?.data?.message || 'Failed to upload photo';
+      const errorMsg = err.response?.data?.message || err.response?.data?.error || 'Failed to upload photo';
+      setError(errorMsg);
       toast.error(errorMsg);
       console.error('Photo upload error:', err);
     } finally {
       setUploadingPhoto(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -241,11 +285,15 @@ const Profile = () => {
             </div>
 
             {/* Edit/Save Button */}
-            <div className="pt-20 flex justify-end">
+            <div className="pt-20 flex justify-end mb-4">
               {!isEditing ? (
                 <button
-                  onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-2 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+                  onClick={() => {
+                    setIsEditing(true);
+                    console.log('Edit mode enabled');
+                  }}
+                  className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md font-medium"
+                  type="button"
                 >
                   <Edit2 className="w-4 h-4" />
                   Edit Profile
@@ -255,7 +303,7 @@ const Profile = () => {
                   <button
                     onClick={handleCancel}
                     type="button"
-                    className="flex items-center gap-2 px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-2 px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                   >
                     <X className="w-4 h-4" />
                     Cancel
@@ -263,7 +311,8 @@ const Profile = () => {
                   <button
                     onClick={formik.handleSubmit}
                     disabled={formik.isSubmitting}
-                    className="flex items-center gap-2 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50"
+                    type="button"
+                    className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 shadow-md font-medium"
                   >
                     <Save className="w-4 h-4" />
                     {formik.isSubmitting ? 'Saving...' : 'Save Changes'}
@@ -271,6 +320,15 @@ const Profile = () => {
                 </div>
               )}
             </div>
+            
+            {/* Edit Mode Indicator */}
+            {isEditing && (
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800 font-medium">
+                  ✏️ You are in edit mode. Make your changes and click "Save Changes" when done.
+                </p>
+              </div>
+            )}
 
             {/* Profile Form */}
             <form onSubmit={formik.handleSubmit} className="mt-8 space-y-6">
@@ -292,11 +350,12 @@ const Profile = () => {
                         value={formik.values.first_name}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
-                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent ${
+                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white ${
                           formik.touched.first_name && formik.errors.first_name
                             ? 'border-red-500'
                             : 'border-gray-300'
                         }`}
+                        placeholder="Enter first name"
                       />
                     ) : (
                       <p className="px-4 py-2 bg-gray-50 rounded-lg text-gray-900">
@@ -320,11 +379,12 @@ const Profile = () => {
                         value={formik.values.last_name}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
-                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent ${
+                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white ${
                           formik.touched.last_name && formik.errors.last_name
                             ? 'border-red-500'
                             : 'border-gray-300'
                         }`}
+                        placeholder="Enter last name"
                       />
                     ) : (
                       <p className="px-4 py-2 bg-gray-50 rounded-lg text-gray-900">
@@ -361,11 +421,12 @@ const Profile = () => {
                         value={formik.values.phone_number}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
-                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent ${
+                        className={`w-full px-4 py-2 border-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white ${
                           formik.touched.phone_number && formik.errors.phone_number
                             ? 'border-red-500'
                             : 'border-gray-300'
                         }`}
+                        placeholder="Enter phone number"
                       />
                     ) : (
                       <p className="px-4 py-2 bg-gray-50 rounded-lg text-gray-900">
@@ -399,7 +460,8 @@ const Profile = () => {
                           value={formik.values.department}
                           onChange={formik.handleChange}
                           onBlur={formik.handleBlur}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                          placeholder="Enter department"
                         />
                       ) : (
                         <p className="px-4 py-2 bg-gray-50 rounded-lg text-gray-900">
@@ -441,7 +503,7 @@ const Profile = () => {
                           onChange={formik.handleChange}
                           onBlur={formik.handleBlur}
                           rows="4"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white resize-y"
                           placeholder="Tell us about yourself..."
                         />
                       ) : (
@@ -464,7 +526,7 @@ const Profile = () => {
                           onChange={formik.handleChange}
                           onBlur={formik.handleBlur}
                           rows="3"
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                          className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white resize-y"
                           placeholder="Enter your address..."
                         />
                       ) : (

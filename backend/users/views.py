@@ -147,6 +147,7 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     """API endpoint for viewing and updating user profile."""
 
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_serializer_class(self):
         """Return appropriate serializer based on request method."""
@@ -162,9 +163,65 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         """Update user profile and return updated data."""
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        
+        # Handle FormData with file uploads
+        data = request.data.copy() if hasattr(request.data, 'copy') else dict(request.data)
+        
+        # Handle nested profile fields from FormData (profile.*)
+        if hasattr(request.data, '_mutable') or isinstance(request.data, dict):
+            # This is a QueryDict (FormData) or dict
+            profile_keys = [key for key in request.data.keys() if key.startswith('profile.')]
+            if profile_keys:
+                if 'profile' not in data:
+                    data['profile'] = {}
+                for key in profile_keys:
+                    field_name = key.replace('profile.', '')
+                    value = request.data.get(key)
+                    if isinstance(value, list):
+                        data['profile'][field_name] = value[0] if value else ''
+                    else:
+                        data['profile'][field_name] = value
+        
+        # Handle profile photo from nested FormData (profile.profile_photo)
+        if 'profile.profile_photo' in request.FILES:
+            if 'profile' not in data:
+                data['profile'] = {}
+            data['profile']['profile_photo'] = request.FILES['profile.profile_photo']
+        # Also handle direct profile_photo upload (for backward compatibility)
+        elif 'profile_photo' in request.FILES and instance.role in ['tenant', 'landlord']:
+            if 'profile' not in data:
+                data['profile'] = {}
+            data['profile']['profile_photo'] = request.FILES['profile_photo']
+        
+        # Handle nested admin_profile fields (admin_profile.*)
+        admin_profile_keys = [key for key in request.data.keys() if key.startswith('admin_profile.')]
+        if admin_profile_keys:
+            if 'admin_profile' not in data:
+                data['admin_profile'] = {}
+            for key in admin_profile_keys:
+                field_name = key.replace('admin_profile.', '')
+                value = request.data.get(key)
+                if isinstance(value, list):
+                    data['admin_profile'][field_name] = value[0] if value else ''
+                else:
+                    data['admin_profile'][field_name] = value
+        
+        serializer = self.get_serializer(instance, data=data, partial=partial, context={'request': request})
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
+        # Refresh instance to get updated data
+        instance.refresh_from_db()
+        if hasattr(instance, 'profile'):
+            try:
+                instance.profile.refresh_from_db()
+            except Profile.DoesNotExist:
+                pass
+        if hasattr(instance, 'admin_profile'):
+            try:
+                instance.admin_profile.refresh_from_db()
+            except:
+                pass
+
         # Return the updated data using UserDetailSerializer
-        return Response(UserDetailSerializer(instance).data)
+        return Response(UserDetailSerializer(instance, context={'request': request}).data)

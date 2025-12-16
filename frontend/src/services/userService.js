@@ -25,13 +25,10 @@ const userService = {
    */
   async uploadPhoto(file) {
     const formData = new FormData();
-    formData.append('profile_photo', file);
+    // Send in nested format: profile.profile_photo
+    formData.append('profile.profile_photo', file);
 
-    const response = await api.patch('/auth/profile/', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await api.patch('/auth/profile/', formData);
     return response.data;
   },
 

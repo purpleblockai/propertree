@@ -4,8 +4,8 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { Container } from '../../components/layout';
-import { Card, Button, Loading, Alert, Badge } from '../../components/common';
-import { Calendar, User, Home, CheckCircle, XCircle, Search, Filter } from 'lucide-react';
+import { Card, Button, Loading, Alert, Badge, Select, Input } from '../../components/common';
+import { Calendar, User, Home, CheckCircle, XCircle, Search, Filter, X } from 'lucide-react';
 import api from '../../services/api';
 
 const AdminBookings = () => {
@@ -13,15 +13,27 @@ const AdminBookings = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, pending, confirmed, cancelled
   const [searchTerm, setSearchTerm] = useState('');
+  const [countryFilter, setCountryFilter] = useState('');
+  const [cityFilter, setCityFilter] = useState('');
+  const [filterOptions, setFilterOptions] = useState({ countries: [], cities: [] });
+  const [loadingFilters, setLoadingFilters] = useState(false);
 
   useEffect(() => {
     fetchBookings();
-  }, []);
+  }, [countryFilter, cityFilter]);
+
+  useEffect(() => {
+    fetchFilterOptions();
+  }, [countryFilter]);
 
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/bookings/admin/');
+      const params = {};
+      if (countryFilter) params.country = countryFilter;
+      if (cityFilter) params.city = cityFilter;
+      
+      const response = await api.get('/bookings/admin/', { params });
       // Handle paginated response - data is in response.data.results
       const bookingsData = response.data.results || response.data;
       setBookings(Array.isArray(bookingsData) ? bookingsData : []);
@@ -33,6 +45,59 @@ const AdminBookings = () => {
       setLoading(false);
     }
   };
+
+  const fetchFilterOptions = async () => {
+    setLoadingFilters(true);
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const params = new URLSearchParams();
+      if (countryFilter) {
+        params.append('country', countryFilter);
+      }
+      const queryString = params.toString();
+      const url = `${API_BASE_URL}/admin/properties/filter-options${queryString ? `?${queryString}` : ''}`;
+
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (countryFilter && data.cities) {
+          setFilterOptions({
+            countries: data.countries || filterOptions.countries,
+            cities: data.cities || []
+          });
+        } else if (data.cities_by_country) {
+          const allCities = Object.values(data.cities_by_country).flat();
+          setFilterOptions({
+            countries: data.countries || [],
+            cities: allCities
+          });
+        } else {
+          setFilterOptions({
+            countries: data.countries || [],
+            cities: []
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching filter options:', error);
+    } finally {
+      setLoadingFilters(false);
+    }
+  };
+
+  const clearFilters = () => {
+    setCountryFilter('');
+    setCityFilter('');
+    setSearchTerm('');
+    setFilter('all');
+  };
+
+  const hasActiveFilters = countryFilter || cityFilter || searchTerm || filter !== 'all';
 
   const handleConfirm = async (bookingId) => {
     try {
@@ -84,11 +149,19 @@ const AdminBookings = () => {
       if (!searchTerm) return true;
       const search = searchTerm.toLowerCase();
       return (
-        booking.property_title.toLowerCase().includes(search) ||
-        booking.tenant_name.toLowerCase().includes(search) ||
-        booking.tenant_email.toLowerCase().includes(search) ||
-        booking.property_city.toLowerCase().includes(search)
+        booking.property_title?.toLowerCase().includes(search) ||
+        booking.tenant_name?.toLowerCase().includes(search) ||
+        booking.tenant_email?.toLowerCase().includes(search) ||
+        booking.property_city?.toLowerCase().includes(search)
       );
+    })
+    .filter(booking => {
+      if (!countryFilter) return true;
+      return booking.property_country === countryFilter;
+    })
+    .filter(booking => {
+      if (!cityFilter) return true;
+      return booking.property_city === cityFilter;
     });
 
   const pendingCount = bookings.filter(b => b.status === 'pending').length;
@@ -163,19 +236,64 @@ const AdminBookings = () => {
         {/* Filters and Search */}
         <Card className="mb-6">
           <Card.Body>
-            <div className="flex flex-col md:flex-row gap-4">
-              {/* Search */}
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                {/* Search */}
+                <div className="flex-1">
+                  <Input
+                    leftIcon={<Search className="w-5 h-5" />}
                     placeholder="Search by property, tenant, or location..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
                   />
                 </div>
+
+                {/* Country Filter */}
+                <div className="w-full md:w-48">
+                  <Select
+                    name="country"
+                    value={countryFilter}
+                    onChange={(e) => {
+                      setCountryFilter(e.target.value);
+                      setCityFilter(''); // Reset city when country changes
+                    }}
+                    options={[
+                      { value: '', label: 'All Countries' },
+                      ...filterOptions.countries.map(country => ({ value: country, label: country }))
+                    ]}
+                    placeholder="All Countries"
+                    disabled={loadingFilters}
+                  />
+                </div>
+
+                {/* City Filter */}
+                <div className="w-full md:w-48">
+                  <Select
+                    name="city"
+                    value={cityFilter}
+                    onChange={(e) => setCityFilter(e.target.value)}
+                    options={[
+                      { value: '', label: 'All Cities' },
+                      ...filterOptions.cities.map(city => ({ value: city, label: city }))
+                    ]}
+                    placeholder={countryFilter ? 'All Cities' : 'Select Country First'}
+                    disabled={loadingFilters || !countryFilter}
+                  />
+                </div>
+
+                {/* Clear Filters Button */}
+                {hasActiveFilters && (
+                  <div className="flex items-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      leftIcon={<X className="w-4 h-4" />}
+                      onClick={clearFilters}
+                    >
+                      Clear Filters
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {/* Status Filter */}

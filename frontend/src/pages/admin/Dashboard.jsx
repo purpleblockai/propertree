@@ -2,6 +2,7 @@
  * Admin Dashboard - Overview with KPIs and Analytics
  */
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { 
   Home, Users, Calendar, DollarSign, 
@@ -13,6 +14,7 @@ import { Card, Loading } from '../../components/common';
 import { LineChart, Line, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const [stats, setStats] = useState(null);
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -72,8 +74,8 @@ const Dashboard = () => {
     <Container className="py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="text-gray-600 mt-2">Overview of platform statistics and pending actions</p>
+        <h1 className="text-3xl font-bold text-gray-900">{t('adminDashboard.title')}</h1>
+        <p className="text-gray-600 mt-2">{t('adminDashboard.subtitle')}</p>
       </div>
 
       {/* Key Metrics */}
@@ -83,12 +85,12 @@ const Dashboard = () => {
           <Card.Body>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Properties</p>
+                <p className="text-sm text-gray-600">{t('adminDashboard.totalProperties')}</p>
                 <p className="text-3xl font-bold text-gray-900 mt-1">
                   {stats?.properties.total || 0}
                 </p>
                 <p className="text-sm text-green-600 mt-2">
-                  +{stats?.properties.recent || 0} this week
+                  +{stats?.properties.recent || 0} {t('adminDashboard.thisWeek')}
                 </p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -103,12 +105,12 @@ const Dashboard = () => {
           <Card.Body>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Users</p>
+                <p className="text-sm text-gray-600">{t('adminDashboard.totalUsers')}</p>
                 <p className="text-3xl font-bold text-gray-900 mt-1">
                   {stats?.users.total || 0}
                 </p>
                 <p className="text-sm text-blue-600 mt-2">
-                  +{stats?.users.recent || 0} this week
+                  +{stats?.users.recent || 0} {t('adminDashboard.thisWeek')}
                 </p>
               </div>
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -123,12 +125,12 @@ const Dashboard = () => {
           <Card.Body>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Bookings</p>
+                <p className="text-sm text-gray-600">{t('adminDashboard.totalBookings')}</p>
                 <p className="text-3xl font-bold text-gray-900 mt-1">
                   {stats?.bookings.total || 0}
                 </p>
                 <p className="text-sm text-purple-600 mt-2">
-                  +{stats?.bookings.recent || 0} this week
+                  +{stats?.bookings.recent || 0} {t('adminDashboard.thisWeek')}
                 </p>
               </div>
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -143,12 +145,12 @@ const Dashboard = () => {
           <Card.Body>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600">Total Revenue</p>
+                <p className="text-sm text-gray-600">{t('adminDashboard.totalRevenue')}</p>
                 <p className="text-3xl font-bold text-gray-900 mt-1">
                   ${stats?.revenue.total.toFixed(0) || 0}
                 </p>
                 <p className="text-sm text-green-600 mt-2">
-                  ${stats?.revenue.monthly.toFixed(0) || 0} this month
+                  ${stats?.revenue.monthly.toFixed(0) || 0} {t('adminDashboard.thisMonth')}
                 </p>
               </div>
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -164,7 +166,7 @@ const Dashboard = () => {
         {/* Property Status */}
         <Card>
           <Card.Header>
-            <Card.Title>Property Status</Card.Title>
+            <Card.Title>{t('adminDashboard.propertyStatus')}</Card.Title>
           </Card.Header>
           <Card.Body>
             <div className="space-y-4">
@@ -176,8 +178,8 @@ const Dashboard = () => {
                 <div className="flex items-center space-x-3">
                   <Clock className="w-8 h-8 text-yellow-600" />
                   <div>
-                    <p className="font-semibold text-gray-900">Pending Approval</p>
-                    <p className="text-sm text-gray-600">Requires your review</p>
+                    <p className="font-semibold text-gray-900">{t('adminDashboard.pendingApproval')}</p>
+                    <p className="text-sm text-gray-600">{t('adminDashboard.requiresReview')}</p>
                   </div>
                 </div>
                 <span className="text-2xl font-bold text-yellow-600">
@@ -190,8 +192,8 @@ const Dashboard = () => {
                 <div className="flex items-center space-x-3">
                   <CheckCircle className="w-8 h-8 text-green-600" />
                   <div>
-                    <p className="font-semibold text-gray-900">Active</p>
-                    <p className="text-sm text-gray-600">Live on platform</p>
+                    <p className="font-semibold text-gray-900">{t('adminDashboard.active')}</p>
+                    <p className="text-sm text-gray-600">{t('adminDashboard.liveOnPlatform')}</p>
                   </div>
                 </div>
                 <span className="text-2xl font-bold text-green-600">
@@ -204,8 +206,8 @@ const Dashboard = () => {
                 <div className="flex items-center space-x-3">
                   <XCircle className="w-8 h-8 text-red-600" />
                   <div>
-                    <p className="font-semibold text-gray-900">Rejected</p>
-                    <p className="text-sm text-gray-600">Not approved</p>
+                    <p className="font-semibold text-gray-900">{t('adminDashboard.rejected')}</p>
+                    <p className="text-sm text-gray-600">{t('adminDashboard.notApproved')}</p>
                   </div>
                 </div>
                 <span className="text-2xl font-bold text-red-600">
@@ -219,14 +221,14 @@ const Dashboard = () => {
         {/* User Breakdown */}
         <Card>
           <Card.Header>
-            <Card.Title>User Breakdown</Card.Title>
+            <Card.Title>{t('adminDashboard.userBreakdown')}</Card.Title>
           </Card.Header>
           <Card.Body>
             <div className="space-y-6">
               {/* Landlords */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-gray-700">Landlords</span>
+                  <span className="text-sm font-medium text-gray-700">{t('adminDashboard.landlords')}</span>
                   <span className="text-sm font-bold text-gray-900">
                     {stats?.users.landlords || 0}
                   </span>
@@ -242,14 +244,14 @@ const Dashboard = () => {
                 <p className="text-xs text-gray-500 mt-1">
                   {stats?.users.total > 0 
                     ? ((stats.users.landlords / stats.users.total) * 100).toFixed(1) 
-                    : 0}% of total users
+                    : 0}% {t('adminDashboard.ofTotalUsers')}
                 </p>
               </div>
 
               {/* Tenants */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-gray-700">Tenants</span>
+                  <span className="text-sm font-medium text-gray-700">{t('adminDashboard.tenants')}</span>
                   <span className="text-sm font-bold text-gray-900">
                     {stats?.users.tenants || 0}
                   </span>
@@ -265,14 +267,14 @@ const Dashboard = () => {
                 <p className="text-xs text-gray-500 mt-1">
                   {stats?.users.total > 0 
                     ? ((stats.users.tenants / stats.users.total) * 100).toFixed(1) 
-                    : 0}% of total users
+                    : 0}% {t('adminDashboard.ofTotalUsers')}
                 </p>
               </div>
 
               {/* Booking Stats */}
               <div className="pt-4 border-t">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Average Booking Value</span>
+                  <span className="text-sm text-gray-600">{t('adminDashboard.averageBookingValue')}</span>
                   <span className="text-lg font-bold text-gray-900">
                     ${stats?.revenue.average_booking.toFixed(2) || 0}
                   </span>
@@ -292,7 +294,7 @@ const Dashboard = () => {
               <Card.Header>
                 <Card.Title className="flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-green-600" />
-                  Property Creation Trend
+                  {t('adminDashboard.propertyCreationTrend')}
                 </Card.Title>
               </Card.Header>
               <Card.Body>
@@ -303,7 +305,7 @@ const Dashboard = () => {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="count" stroke="#10b981" strokeWidth={2} name="Properties" />
+                    <Line type="monotone" dataKey="count" stroke="#10b981" strokeWidth={2} name={t('adminDashboard.totalProperties')} />
                   </LineChart>
                 </ResponsiveContainer>
               </Card.Body>
@@ -316,7 +318,7 @@ const Dashboard = () => {
               <Card.Header>
                 <Card.Title className="flex items-center gap-2">
                   <PieChart className="w-5 h-5 text-blue-600" />
-                  Properties by Type
+                  {t('adminDashboard.propertiesByType')}
                 </Card.Title>
               </Card.Header>
               <Card.Body>
@@ -353,7 +355,7 @@ const Dashboard = () => {
       {/* Quick Actions */}
       <Card>
         <Card.Header>
-          <Card.Title>Quick Actions</Card.Title>
+          <Card.Title>{t('adminDashboard.quickActions')}</Card.Title>
         </Card.Header>
         <Card.Body>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -362,9 +364,9 @@ const Dashboard = () => {
               className="p-6 border-2 border-yellow-200 rounded-lg hover:border-yellow-400 hover:bg-yellow-50 transition-all text-center"
             >
               <Clock className="w-12 h-12 text-yellow-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-gray-900 mb-1">Review Properties</h3>
+              <h3 className="font-semibold text-gray-900 mb-1">{t('adminDashboard.reviewProperties')}</h3>
               <p className="text-sm text-gray-600">
-                {stats?.properties.pending || 0} pending approval
+                {stats?.properties.pending || 0} {t('adminDashboard.pendingApproval')}
               </p>
             </Link>
 
@@ -373,9 +375,9 @@ const Dashboard = () => {
               className="p-6 border-2 border-blue-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all text-center"
             >
               <Users className="w-12 h-12 text-blue-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-gray-900 mb-1">Manage Users</h3>
+              <h3 className="font-semibold text-gray-900 mb-1">{t('adminDashboard.manageUsers')}</h3>
               <p className="text-sm text-gray-600">
-                {stats?.users.total || 0} total users
+                {stats?.users.total || 0} {t('adminDashboard.totalUsers')}
               </p>
             </Link>
 
@@ -384,9 +386,9 @@ const Dashboard = () => {
               className="p-6 border-2 border-purple-200 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-all text-center"
             >
               <Calendar className="w-12 h-12 text-purple-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-gray-900 mb-1">Manage Bookings</h3>
+              <h3 className="font-semibold text-gray-900 mb-1">{t('adminDashboard.manageBookings')}</h3>
               <p className="text-sm text-gray-600">
-                {stats?.bookings.total || 0} total bookings
+                {stats?.bookings.total || 0} {t('adminDashboard.totalBookings')}
               </p>
             </Link>
 
@@ -395,8 +397,8 @@ const Dashboard = () => {
               className="p-6 border-2 border-green-200 rounded-lg hover:border-green-400 hover:bg-green-50 transition-all text-center"
             >
               <TrendingUp className="w-12 h-12 text-green-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-gray-900 mb-1">View Analytics</h3>
-              <p className="text-sm text-gray-600">Detailed insights</p>
+              <h3 className="font-semibold text-gray-900 mb-1">{t('adminDashboard.viewAnalytics')}</h3>
+              <p className="text-sm text-gray-600">{t('adminDashboard.detailedInsights')}</p>
             </Link>
           </div>
         </Card.Body>

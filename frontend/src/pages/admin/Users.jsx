@@ -2,10 +2,11 @@
  * Admin Users - View and manage all users
  */
 import React, { useState, useEffect } from 'react';
-import { Users as UsersIcon, Search, Mail, Home, Calendar, Shield } from 'lucide-react';
+import { Users as UsersIcon, Search, Mail, Home, Calendar } from 'lucide-react';
 import { Container } from '../../components/layout';
 import { Card, Button, Input, Badge, Avatar, Loading, EmptyState } from '../../components/common';
 import { toast } from 'react-hot-toast';
+import api from '../../services/api';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -20,25 +21,18 @@ const Users = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
-      let url = `${API_BASE_URL}/admin/users/`;
-      if (roleFilter && roleFilter !== 'all') {
-        url += `?role=${roleFilter}`;
-      }
-
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data.results || []);
-      }
+      const params = roleFilter && roleFilter !== 'all' ? { role: roleFilter } : {};
+      const response = await api.get('/admin/users/', { params });
+      setUsers(response.data.results || []);
     } catch (error) {
       console.error('Error fetching users:', error);
-      toast.error('Error loading users');
+      // Error handling is done by api interceptor (token refresh, redirects, etc.)
+      // Just set empty users array here
+      setUsers([]);
+      if (error.response?.data?.error) {
+        // Only show additional error if api interceptor hasn't handled it
+        toast.error(error.response.data.error);
+      }
     } finally {
       setLoading(false);
     }
@@ -46,7 +40,6 @@ const Users = () => {
 
   const getRoleBadge = (role) => {
     const roleMap = {
-      admin: { variant: 'primary', label: 'Admin', icon: <Shield className="w-3 h-3" /> },
       landlord: { variant: 'success', label: 'Landlord', icon: <Home className="w-3 h-3" /> },
       tenant: { variant: 'info', label: 'Tenant', icon: <UsersIcon className="w-3 h-3" /> },
     };
@@ -126,20 +119,13 @@ const Users = () => {
               >
                 Tenants
               </Button>
-              <Button
-                variant={roleFilter === 'admin' ? 'primary' : 'outline'}
-                size="sm"
-                onClick={() => setRoleFilter('admin')}
-              >
-                Admins
-              </Button>
             </div>
           </div>
         </Card.Body>
       </Card>
 
       {/* Stats Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <Card>
           <Card.Body>
             <div className="text-center">
@@ -165,16 +151,6 @@ const Users = () => {
                 {users.filter(u => u.role === 'tenant').length}
               </p>
               <p className="text-sm text-gray-600">Tenants</p>
-            </div>
-          </Card.Body>
-        </Card>
-        <Card>
-          <Card.Body>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-purple-600">
-                {users.filter(u => u.role === 'admin').length}
-              </p>
-              <p className="text-sm text-gray-600">Admins</p>
             </div>
           </Card.Body>
         </Card>
@@ -257,9 +233,6 @@ const Users = () => {
                               <span>{user.booking_count || 0} bookings</span>
                             </div>
                           )}
-                          {user.role === 'admin' && (
-                            <span className="text-gray-500">Admin</span>
-                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -273,7 +246,7 @@ const Users = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(user.created_at).toLocaleDateString()}
+                        {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
                       </td>
                     </tr>
                   ))}

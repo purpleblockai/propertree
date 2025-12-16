@@ -113,16 +113,32 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
         instance.save()
 
         # Update profile based on user role
-        if profile_data and instance.role in ['tenant', 'landlord']:
-            profile, created = Profile.objects.get_or_create(user=instance)
+        if profile_data is not None and instance.role in ['tenant', 'landlord']:
+            profile, created = Profile.objects.get_or_create(
+                user=instance,
+                defaults={
+                    'first_name': profile_data.get('first_name', ''),
+                    'last_name': profile_data.get('last_name', ''),
+                }
+            )
             for attr, value in profile_data.items():
-                setattr(profile, attr, value)
+                # Only update if value is not None (allows partial updates)
+                if value is not None:
+                    setattr(profile, attr, value)
             profile.save()
 
-        if admin_profile_data and instance.role == 'admin':
-            admin_profile, created = AdminProfile.objects.get_or_create(user=instance)
+        if admin_profile_data is not None and instance.role == 'admin':
+            admin_profile, created = AdminProfile.objects.get_or_create(
+                user=instance,
+                defaults={
+                    'first_name': admin_profile_data.get('first_name', ''),
+                    'last_name': admin_profile_data.get('last_name', ''),
+                }
+            )
             for attr, value in admin_profile_data.items():
-                setattr(admin_profile, attr, value)
+                # Only update if value is not None (allows partial updates)
+                if value is not None:
+                    setattr(admin_profile, attr, value)
             admin_profile.save()
 
         return instance

@@ -292,7 +292,19 @@ class AdminBookingListView(generics.ListAPIView):
             return Booking.objects.none()
 
         # Return ALL bookings, not just admin-approval properties
-        return Booking.objects.select_related('property', 'tenant').order_by('-created_at')
+        queryset = Booking.objects.select_related('property', 'tenant').order_by('-created_at')
+        
+        # Filter by country
+        country_filter = self.request.query_params.get('country')
+        if country_filter:
+            queryset = queryset.filter(property__country=country_filter)
+        
+        # Filter by city
+        city_filter = self.request.query_params.get('city')
+        if city_filter:
+            queryset = queryset.filter(property__city=city_filter)
+        
+        return queryset
     
     def list(self, request, *args, **kwargs):
         """Override list to add error handling."""

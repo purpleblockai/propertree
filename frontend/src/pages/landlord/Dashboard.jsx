@@ -3,6 +3,7 @@
  * Comprehensive view of property performance, income vs expenses, occupancy rates, and KPIs
  */
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Container } from '../../components/layout';
 import { KPICard, DonutChart, BarChart, LineChart } from '../../components/dashboard';
 import { Button, Loading } from '../../components/common';
@@ -27,6 +28,7 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services';
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
@@ -68,14 +70,14 @@ const Dashboard = () => {
           return fetchDashboardData(1);
         } catch (refreshError) {
           console.error('Token refresh failed:', refreshError);
-          toast.error('Session expired. Please login again.');
+          toast.error(t('dashboard.sessionExpired'));
           navigate('/login');
           return;
         }
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
         console.error('Dashboard API Error:', response.status, errorData);
-        toast.error(`Failed to load dashboard data: ${errorData.error || 'Unknown error'}`);
+        toast.error(`${t('dashboard.failedToLoadDashboard')}: ${errorData.error || 'Unknown error'}`);
         // If API fails, set empty data structure with zeros
         setDashboardData({
           properties: { total: 0, approved: 0, booked: 0, pending: 0, draft: 0 },
@@ -93,7 +95,7 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
-      toast.error('Network error. Please check your connection.');
+      toast.error(t('dashboard.networkError'));
       // Set empty data structure with zeros on error
       setDashboardData({
         properties: { total: 0, approved: 0, booked: 0, pending: 0, draft: 0 },
@@ -131,9 +133,9 @@ const Dashboard = () => {
 
   // Prepare chart data
   const incomeVsExpensesData = [
-    { name: 'Income', value: dashboardData.noi.revenue, category: 'income' },
+    { name: t('dashboard.income'), value: dashboardData.noi.revenue, category: 'income' },
     { 
-      name: 'Expenses', 
+      name: t('dashboard.expenses'), 
       value: dashboardData.noi.total_expenses, 
       category: 'expenses' 
     }
@@ -183,9 +185,9 @@ const Dashboard = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Property Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('dashboard.propertyDashboard')}</h1>
           <p className="text-gray-600">
-            Overview of your property performance and financial metrics
+            {t('dashboard.overview')}
           </p>
         </div>
         <div className="flex items-center gap-4 mt-4 md:mt-0">
@@ -195,10 +197,10 @@ const Dashboard = () => {
             onChange={(e) => setDateRange(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-propertree-green bg-white"
           >
-            <option value="7">Last 7 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 90 days</option>
-            <option value="365">Last year</option>
+            <option value="7">{t('dashboard.last7Days')}</option>
+            <option value="30">{t('dashboard.last30Days')}</option>
+            <option value="90">{t('dashboard.last90Days')}</option>
+            <option value="365">{t('dashboard.lastYear')}</option>
           </select>
           <Button
             onClick={() => navigate('/landlord/expenses')}
@@ -206,7 +208,7 @@ const Dashboard = () => {
             className="flex items-center gap-2"
           >
             <Settings className="w-4 h-4" />
-            Manage Expenses
+            {t('dashboard.manageExpenses')}
           </Button>
         </div>
       </div>
@@ -214,33 +216,33 @@ const Dashboard = () => {
       {/* KPI Cards Grid - Enhanced */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <KPICard
-          title="Total Properties"
+          title={t('dashboard.totalProperties')}
           value={dashboardData.properties.total}
           icon={Home}
-          subtitle={`${dashboardData.properties.approved} approved`}
+          subtitle={`${dashboardData.properties.approved} ${t('dashboard.approved')}`}
         />
         <KPICard
-          title="Net Operating Income"
+          title={t('dashboard.netOperatingIncome')}
           value={dashboardData.noi.noi.toLocaleString()}
           valuePrefix="€"
           icon={DollarSign}
           trend={dashboardData.noi.noi > 0 ? 'up' : 'down'}
           trendValue={`${roi}% ROI`}
-          subtitle="Revenue minus expenses"
+          subtitle={t('dashboard.revenueMinusExpenses')}
         />
         <KPICard
-          title="Occupancy Rate"
+          title={t('dashboard.occupancyRate')}
           value={`${dashboardData.occupancy_rate.toFixed(1)}%`}
           icon={Calendar}
           trend={dashboardData.occupancy_rate >= 70 ? 'up' : dashboardData.occupancy_rate >= 50 ? 'neutral' : 'down'}
-          subtitle="Property utilization"
+          subtitle={t('dashboard.propertyUtilization')}
         />
         <KPICard
-          title="Total Income"
+          title={t('dashboard.totalIncome')}
           value={dashboardData.rental_income.toLocaleString()}
           valuePrefix="€"
           icon={TrendingUp}
-          subtitle="From confirmed bookings"
+          subtitle={t('dashboard.fromConfirmedBookings')}
         />
       </div>
 
@@ -248,15 +250,15 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <DonutChart
           data={incomeVsExpensesData}
-          title="Income vs Expenses"
-          centerLabel="Net Income"
+          title={t('dashboard.incomeVsExpenses')}
+          centerLabel={t('dashboard.netIncome')}
           centerValue={`€${dashboardData.noi.noi.toLocaleString()}`}
           height={350}
         />
         <DonutChart
-          data={expenseBreakdownData.length > 0 ? expenseBreakdownData : [{ name: 'No Expenses', value: 1, category: 'other' }]}
-          title="Expenses by Category"
-          centerLabel="Total Expenses"
+          data={expenseBreakdownData.length > 0 ? expenseBreakdownData : [{ name: t('dashboard.noExpensesRecorded'), value: 1, category: 'other' }]}
+          title={t('dashboard.expensesByCategory')}
+          centerLabel={t('dashboard.totalExpenses')}
           centerValue={`€${dashboardData.noi.total_expenses.toLocaleString()}`}
           height={350}
         />
@@ -267,12 +269,12 @@ const Dashboard = () => {
         <div className="mb-8">
           <LineChart
             data={cashFlowData}
-            title="Monthly Cash Flow"
+            title={t('dashboard.monthlyCashFlow')}
             xAxisKey="month_short"
             lines={[
-              { dataKey: 'income', stroke: '#10B981', name: 'Income' },
-              { dataKey: 'expenses', stroke: '#EF4444', name: 'Expenses' },
-              { dataKey: 'net_cash_flow', stroke: '#3B82F6', name: 'Net Cash Flow' }
+              { dataKey: 'income', stroke: '#10B981', name: t('dashboard.income') },
+              { dataKey: 'expenses', stroke: '#EF4444', name: t('dashboard.expenses') },
+              { dataKey: 'net_cash_flow', stroke: '#3B82F6', name: t('dashboard.netCashFlow') }
             ]}
             height={350}
             showArea={false}
@@ -285,12 +287,12 @@ const Dashboard = () => {
         <div className="mb-8">
           <BarChart
             data={propertyPerformanceChart}
-            title="Top 5 Properties Performance"
+            title={t('dashboard.top5PropertiesPerformance')}
             xAxisKey="name"
             bars={[
-              { dataKey: 'Income', fill: '#10B981', name: 'Income' },
-              { dataKey: 'Expenses', fill: '#EF4444', name: 'Expenses' },
-              { dataKey: 'Net Income', fill: '#3B82F6', name: 'Net Income' }
+              { dataKey: 'Income', fill: '#10B981', name: t('dashboard.income') },
+              { dataKey: 'Expenses', fill: '#EF4444', name: t('dashboard.expenses') },
+              { dataKey: 'Net Income', fill: '#3B82F6', name: t('dashboard.netIncome') }
             ]}
             height={350}
           />
@@ -304,23 +306,23 @@ const Dashboard = () => {
             <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
               <Wrench className="w-5 h-5 text-amber-600" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">Maintenance</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('dashboard.maintenance')}</h3>
           </div>
           <p className="text-3xl font-bold text-gray-900 mb-2">
             €{dashboardData.maintenance_costs.total_cost.toLocaleString()}
           </p>
           <p className="text-sm text-gray-600">
-            {dashboardData.maintenance_costs.count} requests resolved
+            {dashboardData.maintenance_costs.count} {t('dashboard.requestsResolved')}
           </p>
           <p className="text-xs text-gray-500 mt-2">
-            Avg: €{dashboardData.maintenance_costs.average_cost.toFixed(2)}
+            {t('dashboard.avg')}: €{dashboardData.maintenance_costs.average_cost.toFixed(2)}
           </p>
           <Button
             onClick={() => navigate('/landlord/services')}
             variant="ghost"
             className="mt-4 w-full text-sm"
           >
-            Book Services
+            {t('dashboard.bookServices')}
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </div>
@@ -330,23 +332,23 @@ const Dashboard = () => {
             <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
               <Users className="w-5 h-5 text-blue-600" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">Bookings</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('dashboard.bookings')}</h3>
           </div>
           <p className="text-3xl font-bold text-gray-900 mb-2">
             {dashboardData.average_booking.total_bookings}
           </p>
           <p className="text-sm text-gray-600">
-            Total bookings
+            {t('dashboard.totalBookings')}
           </p>
           <p className="text-xs text-gray-500 mt-2">
-            Avg: {dashboardData.average_booking.average_nights} nights
+            {t('dashboard.avg')}: {dashboardData.average_booking.average_nights} {t('dashboard.nights')}
           </p>
           <Button
             onClick={() => navigate('/landlord/bookings')}
             variant="ghost"
             className="mt-4 w-full text-sm"
           >
-            View All
+            {t('dashboard.viewAll')}
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </div>
@@ -356,23 +358,23 @@ const Dashboard = () => {
             <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
               <Calendar className="w-5 h-5 text-purple-600" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">Pending</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('dashboard.pending')}</h3>
           </div>
           <p className="text-3xl font-bold text-gray-900 mb-2">
             {dashboardData.pending_bookings.pending_count}
           </p>
           <p className="text-sm text-gray-600">
-            Awaiting confirmation
+            {t('dashboard.awaitingConfirmation')}
           </p>
           <p className="text-xs text-gray-500 mt-2">
-            Value: €{dashboardData.pending_bookings.pending_value.toLocaleString()}
+            {t('dashboard.value')}: €{dashboardData.pending_bookings.pending_value.toLocaleString()}
           </p>
           <Button
             onClick={() => navigate('/landlord/bookings')}
             variant="ghost"
             className="mt-4 w-full text-sm"
           >
-            Review
+            {t('dashboard.review')}
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </div>
@@ -383,18 +385,18 @@ const Dashboard = () => {
         {/* Annual Expenses Summary */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Annual Expenses {dashboardData.annual_expenses?.year}</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('dashboard.annualExpenses')} {dashboardData.annual_expenses?.year}</h3>
             <Button
               onClick={() => navigate('/landlord/expenses')}
               variant="ghost"
               className="text-sm"
             >
-              View Details
+              {t('dashboard.viewDetails')}
             </Button>
           </div>
           <div className="space-y-4">
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">Annual Total</span>
+              <span className="text-sm font-medium text-gray-700">{t('dashboard.annualTotal')}</span>
               <span className="text-xl font-bold text-red-600">
                 €{dashboardData.annual_expenses?.total_expenses.toLocaleString() || 0}
               </span>
@@ -414,7 +416,7 @@ const Dashboard = () => {
               </div>
             ) : (
               <p className="text-sm text-gray-500 text-center py-4">
-                No expenses recorded this year
+                {t('dashboard.noExpensesRecorded')}
               </p>
             )}
           </div>
@@ -423,33 +425,33 @@ const Dashboard = () => {
         {/* Maintenance Expenses Detail */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Maintenance Costs</h3>
+            <h3 className="text-lg font-semibold text-gray-900">{t('dashboard.maintenanceCosts')}</h3>
             <Button
               onClick={() => navigate('/landlord/services')}
               variant="ghost"
               className="text-sm flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
-              Book Service
+              {t('dashboard.bookService')}
             </Button>
           </div>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 bg-amber-50 rounded-lg">
-                <p className="text-xs text-gray-600 mb-1">Total</p>
+                <p className="text-xs text-gray-600 mb-1">{t('dashboard.total')}</p>
                 <p className="text-2xl font-bold text-amber-600">
                   €{dashboardData.maintenance_costs.total_cost.toLocaleString()}
                 </p>
               </div>
               <div className="p-4 bg-blue-50 rounded-lg">
-                <p className="text-xs text-gray-600 mb-1">Requests</p>
+                <p className="text-xs text-gray-600 mb-1">{t('dashboard.requests')}</p>
                 <p className="text-2xl font-bold text-blue-600">
                   {dashboardData.maintenance_costs.count}
                 </p>
               </div>
             </div>
             <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600 mb-1">Average Cost per Request</p>
+              <p className="text-sm text-gray-600 mb-1">{t('dashboard.averageCostPerRequest')}</p>
               <p className="text-xl font-bold text-gray-900">
                 €{dashboardData.maintenance_costs.average_cost.toFixed(2)}
               </p>
@@ -459,7 +461,7 @@ const Dashboard = () => {
               variant="primary"
               className="w-full"
             >
-              View Service Catalog
+              {t('dashboard.viewServiceCatalog')}
             </Button>
           </div>
         </div>
@@ -468,14 +470,14 @@ const Dashboard = () => {
       {/* Property Performance Table - Enhanced */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
         <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">Property Performance</h3>
+          <h3 className="text-lg font-semibold text-gray-900">{t('dashboard.propertyPerformance')}</h3>
           <div className="flex items-center gap-2">
             <Button
               onClick={() => navigate('/landlord/properties')}
               variant="ghost"
               className="flex items-center gap-2 text-propertree-green"
             >
-              View All
+              {t('dashboard.viewAll')}
               <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
@@ -483,13 +485,13 @@ const Dashboard = () => {
         {dashboardData.property_performance.length === 0 ? (
           <div className="px-6 py-12 text-center">
             <Home className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Properties Yet</h3>
-            <p className="text-gray-600 mb-4">Start by adding your first property to see performance metrics</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('dashboard.noPropertiesYet')}</h3>
+            <p className="text-gray-600 mb-4">{t('dashboard.startByAdding')}</p>
             <Button
               onClick={() => navigate('/landlord/onboarding')}
               variant="primary"
             >
-              Add Your First Property
+              {t('dashboard.addYourFirstProperty')}
             </Button>
           </div>
         ) : (
@@ -498,28 +500,28 @@ const Dashboard = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Property
+                    {t('dashboard.property')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Location
+                    {t('dashboard.location')}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                    {t('dashboard.status')}
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Income
+                    {t('dashboard.income')}
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Expenses
+                    {t('dashboard.expenses')}
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Net Income
+                    {t('dashboard.netIncome')}
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Bookings
+                    {t('dashboard.bookings')}
                   </th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
+                    {t('dashboard.actions')}
                   </th>
                 </tr>
               </thead>
@@ -592,7 +594,7 @@ const Dashboard = () => {
           className="py-4 flex items-center justify-center gap-2"
         >
           <Home className="w-5 h-5" />
-          Add New Property
+          {t('dashboard.addNewProperty')}
         </Button>
         <Button
           onClick={() => navigate('/landlord/bookings')}
@@ -600,7 +602,7 @@ const Dashboard = () => {
           className="py-4 flex items-center justify-center gap-2"
         >
           <Calendar className="w-5 h-5" />
-          Manage Bookings
+          {t('dashboard.manageBookings')}
         </Button>
         <Button
           onClick={() => navigate('/landlord/services')}
@@ -608,7 +610,7 @@ const Dashboard = () => {
           className="py-4 flex items-center justify-center gap-2"
         >
           <Settings className="w-5 h-5" />
-          Book Services
+          {t('dashboard.bookServices')}
         </Button>
       </div>
     </Container>

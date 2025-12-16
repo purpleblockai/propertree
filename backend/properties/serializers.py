@@ -3,6 +3,7 @@ Simplified serializers for Properties app.
 """
 from rest_framework import serializers
 from .models import Property, PropertyExpense, Favorite
+from users.serializers import ProfileSerializer
 
 
 class PropertyListSerializer(serializers.ModelSerializer):
@@ -31,8 +32,13 @@ class PropertyListSerializer(serializers.ModelSerializer):
         """Get first photo URL."""
         photo_obj = obj.get_primary_photo()
         if photo_obj:
-            # Handle both 'preview' (base64) and 'url' (uploaded file URL)
-            return photo_obj.get('preview') or photo_obj.get('url')
+            # Handle different photo formats:
+            # 1. String URL (direct URL)
+            if isinstance(photo_obj, str):
+                return photo_obj
+            # 2. Object with 'preview' (base64) or 'url' (uploaded file URL)
+            elif isinstance(photo_obj, dict):
+                return photo_obj.get('preview') or photo_obj.get('url')
         return None
     
     def get_booked_dates(self, obj):
@@ -57,16 +63,19 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
     
     landlord_name = serializers.SerializerMethodField()
     landlord_email = serializers.SerializerMethodField()
+    landlord_profile = serializers.SerializerMethodField()
+    primary_photo = serializers.SerializerMethodField()
     booked_dates = serializers.SerializerMethodField()
+    owner_name = serializers.SerializerMethodField()
     
     class Meta:
         model = Property
         fields = [
-            'id', 'landlord', 'landlord_name', 'landlord_email', 'title', 'description',
+            'id', 'landlord', 'landlord_name', 'landlord_email', 'landlord_profile', 'title', 'description',
             'property_type', 'address', 'city', 'state', 'country', 'postal_code',
             'bedrooms', 'bathrooms', 'max_guests', 'price_per_night', 'approval_type',
-            'amenities', 'photos', 'status', 'rejection_reason',
-            'approved_by', 'approved_at', 'created_at', 'updated_at', 'booked_dates'
+            'amenities', 'photos', 'primary_photo', 'status', 'rejection_reason',
+            'approved_by', 'approved_at', 'created_at', 'updated_at', 'booked_dates', 'owner_name'
         ]
         read_only_fields = ['id', 'landlord', 'approved_by', 'approved_at', 'created_at', 'updated_at']
     
@@ -79,6 +88,29 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
     def get_landlord_email(self, obj):
         """Get landlord email."""
         return obj.landlord.email
+    
+    def get_landlord_profile(self, obj):
+        """Get landlord profile data including photo and bio."""
+        if hasattr(obj.landlord, 'profile'):
+            return ProfileSerializer(obj.landlord.profile, context=self.context).data
+        return None
+    
+    def get_primary_photo(self, obj):
+        """Get first photo URL."""
+        photo_obj = obj.get_primary_photo()
+        if photo_obj:
+            # Handle different photo formats:
+            # 1. String URL (direct URL)
+            if isinstance(photo_obj, str):
+                return photo_obj
+            # 2. Object with 'preview' (base64) or 'url' (uploaded file URL)
+            elif isinstance(photo_obj, dict):
+                return photo_obj.get('preview') or photo_obj.get('url')
+        return None
+    
+    def get_owner_name(self, obj):
+        """Get owner name (alias for landlord_name for consistency)."""
+        return self.get_landlord_name(obj)
     
     def get_booked_dates(self, obj):
         """Get list of booked date ranges for confirmed bookings."""

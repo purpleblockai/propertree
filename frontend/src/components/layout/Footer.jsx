@@ -2,10 +2,12 @@
  * Footer component
  */
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Home, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 
 const Footer = () => {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -19,53 +21,53 @@ const Footer = () => {
               <span className="text-xl font-bold text-white">Propertree</span>
             </div>
             <p className="text-sm leading-relaxed">
-              Professional property and booking management platform.
+              {t('footer.tagline')}
             </p>
           </div>
 
           {/* Links */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Company</h3>
+            <h3 className="text-white font-semibold mb-4">{t('footer.company')}</h3>
             <ul className="space-y-3">
               <li>
                 <Link to="/about" className="hover:text-propertree-green transition-colors text-sm">
-                  About Us
+                  {t('footer.aboutUs')}
                 </Link>
               </li>
               <li>
                 <Link to="/careers" className="hover:text-propertree-green transition-colors text-sm">
-                  Careers
+                  {t('footer.careers')}
                 </Link>
               </li>
               <li>
                 <Link to="/blog" className="hover:text-propertree-green transition-colors text-sm">
-                  Blog
+                  {t('footer.blog')}
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-white font-semibold mb-4">Support</h3>
+            <h3 className="text-white font-semibold mb-4">{t('footer.support')}</h3>
             <ul className="space-y-3">
               <li>
                 <Link to="/help" className="hover:text-propertree-green transition-colors text-sm">
-                  Help Center
+                  {t('footer.helpCenter')}
                 </Link>
               </li>
               <li>
                 <Link to="/contact" className="hover:text-propertree-green transition-colors text-sm">
-                  Contact
+                  {t('footer.contact')}
                 </Link>
               </li>
               <li>
                 <Link to="/terms" className="hover:text-propertree-green transition-colors text-sm">
-                  Terms of Use
+                  {t('footer.termsOfUse')}
                 </Link>
               </li>
               <li>
                 <Link to="/privacy" className="hover:text-propertree-green transition-colors text-sm">
-                  Privacy
+                  {t('footer.privacy')}
                 </Link>
               </li>
             </ul>
@@ -73,7 +75,7 @@ const Footer = () => {
 
           {/* Social */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Social Media</h3>
+            <h3 className="text-white font-semibold mb-4">{t('footer.socialMedia')}</h3>
             <div className="flex space-x-4">
               <a href="#" className="hover:text-propertree-green transition-colors" aria-label="Facebook">
                 <Facebook className="w-6 h-6" />
@@ -92,7 +94,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-propertree-dark-400 mt-8 pt-8 text-sm text-center">
-          <p>&copy; {currentYear} Propertree. All rights reserved.</p>
+          <p>&copy; {currentYear} Propertree. {t('footer.allRightsReserved')}</p>
         </div>
       </div>
     </footer>

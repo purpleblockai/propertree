@@ -5,11 +5,11 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { 
   Home, Search, Filter, CheckCircle, XCircle, 
-  Eye, Clock, MapPin, DollarSign, Edit, Trash2, Plus
+  Eye, Clock, MapPin, DollarSign, Edit, Trash2, Plus, X
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Container } from '../../components/layout';
-import { Card, Button, Input, Badge, Modal, Loading, EmptyState } from '../../components/common';
+import { Card, Button, Input, Badge, Modal, Loading, EmptyState, Select } from '../../components/common';
 import { toast } from 'react-hot-toast';
 
 const Properties = () => {
@@ -23,19 +23,37 @@ const Properties = () => {
   const [rejectionReason, setRejectionReason] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'all');
+  const [countryFilter, setCountryFilter] = useState(searchParams.get('country') || '');
+  const [cityFilter, setCityFilter] = useState(searchParams.get('city') || '');
+  const [filterOptions, setFilterOptions] = useState({ countries: [], cities: [] });
+  const [loadingFilters, setLoadingFilters] = useState(false);
 
   useEffect(() => {
     fetchProperties();
-  }, [statusFilter]);
+  }, [statusFilter, countryFilter, cityFilter]);
+
+  useEffect(() => {
+    fetchFilterOptions();
+  }, [countryFilter]);
 
   const fetchProperties = async () => {
     setLoading(true);
     try {
       const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
-      let url = `${API_BASE_URL}/admin/properties/all/`;
+      const params = new URLSearchParams();
+      
       if (statusFilter && statusFilter !== 'all') {
-        url += `?status=${statusFilter}`;
+        params.append('status', statusFilter);
       }
+      if (countryFilter) {
+        params.append('country', countryFilter);
+      }
+      if (cityFilter) {
+        params.append('city', cityFilter);
+      }
+      
+      const queryString = params.toString();
+      const url = `${API_BASE_URL}/admin/properties/all${queryString ? `?${queryString}` : ''}`;
 
       const response = await fetch(url, {
         headers: {
@@ -52,6 +70,52 @@ const Properties = () => {
       toast.error('Error loading properties');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchFilterOptions = async () => {
+    setLoadingFilters(true);
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const params = new URLSearchParams();
+      if (countryFilter) {
+        params.append('country', countryFilter);
+      }
+      const queryString = params.toString();
+      const url = `${API_BASE_URL}/admin/properties/filter-options${queryString ? `?${queryString}` : ''}`;
+
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (countryFilter && data.cities) {
+          // If country is selected, use the cities array directly
+          setFilterOptions({
+            countries: data.countries || filterOptions.countries,
+            cities: data.cities || []
+          });
+        } else if (data.cities_by_country) {
+          // If no country selected, get all cities grouped by country
+          const allCities = Object.values(data.cities_by_country).flat();
+          setFilterOptions({
+            countries: data.countries || [],
+            cities: allCities
+          });
+        } else {
+          setFilterOptions({
+            countries: data.countries || [],
+            cities: []
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching filter options:', error);
+    } finally {
+      setLoadingFilters(false);
     }
   };
 
@@ -164,6 +228,15 @@ const Properties = () => {
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
+  const clearFilters = () => {
+    setCountryFilter('');
+    setCityFilter('');
+    setSearchQuery('');
+    setStatusFilter('all');
+  };
+
+  const hasActiveFilters = countryFilter || cityFilter || searchQuery || statusFilter !== 'all';
+
   const filteredProperties = properties.filter(property => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
@@ -212,6 +285,53 @@ const Properties = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
+
+            {/* Country Filter */}
+            <div className="w-full md:w-48">
+              <Select
+                name="country"
+                value={countryFilter}
+                onChange={(e) => {
+                  setCountryFilter(e.target.value);
+                  setCityFilter(''); // Reset city when country changes
+                }}
+                options={[
+                  { value: '', label: 'All Countries' },
+                  ...filterOptions.countries.map(country => ({ value: country, label: country }))
+                ]}
+                placeholder="All Countries"
+                disabled={loadingFilters}
+              />
+            </div>
+
+            {/* City Filter */}
+            <div className="w-full md:w-48">
+              <Select
+                name="city"
+                value={cityFilter}
+                onChange={(e) => setCityFilter(e.target.value)}
+                options={[
+                  { value: '', label: 'All Cities' },
+                  ...filterOptions.cities.map(city => ({ value: city, label: city }))
+                ]}
+                placeholder={countryFilter ? 'All Cities' : 'Select Country First'}
+                disabled={loadingFilters || !countryFilter}
+              />
+            </div>
+
+            {/* Clear Filters Button */}
+            {hasActiveFilters && (
+              <div className="flex items-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  leftIcon={<X className="w-4 h-4" />}
+                  onClick={clearFilters}
+                >
+                  Clear Filters
+                </Button>
+              </div>
+            )}
 
             {/* Status Filter */}
             <div className="flex gap-2">
@@ -264,14 +384,37 @@ const Properties = () => {
               <Card.Body>
                 <div className="flex flex-col md:flex-row gap-6">
                   {/* Property Image */}
-                  <div className="w-full md:w-48 h-48 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                    {property.primary_photo ? (
-                      <img 
-                        src={property.primary_photo} 
-                        alt={property.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
+                  <div className="w-full md:w-48 h-48 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0 relative">
+                    {(() => {
+                      let imageUrl = null;
+                      if (property.primary_photo) {
+                        imageUrl = property.primary_photo;
+                      } else if (property.photos && property.photos.length > 0) {
+                        const firstPhoto = property.photos[0];
+                        if (typeof firstPhoto === 'string') {
+                          imageUrl = firstPhoto;
+                        } else if (firstPhoto && typeof firstPhoto === 'object') {
+                          imageUrl = firstPhoto.preview || firstPhoto.url;
+                        }
+                      }
+                      
+                      return imageUrl ? (
+                        <img 
+                          src={imageUrl} 
+                          alt={property.title}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            const placeholder = e.target.parentElement.querySelector('.image-placeholder');
+                            if (placeholder) placeholder.style.display = 'flex';
+                          }}
+                        />
+                      ) : null;
+                    })()}
+                    <div className="image-placeholder w-full h-full flex items-center justify-center absolute inset-0" style={{ display: 'none' }}>
+                      <Home className="w-12 h-12 text-gray-400" />
+                    </div>
+                    {!property.primary_photo && (!property.photos || property.photos.length === 0) && (
                       <div className="w-full h-full flex items-center justify-center">
                         <Home className="w-12 h-12 text-gray-400" />
                       </div>
@@ -324,7 +467,7 @@ const Properties = () => {
                     <div className="border-t pt-3">
                       <div className="flex items-center justify-between">
                         <div className="text-sm text-gray-600">
-                          <p>Owner: <span className="font-medium">{property.owner_name || 'N/A'}</span></p>
+                          <p>Owner: <span className="font-medium">{property.owner_name || property.landlord_name || 'N/A'}</span></p>
                           <p>Submitted: {new Date(property.created_at).toLocaleDateString()}</p>
                         </div>
 

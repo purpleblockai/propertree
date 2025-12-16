@@ -8,6 +8,7 @@ from .admin_views import (
     ApprovePropertyView,
     RejectPropertyView,
     AllPropertiesAdminView,
+    PropertyFilterOptionsView,
     AdminUsersListView,
     PropertyAnalyticsView,
     AssetPerformanceView
@@ -22,6 +23,7 @@ urlpatterns = [
     # Property management
     path('properties/pending/', PendingPropertiesView.as_view(), name='pending_properties'),
     path('properties/all/', AllPropertiesAdminView.as_view(), name='all_properties_admin'),
+    path('properties/filter-options/', PropertyFilterOptionsView.as_view(), name='property_filter_options'),
     path('properties/<uuid:pk>/approve/', ApprovePropertyView.as_view(), name='approve_property'),
     path('properties/<uuid:pk>/reject/', RejectPropertyView.as_view(), name='reject_property'),
     
