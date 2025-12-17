@@ -52,7 +52,7 @@
     "maxPrice": "Max Price (€)",
     "featuredProperties": "Featured Properties",
     "searchResults": "Search Results",
-    "propertiesAvailable": "{{count}} {{count, plural, one {property} other {properties}}} available",
+    "propertiesAvailable": "{{count}} properties found",
     "noPropertiesFound": "No properties found",
     "tryAdjustingFilters": "Try adjusting your search filters",
     "bed": "bed",
@@ -270,3 +270,4 @@
     "detailedInsights": "Detailed insights"
   }
 }
+

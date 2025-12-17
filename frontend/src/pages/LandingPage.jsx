@@ -19,6 +19,7 @@ const LandingPage = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [shouldScrollToResults, setShouldScrollToResults] = useState(false);
   const [cities, setCities] = useState([]);
   const { addFavorite, removeFavorite } = useFavorite();
   const { data: favoritesData } = useFavorites({ 
@@ -79,6 +80,25 @@ const LandingPage = () => {
     fetchProperties();
     fetchCities();
   }, []);
+
+  // Auto-scroll to results after search completes
+  useEffect(() => {
+    if (shouldScrollToResults && !searchLoading && resultsRef.current) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        const element = resultsRef.current;
+        const headerOffset = 96; // adjust if your navbar height changes
+        const elementTop = element.getBoundingClientRect().top + window.scrollY;
+        const targetPosition = Math.max(elementTop - headerOffset, 0);
+
+        window.scrollTo({
+          top: targetPosition,
+          behavior: 'smooth',
+        });
+        setShouldScrollToResults(false);
+      }, 100);
+    }
+  }, [shouldScrollToResults, searchLoading, properties]);
 
   const fetchCities = async () => {
     try {
@@ -155,23 +175,8 @@ const LandingPage = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
+    setShouldScrollToResults(true);
     fetchProperties(filters);
-
-    // Smoothly scroll near the results so users
-    // immediately see updated properties after applying filters.
-    // Use window.scrollTo with an offset so the section title
-    // appears just below the navbar.
-    if (resultsRef.current) {
-      const element = resultsRef.current;
-      const headerOffset = 96; // adjust if your navbar height changes
-      const elementTop = element.getBoundingClientRect().top + window.scrollY;
-      const targetPosition = Math.max(elementTop - headerOffset, 0);
-
-      window.scrollTo({
-        top: targetPosition,
-        behavior: 'smooth',
-      });
-    }
   };
 
   const handleFilterChange = (name, value) => {
@@ -409,7 +414,7 @@ const LandingPage = () => {
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
               {filters.city || filters.property_type || filters.guests ? t('landing.searchResults') : t('landing.featuredProperties')}
             </h2>
-            <p className="text-gray-600">
+            <p className="text-sm text-gray-600">
               {t('landing.propertiesAvailable', { count: properties.length })}
             </p>
           </div>

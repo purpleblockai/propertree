@@ -52,7 +52,7 @@
     "maxPrice": "Precio máximo (€)",
     "featuredProperties": "Propiedades destacadas",
     "searchResults": "Resultados de búsqueda",
-    "propertiesAvailable": "{{count}} {{count, plural, one {propiedad} other {propiedades}}} disponible",
+    "propertiesAvailable": "{{count}} propiedades encontradas",
     "noPropertiesFound": "No se encontraron propiedades",
     "tryAdjustingFilters": "Intenta ajustar tus filtros de búsqueda",
     "bed": "cama",
@@ -270,3 +270,4 @@
     "detailedInsights": "Información detallada"
   }
 }
+
