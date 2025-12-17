@@ -257,6 +257,16 @@ const AssetPerformance = () => {
   const data = performanceData;
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
+  // Safeguards in case some KPI fields are missing in certain environments (e.g. older backend deploy)
+  const totalRevenue = Number(data?.kpis?.total_revenue ?? 0);
+  const revenueChange = Number(data?.kpis?.revenue_change ?? 0);
+  const occupancyRate = Number(data?.kpis?.occupancy_rate ?? 0);
+  const occupancyChange = Number(data?.kpis?.occupancy_change ?? 0);
+  const averageBookingValue = Number(data?.kpis?.average_booking_value ?? 0);
+  const bookingValueChange = Number(data?.kpis?.booking_value_change ?? 0);
+  const totalBookings = Number(data?.kpis?.total_bookings ?? 0);
+  const bookingsChange = Number(data?.kpis?.bookings_change ?? 0);
+
   return (
     <Container className="py-8">
       {/* Header */}
@@ -449,15 +459,15 @@ const AssetPerformance = () => {
                 <DollarSign className="w-6 h-6 text-green-600" />
               </div>
               <div className="flex items-center gap-2">
-                {data.kpis.revenue_change >= 0 ? (
+                {revenueChange >= 0 ? (
                   <div className="flex items-center text-green-600">
                     <ArrowUpRight className="w-4 h-4 mr-1" />
-                    <span className="text-sm font-semibold">+{data.kpis.revenue_change.toFixed(1)}%</span>
+                    <span className="text-sm font-semibold">+{revenueChange.toFixed(1)}%</span>
                   </div>
                 ) : (
                   <div className="flex items-center text-red-600">
                     <ArrowDownRight className="w-4 h-4 mr-1" />
-                    <span className="text-sm font-semibold">{data.kpis.revenue_change.toFixed(1)}%</span>
+                    <span className="text-sm font-semibold">{revenueChange.toFixed(1)}%</span>
                   </div>
                 )}
                 <button
@@ -471,7 +481,7 @@ const AssetPerformance = () => {
             </div>
             <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
             <p className="text-2xl font-bold text-gray-900">
-              €{data.kpis.total_revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              €{totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </Card.Body>
         </Card>
@@ -484,15 +494,15 @@ const AssetPerformance = () => {
                 <Home className="w-6 h-6 text-blue-600" />
               </div>
               <div className="flex items-center gap-2">
-                {data.kpis.occupancy_change >= 0 ? (
+                {occupancyChange >= 0 ? (
                   <div className="flex items-center text-green-600">
                     <ArrowUpRight className="w-4 h-4 mr-1" />
-                    <span className="text-sm font-semibold">+{data.kpis.occupancy_change.toFixed(1)}%</span>
+                    <span className="text-sm font-semibold">+{occupancyChange.toFixed(1)}%</span>
                   </div>
                 ) : (
                   <div className="flex items-center text-red-600">
                     <ArrowDownRight className="w-4 h-4 mr-1" />
-                    <span className="text-sm font-semibold">{data.kpis.occupancy_change.toFixed(1)}%</span>
+                    <span className="text-sm font-semibold">{occupancyChange.toFixed(1)}%</span>
                   </div>
                 )}
                 <button
@@ -506,7 +516,7 @@ const AssetPerformance = () => {
             </div>
             <p className="text-sm text-gray-600 mb-1">Occupancy Rate</p>
             <p className="text-2xl font-bold text-gray-900">
-              {data.kpis.occupancy_rate.toFixed(1)}%
+              {occupancyRate.toFixed(1)}%
             </p>
           </Card.Body>
         </Card>
@@ -519,15 +529,15 @@ const AssetPerformance = () => {
                 <Calendar className="w-6 h-6 text-purple-600" />
               </div>
               <div className="flex items-center gap-2">
-                {data.kpis.booking_value_change >= 0 ? (
+                {bookingValueChange >= 0 ? (
                   <div className="flex items-center text-green-600">
                     <ArrowUpRight className="w-4 h-4 mr-1" />
-                    <span className="text-sm font-semibold">+{data.kpis.booking_value_change.toFixed(1)}%</span>
+                    <span className="text-sm font-semibold">+{bookingValueChange.toFixed(1)}%</span>
                   </div>
                 ) : (
                   <div className="flex items-center text-red-600">
                     <ArrowDownRight className="w-4 h-4 mr-1" />
-                    <span className="text-sm font-semibold">{data.kpis.booking_value_change.toFixed(1)}%</span>
+                    <span className="text-sm font-semibold">{bookingValueChange.toFixed(1)}%</span>
                   </div>
                 )}
                 <button
@@ -541,7 +551,7 @@ const AssetPerformance = () => {
             </div>
             <p className="text-sm text-gray-600 mb-1">Avg Booking Value</p>
             <p className="text-2xl font-bold text-gray-900">
-              €{data.kpis.average_booking_value.toFixed(2)}
+              €{averageBookingValue.toFixed(2)}
             </p>
           </Card.Body>
         </Card>
@@ -554,15 +564,15 @@ const AssetPerformance = () => {
                 <Users className="w-6 h-6 text-yellow-600" />
               </div>
               <div className="flex items-center gap-2">
-                {data.kpis.bookings_change >= 0 ? (
+                {bookingsChange >= 0 ? (
                   <div className="flex items-center text-green-600">
                     <ArrowUpRight className="w-4 h-4 mr-1" />
-                    <span className="text-sm font-semibold">+{data.kpis.bookings_change.toFixed(1)}%</span>
+                    <span className="text-sm font-semibold">+{bookingsChange.toFixed(1)}%</span>
                   </div>
                 ) : (
                   <div className="flex items-center text-red-600">
                     <ArrowDownRight className="w-4 h-4 mr-1" />
-                    <span className="text-sm font-semibold">{data.kpis.bookings_change.toFixed(1)}%</span>
+                    <span className="text-sm font-semibold">{bookingsChange.toFixed(1)}%</span>
                   </div>
                 )}
                 <button
@@ -576,7 +586,7 @@ const AssetPerformance = () => {
             </div>
             <p className="text-sm text-gray-600 mb-1">Total Bookings</p>
             <p className="text-2xl font-bold text-gray-900">
-              {data.kpis.total_bookings}
+              {totalBookings}
             </p>
           </Card.Body>
         </Card>
