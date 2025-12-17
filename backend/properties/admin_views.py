@@ -361,18 +361,39 @@ class PropertyAnalyticsView(APIView):
         from datetime import date, datetime
         
         try:
+            # Optional filters to support cascading filters in the admin UI
+            country = request.query_params.get('country', '')
+            city = request.query_params.get('city', '')
+            property_type = request.query_params.get('property_type', '')
+            property_status = request.query_params.get('property_status', '')
+            landlord_id = request.query_params.get('landlord_id', '')
+
+            property_filter = Q()
+            if country:
+                property_filter &= Q(country=country)
+            if city:
+                property_filter &= Q(city=city)
+            if property_type:
+                property_filter &= Q(property_type=property_type)
+            if property_status:
+                property_filter &= Q(status=property_status)
+            if landlord_id:
+                property_filter &= Q(landlord_id=landlord_id)
+
+            filtered_properties = Property.objects.filter(property_filter)
+
             # Properties by type
-            by_type = Property.objects.values('property_type').annotate(
+            by_type = filtered_properties.values('property_type').annotate(
                 count=Count('id')
             ).order_by('-count')
             
             # Properties by status
-            by_status = Property.objects.values('status').annotate(
+            by_status = filtered_properties.values('status').annotate(
                 count=Count('id')
             )
             
             # Properties by city (top 10) with additional metrics
-            by_city = Property.objects.values('city', 'country').annotate(
+            by_city = filtered_properties.values('city', 'country').annotate(
                 count=Count('id'),
                 avg_price=Avg('price_per_night'),
                 total_revenue=Sum(
@@ -386,7 +407,7 @@ class PropertyAnalyticsView(APIView):
             ).order_by('-count')[:10]
             
             # Average price by property type
-            avg_price_by_type = Property.objects.values('property_type').annotate(
+            avg_price_by_type = filtered_properties.values('property_type').annotate(
                 avg_price=Avg('price_per_night')
             )
             
@@ -406,7 +427,7 @@ class PropertyAnalyticsView(APIView):
                 month_start = timezone.make_aware(datetime(month_date.year, month_date.month, 1))
                 month_end = timezone.make_aware(datetime(month_date.year, month_date.month, last_day, 23, 59, 59))
                 
-                count = Property.objects.filter(
+                count = filtered_properties.filter(
                     created_at__gte=month_start,
                     created_at__lte=month_end
                 ).count()
@@ -416,7 +437,7 @@ class PropertyAnalyticsView(APIView):
                     status__in=['confirmed', 'completed'],
                     created_at__gte=month_start,
                     created_at__lte=month_end
-                )
+                ).filter(property__in=filtered_properties)
                 month_revenue = month_bookings.aggregate(Sum('total_price'))['total_price__sum'] or 0
                 month_booking_count = month_bookings.count()
                 
@@ -428,7 +449,7 @@ class PropertyAnalyticsView(APIView):
                 })
             
             # Revenue by city (for comparison)
-            revenue_by_city = Property.objects.values('city', 'country').annotate(
+            revenue_by_city = filtered_properties.values('city', 'country').annotate(
                 total_revenue=Sum(
                     'bookings__total_price',
                     filter=Q(bookings__status__in=['confirmed', 'completed'])
@@ -441,7 +462,7 @@ class PropertyAnalyticsView(APIView):
             ).filter(total_revenue__isnull=False).order_by('-total_revenue')[:10]
             
             # Revenue by property type (asset comparison)
-            revenue_by_type = Property.objects.values('property_type').annotate(
+            revenue_by_type = filtered_properties.values('property_type').annotate(
                 total_revenue=Sum(
                     'bookings__total_price',
                     filter=Q(bookings__status__in=['confirmed', 'completed'])
@@ -455,42 +476,52 @@ class PropertyAnalyticsView(APIView):
             ).filter(total_revenue__isnull=False).order_by('-total_revenue')
             
             # Occupancy by city (portfolio comparison)
+            # Use a rolling window so the chart is populated even if there are no bookings "today"
             occupancy_by_city = []
-            for city_data in Property.objects.values('city', 'country').annotate(
+            period_days = 90
+            end_date = today
+            start_date = end_date - timedelta(days=period_days)
+
+            for city_data in filtered_properties.values('city', 'country').annotate(
                 property_count=Count('id', filter=Q(status='approved'))
             ).filter(property_count__gt=0):
                 city = city_data['city']
                 country = city_data['country']
                 property_count = city_data['property_count']
-                
-                # Get active bookings for this city
-                city_properties = Property.objects.filter(city=city, status='approved')
-                active_bookings = Booking.objects.filter(
+
+                # Get bookings overlapping the analysis window for this city
+                city_properties = filtered_properties.filter(city=city, status='approved')
+                city_bookings = Booking.objects.filter(
                     property__in=city_properties,
                     status__in=['confirmed', 'completed'],
-                    check_in__lte=timezone.now().date(),
-                    check_out__gte=timezone.now().date()
+                    check_in__lt=end_date,
+                    check_out__gt=start_date,
                 )
-                
-                # Calculate booked days
+
+                # Calculate total booked days within the window
                 total_booked_days = 0
-                for booking in active_bookings:
-                    booked_days = (booking.check_out - booking.check_in).days
-                    total_booked_days += booked_days
-                
-                # Calculate occupancy (simplified - using current month)
-                days_in_month = monthrange(today.year, today.month)[1]
-                total_available_days = property_count * days_in_month
+                for booking in city_bookings:
+                    overlap_start = max(booking.check_in, start_date)
+                    overlap_end = min(booking.check_out, end_date)
+                    booked_days = (overlap_end - overlap_start).days
+                    if booked_days > 0:
+                        total_booked_days += booked_days
+
+                total_available_days = property_count * period_days
                 occupancy_rate = (total_booked_days / total_available_days * 100) if total_available_days > 0 else 0
-                
+
                 occupancy_by_city.append({
                     'city': city,
                     'country': country,
-                    'occupancy_rate': round(occupancy_rate, 1),
-                    'property_count': property_count
+                    'occupancy_rate': round(min(100, occupancy_rate), 1),
+                    'property_count': property_count,
                 })
-            
-            occupancy_by_city = sorted(occupancy_by_city, key=lambda x: x['occupancy_rate'], reverse=True)[:10]
+
+            occupancy_by_city = sorted(
+                occupancy_by_city,
+                key=lambda x: x['occupancy_rate'],
+                reverse=True,
+            )[:10]
             
             # Time period comparisons (last 3 months vs previous 3 months)
             now = timezone.now()
@@ -502,7 +533,7 @@ class PropertyAnalyticsView(APIView):
                 status__in=['confirmed', 'completed'],
                 created_at__gte=last_3_months_start,
                 created_at__lte=now
-            )
+            ).filter(property__in=filtered_properties)
             last_3_revenue = last_3_bookings.aggregate(Sum('total_price'))['total_price__sum'] or 0
             last_3_count = last_3_bookings.count()
             
@@ -511,7 +542,7 @@ class PropertyAnalyticsView(APIView):
                 status__in=['confirmed', 'completed'],
                 created_at__gte=prev_3_months_start,
                 created_at__lt=last_3_months_start
-            )
+            ).filter(property__in=filtered_properties)
             prev_3_revenue = prev_3_bookings.aggregate(Sum('total_price'))['total_price__sum'] or 0
             prev_3_count = prev_3_bookings.count()
             
@@ -520,7 +551,7 @@ class PropertyAnalyticsView(APIView):
             booking_growth = ((last_3_count - prev_3_count) / prev_3_count * 100) if prev_3_count > 0 else (100 if last_3_count > 0 else 0)
             
             # Top performing properties (by revenue)
-            top_properties = Property.objects.annotate(
+            top_properties = filtered_properties.annotate(
                 total_revenue=Sum(
                     'bookings__total_price',
                     filter=Q(bookings__status__in=['confirmed', 'completed'])
@@ -543,13 +574,15 @@ class PropertyAnalyticsView(APIView):
                 })
             
             # Summary statistics
-            total_properties = Property.objects.count()
-            active_properties = Property.objects.filter(status='approved').count()
+            total_properties = filtered_properties.count()
+            active_properties = filtered_properties.filter(status='approved').count()
             total_revenue_all = Booking.objects.filter(
-                status__in=['confirmed', 'completed']
+                status__in=['confirmed', 'completed'],
+                property__in=filtered_properties
             ).aggregate(Sum('total_price'))['total_price__sum'] or 0
             total_bookings_all = Booking.objects.filter(
-                status__in=['confirmed', 'completed']
+                status__in=['confirmed', 'completed'],
+                property__in=filtered_properties
             ).count()
             
             return Response({

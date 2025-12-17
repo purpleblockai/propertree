@@ -5,10 +5,10 @@ import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, TrendingDown, Home, Users, DollarSign, BarChart, 
   PieChart as PieChartIcon, LineChart, Activity, Calendar,
-  MapPin, Building2, ArrowUpRight, ArrowDownRight, Info
+  MapPin, Building2, ArrowUpRight, ArrowDownRight, Info, Filter, X
 } from 'lucide-react';
 import { Container } from '../../components/layout';
-import { Card, Loading, Modal } from '../../components/common';
+import { Card, Loading, Modal, Select, Button, Input } from '../../components/common';
 import { toast } from 'react-hot-toast';
 import { 
   LineChart as RechartsLineChart, Line, BarChart as RechartsBarChart, Bar, 
@@ -20,15 +20,154 @@ const Analytics = () => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [infoModal, setInfoModal] = useState({ isOpen: false, title: '', content: '' });
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Filter state (aligned with AssetPerformance)
+  const [country, setCountry] = useState('');
+  const [city, setCity] = useState('');
+  const [propertyType, setPropertyType] = useState('');
+  const [propertyStatus, setPropertyStatus] = useState('');
+  const [landlordId, setLandlordId] = useState('');
+
+  const [filterOptions, setFilterOptions] = useState({
+    countries: [],
+    cities: [],
+    propertyTypes: [
+      { value: '', label: 'All Types' },
+      { value: 'apartment', label: 'Apartment' },
+      { value: 'house', label: 'House' },
+      { value: 'condo', label: 'Condo' },
+      { value: 'villa', label: 'Villa' },
+      { value: 'studio', label: 'Studio' },
+      { value: 'townhouse', label: 'Townhouse' },
+    ],
+    propertyStatuses: [
+      { value: '', label: 'All Statuses' },
+      { value: 'approved', label: 'Approved' },
+      { value: 'draft', label: 'Draft' },
+      { value: 'pending_approval', label: 'Pending Approval' },
+      { value: 'rejected', label: 'Rejected' },
+      { value: 'booked', label: 'Booked' },
+    ],
+    landlords: [],
+  });
+
+  useEffect(() => {
+    fetchFilterOptions();
+  }, []);
+
+  useEffect(() => {
+    if (country) {
+      fetchCitiesForCountry();
+    } else {
+      setCity('');
+      setFilterOptions(prev => ({ ...prev, cities: [] }));
+    }
+  }, [country]);
 
   useEffect(() => {
     fetchAnalytics();
-  }, []);
+  }, [country, city, propertyType, propertyStatus, landlordId]);
+
+  const hasActiveFilters =
+    country || city || propertyType || propertyStatus || landlordId;
+
+  const fetchFilterOptions = async () => {
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+
+      // Countries & cities
+      const filterResponse = await fetch(`${API_BASE_URL}/admin/properties/filter-options`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      });
+
+      if (filterResponse.ok) {
+        const filterData = await filterResponse.json();
+        setFilterOptions(prev => ({
+          ...prev,
+          countries: filterData.countries || [],
+          cities:
+            filterData.cities ||
+            (filterData.cities_by_country
+              ? Object.values(filterData.cities_by_country).flat()
+              : []),
+        }));
+      }
+
+      // Landlords
+      const landlordsResponse = await fetch(`${API_BASE_URL}/admin/users/?role=landlord`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      });
+
+      if (landlordsResponse.ok) {
+        const landlordsData = await landlordsResponse.json();
+        const landlordOptions = [
+          { value: '', label: 'All Landlords' },
+          ...(landlordsData.results || []).map(landlord => ({
+            value: landlord.id,
+            label: landlord.full_name || landlord.email,
+          })),
+        ];
+
+        setFilterOptions(prev => ({ ...prev, landlords: landlordOptions }));
+      }
+    } catch (error) {
+      console.error('Error fetching filter options:', error);
+    }
+  };
+
+  const fetchCitiesForCountry = async () => {
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(
+        `${API_BASE_URL}/admin/properties/filter-options?country=${country}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setFilterOptions(prev => ({
+          ...prev,
+          cities: data.cities || [],
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching cities:', error);
+    }
+  };
+
+  const clearFilters = () => {
+    setCountry('');
+    setCity('');
+    setPropertyType('');
+    setPropertyStatus('');
+    setLandlordId('');
+  };
 
   const fetchAnalytics = async () => {
     try {
       const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
-      const response = await fetch(`${API_BASE_URL}/admin/dashboard/analytics/`, {
+      const params = new URLSearchParams();
+      if (country) params.append('country', country);
+      if (city) params.append('city', city);
+      if (propertyType) params.append('property_type', propertyType);
+      if (propertyStatus) params.append('property_status', propertyStatus);
+      if (landlordId) params.append('landlord_id', landlordId);
+
+      const url =
+        params.toString().length > 0
+          ? `${API_BASE_URL}/admin/dashboard/analytics/?${params.toString()}`
+          : `${API_BASE_URL}/admin/dashboard/analytics/`;
+
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
         }
@@ -69,10 +208,125 @@ const Analytics = () => {
   return (
     <Container className="py-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Analytics & Insights</h1>
-        <p className="text-gray-600 mt-2">Portfolio-wide trends, comparisons and insights across cities, assets and time periods</p>
+      <div className="mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Analytics & Insights</h1>
+          <p className="text-gray-600 mt-2">
+            Portfolio-wide trends, comparisons and insights across cities, assets and time periods
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={() => setShowFilters(!showFilters)}
+            variant={showFilters ? 'primary' : 'outline'}
+            className="flex items-center gap-2"
+          >
+            <Filter className="w-4 h-4" />
+            Filters
+            {hasActiveFilters && (
+              <span className="ml-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {[country, city, propertyType, propertyStatus, landlordId].filter(Boolean).length}
+              </span>
+            )}
+          </Button>
+        </div>
       </div>
+
+      {/* Filters Panel */}
+      {showFilters && (
+        <Card className="mb-6">
+          <Card.Header>
+            <Card.Title className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Filter className="w-5 h-5 text-blue-600" />
+                Filters
+              </div>
+              <div className="flex items-center gap-2">
+                {hasActiveFilters && (
+                  <Button
+                    onClick={clearFilters}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-1"
+                  >
+                    <X className="w-4 h-4" />
+                    Clear All
+                  </Button>
+                )}
+                <Button onClick={() => setShowFilters(false)} variant="ghost" size="sm">
+                  Close
+                </Button>
+              </div>
+            </Card.Title>
+          </Card.Header>
+          <Card.Body>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {/* Country */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                <Select
+                  value={country}
+                  onChange={e => {
+                    setCountry(e.target.value);
+                    setCity('');
+                  }}
+                  options={[
+                    { value: '', label: 'All Countries' },
+                    ...filterOptions.countries.map(c => ({ value: c, label: c })),
+                  ]}
+                  placeholder="All Countries"
+                />
+              </div>
+
+              {/* City */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                <Select
+                  value={city}
+                  onChange={e => setCity(e.target.value)}
+                  options={[
+                    { value: '', label: 'All Cities' },
+                    ...filterOptions.cities.map(c => ({ value: c, label: c })),
+                  ]}
+                  placeholder={country ? 'All Cities' : 'Select Country First'}
+                  disabled={!country}
+                />
+              </div>
+
+              {/* Property Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Property Type</label>
+                <Select
+                  value={propertyType}
+                  onChange={e => setPropertyType(e.target.value)}
+                  options={filterOptions.propertyTypes}
+                />
+              </div>
+
+              {/* Property Status */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Property Status</label>
+                <Select
+                  value={propertyStatus}
+                  onChange={e => setPropertyStatus(e.target.value)}
+                  options={filterOptions.propertyStatuses}
+                />
+              </div>
+
+              {/* Landlord */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Landlord</label>
+                <Select
+                  value={landlordId}
+                  onChange={e => setLandlordId(e.target.value)}
+                  options={filterOptions.landlords}
+                  placeholder="All Landlords"
+                />
+              </div>
+            </div>
+          </Card.Body>
+        </Card>
+      )}
 
       {/* Summary KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
