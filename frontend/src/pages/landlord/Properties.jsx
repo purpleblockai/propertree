@@ -5,7 +5,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Container } from '../../components/layout';
 import { Card, Button, Badge, EmptyState, Loading } from '../../components/common';
-import { Plus, Home, MapPin, DollarSign, Bed, Bath, Users, Calendar, Eye } from 'lucide-react';
+import { Plus, Home, MapPin, Euro, Bed, Bath, Users, Calendar, Eye, Trash2 } from 'lucide-react';
+import { formatCurrency } from '../../utils/formatters';
 import { toast } from 'react-hot-toast';
 
 const Properties = () => {
@@ -60,6 +61,44 @@ const Properties = () => {
       toast.error('Error loading properties');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteProperty = async (propertyId) => {
+    if (!window.confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('accessToken');
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_BASE_URL}/properties/landlord/${propertyId}/`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok || response.status === 204) {
+        toast.success('Property deleted');
+        // Remove from local state
+        setProperties((prev) => prev.filter(p => p.id !== propertyId));
+        // Update stats
+        setStats(prev => ({
+          ...prev,
+          total: Math.max(0, prev.total - 1),
+          draft: Math.max(0, prev.draft - (properties.find(p => p.id === propertyId && p.status === 'draft') ? 1 : 0)),
+          pending: Math.max(0, prev.pending - (properties.find(p => p.id === propertyId && p.status === 'pending_approval') ? 1 : 0)),
+          approved: Math.max(0, prev.approved - (properties.find(p => p.id === propertyId && p.status === 'approved') ? 1 : 0)),
+          rejected: Math.max(0, prev.rejected - (properties.find(p => p.id === propertyId && p.status === 'rejected') ? 1 : 0))
+        }));
+      } else {
+        const err = await response.json().catch(() => ({ error: 'Failed to delete property' }));
+        toast.error(err.error || 'Failed to delete property');
+      }
+    } catch (error) {
+      console.error('Error deleting property:', error);
+      toast.error('Error deleting property');
     }
   };
 
@@ -205,15 +244,15 @@ const Properties = () => {
 
                 {/* Price */}
                 <div className="text-xl font-bold text-propertree-green mb-5">
-                  ${property.price_per_night}
-                  <span className="text-sm text-gray-600 font-normal ml-1"> / night</span>
+                  {formatCurrency(property.price_per_night)}
+                    <span className="text-sm text-gray-600 font-normal ml-1"> / night</span>
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
                   {property.status === 'approved' && (
                     <Link to={`/properties/${property.id}`} className="flex-1">
-                      <Button variant="outline" size="sm" leftIcon={<Eye />} className="w-full">
+                      <Button variant="outline" size="sm" leftIcon={<Eye />} className="w-full h-10 px-4">
                         View Live
                       </Button>
                     </Link>
@@ -222,10 +261,23 @@ const Properties = () => {
                     to={`/landlord/properties/${property.id}/edit`} 
                     className={property.status === 'approved' ? 'flex-1' : 'w-full'}
                   >
-                    <Button variant="primary" size="sm" className="w-full">
+                    <Button variant="primary" size="sm" className="w-full h-10 px-4">
                       {property.status === 'draft' ? 'Complete' : 'Edit'}
                     </Button>
                   </Link>
+
+                  {/* Delete Button */}
+                  <div>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      leftIcon={<Trash2 />}
+                      onClick={() => handleDeleteProperty(property.id)}
+                      className="h-10 px-4"
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Rejection Reason */}

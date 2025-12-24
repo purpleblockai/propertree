@@ -349,6 +349,23 @@ class AdminUsersListView(generics.ListAPIView):
             )
 
 
+class AdminDeletePropertyView(APIView):
+    """API endpoint for admin to delete a property."""
+
+    permission_classes = [IsAdminUser]
+
+    def delete(self, request, pk):
+        try:
+            prop = Property.objects.get(pk=pk)
+            # Call delete() to allow any Django on_delete cascades/signals to run
+            prop.delete()
+            return Response({'message': 'Property deleted'}, status=status.HTTP_204_NO_CONTENT)
+        except Property.DoesNotExist:
+            return Response({'error': 'Property not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class PropertyAnalyticsView(APIView):
     """API endpoint for comprehensive property analytics."""
     

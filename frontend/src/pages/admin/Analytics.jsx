@@ -3,7 +3,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { 
-  TrendingUp, TrendingDown, Home, Users, DollarSign, BarChart, 
+  TrendingUp, TrendingDown, Home, Users, Euro, BarChart, 
   PieChart as PieChartIcon, LineChart, Activity, Calendar,
   MapPin, Building2, ArrowUpRight, ArrowDownRight, Info, Filter, X
 } from 'lucide-react';
@@ -367,7 +367,7 @@ const Analytics = () => {
                   €{analytics?.summary?.total_revenue?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
                 </p>
               </div>
-              <DollarSign className="w-10 h-10 text-purple-600" />
+              <Euro className="w-10 h-10 text-purple-600" />
             </div>
           </Card.Body>
         </Card>
@@ -750,7 +750,7 @@ const Analytics = () => {
       <Card className="mb-6">
         <Card.Header>
           <Card.Title className="flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-green-600" />
+            <Euro className="w-5 h-5 text-green-600" />
             Average Price by Property Type
           </Card.Title>
         </Card.Header>

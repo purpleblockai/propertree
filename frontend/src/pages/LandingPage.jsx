@@ -9,6 +9,7 @@ import { Button, Input, Select, Card, Loading, Badge } from '../components/commo
 import { Home as HomeIcon, MapPin, Users, Bed, Heart } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../hooks';
+import { formatCurrency } from '../utils/formatters';
 import { useFavorite, useFavorites } from '../hooks/useProperties';
 
 const LandingPage = () => {
@@ -48,6 +49,9 @@ const LandingPage = () => {
     min_price: '',
     max_price: ''
   });
+
+  // Term selection: '', 'short', 'mid', 'long'
+  const [term, setTerm] = useState('');
 
   const propertyTypes = [
     { value: '', label: t('landing.allTypes') },
@@ -209,7 +213,43 @@ const LandingPage = () => {
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
+  // Date helpers and term-based bounds
+  const addDays = (dateStr, days) => {
+    const d = new Date(dateStr);
+    d.setDate(d.getDate() + days);
+    return d.toISOString().split('T')[0];
+  };
+
+  const addMonths = (dateStr, months) => {
+    const d = new Date(dateStr);
+    const origDay = d.getDate();
+    d.setMonth(d.getMonth() + months);
+    // If the month roll-over changed the day (e.g., Feb 30 -> Mar 2), adjust to last day of month
+    if (d.getDate() < origDay) {
+      d.setDate(0); // last day of previous month
+    }
+    return d.toISOString().split('T')[0];
+  };
+
+  const computeCheckOutBounds = () => {
+    if (!filters.check_in) return { min: null, max: null };
+    const ci = filters.check_in;
+    if (term === 'short') {
+      return { min: addDays(ci, 1), max: addDays(ci, 28) };
+    }
+    if (term === 'mid') {
+      return { min: addMonths(ci, 1), max: addMonths(ci, 12) };
+    }
+    if (term === 'long') {
+      return { min: addMonths(ci, 12), max: null };
+    }
+    return { min: addDays(ci, 1), max: null };
+  };
+
   const todayString = new Date().toISOString().split('T')[0];
+
+  // compute bounds for check_out based on selected term and check_in
+  const coBounds = computeCheckOutBounds();
 
   const handleFavoriteClick = async (e, property) => {
     e.preventDefault();
@@ -247,8 +287,14 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section with Search */}
-      <section 
-        className="relative bg-gradient-to-br from-propertree-green via-propertree-blue to-propertree-green-700 py-14 md:py-16 lg:py-20 text-white"
+      <section
+        className="relative py-14 md:py-16 lg:py-20 text-white"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.30), rgba(0,0,0,0.30)), url('/landing-bg.jpg')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
       >
         <Container>
           <div className="text-center mb-8">
@@ -262,6 +308,39 @@ const LandingPage = () => {
             {/* Search Form */}
             <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-6xl mx-auto">
               <form onSubmit={handleSearch}>
+                {/* Term toggles: Short / Mid / Long */}
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => { setTerm('short'); setFilters(prev => ({ ...prev, check_out: '' })); }}
+                    className={`px-4 py-2 rounded-full font-semibold ${term === 'short' ? 'bg-emerald-700 text-white' : 'bg-white text-gray-700 border'}`}
+                  >
+                    {t('landing.shortTerm', { defaultValue: 'Short-term' })}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setTerm('mid'); setFilters(prev => ({ ...prev, check_out: '' })); }}
+                    className={`px-4 py-2 rounded-full font-semibold ${term === 'mid' ? 'bg-emerald-700 text-white' : 'bg-white text-gray-700 border'}`}
+                  >
+                    {t('landing.midTerm', { defaultValue: 'Mid-term' })}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setTerm('long'); setFilters(prev => ({ ...prev, check_out: '' })); }}
+                    className={`px-4 py-2 rounded-full font-semibold ${term === 'long' ? 'bg-emerald-700 text-white' : 'bg-white text-gray-700 border'}`}
+                  >
+                    {t('landing.longTerm', { defaultValue: 'Long-term' })}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setTerm(''); setFilters(prev => ({ ...prev, check_out: '' })); }}
+                    className={`px-3 py-1 rounded-full font-medium ${term === '' ? 'bg-emerald-700 text-white' : 'bg-white text-gray-600 border'}`}
+                    title={t('landing.clearTerm', { defaultValue: 'Clear' })}
+                  >
+                    ×
+                  </button>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                   {/* City */}
                   <div>
@@ -334,7 +413,7 @@ const LandingPage = () => {
                       name="check_in"
                       type="date"
                       value={filters.check_in}
-                      onChange={(e) => handleFilterChange('check_in', e.target.value)}
+                      onChange={(e) => { handleFilterChange('check_in', e.target.value); setFilters(prev => ({ ...prev, check_out: '' })); }}
                       className="w-full"
                       min={todayString}
                     />
@@ -351,7 +430,8 @@ const LandingPage = () => {
                       value={filters.check_out}
                       onChange={(e) => handleFilterChange('check_out', e.target.value)}
                       className="w-full"
-                      min={filters.check_in || todayString}
+                      min={coBounds.min || filters.check_in || todayString}
+                      max={coBounds.max || undefined}
                     />
                   </div>
 
@@ -496,7 +576,7 @@ const LandingPage = () => {
                       <div className="flex items-center justify-between mb-4">
                         <div>
                           <span className="text-2xl font-bold text-propertree-green">
-                            ${property.price_per_night}
+                            {formatCurrency(property.price_per_night)}
                           </span>
                           <span className="text-gray-600 text-sm ml-1">{t('landing.night')}</span>
                         </div>

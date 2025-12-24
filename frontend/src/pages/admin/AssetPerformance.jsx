@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { Container } from '../../components/layout';
 import { Card, Loading, Button, Select, Modal, Input } from '../../components/common';
 import { 
-  TrendingUp, TrendingDown, DollarSign, Home, 
+  TrendingUp, TrendingDown, Euro, Home, 
   Users, Calendar, BarChart3, PieChart, Activity,
   ArrowUpRight, ArrowDownRight, Info, Filter, X
 } from 'lucide-react';
@@ -455,8 +455,8 @@ const AssetPerformance = () => {
         <Card>
           <Card.Body>
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-green-600" />
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <Euro className="w-6 h-6 text-green-600" />
               </div>
               <div className="flex items-center gap-2">
                 {revenueChange >= 0 ? (

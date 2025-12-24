@@ -67,7 +67,7 @@ const HostOnboarding = () => {
     base_price: '',
     cleaning_fee: 0,
     service_fee_percent: 10,
-    currency: 'USD',
+    currency: 'EUR',
     // Step 9
     approval_type: 'landlord',  // Default to landlord approval
     // Step 10

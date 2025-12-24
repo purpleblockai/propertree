@@ -40,10 +40,18 @@ export const formatRelativeTime = (date) => {
  * Format price/currency
  */
 export const formatCurrency = (amount, currency = 'BRL') => {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: currency,
-  }).format(amount);
+  if (amount === null || amount === undefined || amount === '') return '';
+  const n = Number(amount);
+  if (Number.isNaN(n)) return '';
+
+  // Format as Euro, no grouping (no thousands separators). Keep up to 2 decimals.
+  // If value is whole number, drop decimals.
+  let formatted = n.toFixed(2);
+  // Remove trailing .00 for whole numbers
+  formatted = formatted.replace(/\.00$/, '');
+
+  // Ensure there's no grouping commas — toFixed doesn't include grouping
+  return `€${formatted}`;
 };
 
 /**

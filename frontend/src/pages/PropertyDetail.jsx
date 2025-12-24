@@ -8,6 +8,7 @@ import { Container } from '../components/layout';
 import { Card, Button, Badge, Loading, EmptyState } from '../components/common';
 import { MapPin, Users, Bed, Bath, Home, ChevronLeft, ChevronRight, Check, X, Wifi, Car, Utensils, Tv, Wind, Waves, Dumbbell, Coffee, Phone } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { formatCurrency } from '../utils/formatters';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -216,16 +217,18 @@ const PropertyDetail = () => {
     );
   }
 
-  // Extract photo previews from the photos array
+  // Extract photo previews from the photos array and normalize items
+  // Backend may return an array of strings (URLs) or objects with { preview, url }
   const photos = property.photos || [];
-  const selectedPhoto = photos[selectedImageIndex];
+  const normalizedPhotos = photos.map((p) => (typeof p === 'string' ? { url: p } : (p || {})));
+  const selectedPhoto = normalizedPhotos[selectedImageIndex];
 
   const handlePreviousImage = () => {
-    setSelectedImageIndex((prev) => (prev === 0 ? photos.length - 1 : prev - 1));
+    setSelectedImageIndex((prev) => (prev === 0 ? normalizedPhotos.length - 1 : prev - 1));
   };
 
   const handleNextImage = () => {
-    setSelectedImageIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1));
+    setSelectedImageIndex((prev) => (prev === normalizedPhotos.length - 1 ? 0 : prev + 1));
   };
 
   // Common amenity icons and names mapping
@@ -281,7 +284,7 @@ const PropertyDetail = () => {
               )}
 
               {/* Navigation Arrows */}
-              {photos.length > 1 && (
+              {normalizedPhotos.length > 1 && (
                 <>
                   <button
                     onClick={handlePreviousImage}
@@ -298,16 +301,16 @@ const PropertyDetail = () => {
                   
                   {/* Image Counter */}
                   <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
-                    {selectedImageIndex + 1} / {photos.length}
+                    {selectedImageIndex + 1} / {normalizedPhotos.length}
                   </div>
                 </>
               )}
             </div>
 
             {/* Thumbnail Gallery */}
-            {photos.length > 1 && (
+            {normalizedPhotos.length > 1 && (
               <div className="grid grid-cols-5 gap-2">
-                {photos.slice(0, 5).map((photo, index) => (
+                {normalizedPhotos.slice(0, 5).map((photo, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImageIndex(index)}
@@ -328,9 +331,9 @@ const PropertyDetail = () => {
                         <Home className="w-6 h-6 text-gray-400" />
                       </div>
                     )}
-                    {index === 4 && photos.length > 5 && (
+                    {index === 4 && normalizedPhotos.length > 5 && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-semibold">
-                        +{photos.length - 5}
+                        +{normalizedPhotos.length - 5}
                       </div>
                     )}
                   </button>
@@ -350,7 +353,7 @@ const PropertyDetail = () => {
             </div>
             <div className="text-right">
               <div className="text-4xl font-bold text-gray-900">
-                €{property.price_per_night}
+                {formatCurrency(property.price_per_night)}
               </div>
               <div className="text-gray-600">{t('propertyDetail.perNight')}</div>
             </div>
@@ -611,20 +614,20 @@ const PropertyDetail = () => {
               {/* Price Calculation */}
               {bookingData.check_in && bookingData.check_out && (
                 <div className="border-t pt-4 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">
-                      €{property.price_per_night} x {Math.ceil((new Date(bookingData.check_out) - new Date(bookingData.check_in)) / (1000 * 60 * 60 * 24))} {t('propertyDetail.nights')}
-                    </span>
-                    <span className="font-semibold">
-                      €{(property.price_per_night * Math.ceil((new Date(bookingData.check_out) - new Date(bookingData.check_in)) / (1000 * 60 * 60 * 24))).toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-lg font-bold border-t pt-2">
-                    <span>{t('propertyDetail.total')}</span>
-                    <span className="text-propertree-green">
-                      €{(property.price_per_night * Math.ceil((new Date(bookingData.check_out) - new Date(bookingData.check_in)) / (1000 * 60 * 60 * 24))).toFixed(2)}
-                    </span>
-                  </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">
+                        {formatCurrency(property.price_per_night)} x {Math.ceil((new Date(bookingData.check_out) - new Date(bookingData.check_in)) / (1000 * 60 * 60 * 24))} {t('propertyDetail.nights')}
+                      </span>
+                      <span className="font-semibold">
+                        {formatCurrency(property.price_per_night * Math.ceil((new Date(bookingData.check_out) - new Date(bookingData.check_in)) / (1000 * 60 * 60 * 24)))}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-lg font-bold border-t pt-2">
+                      <span>{t('propertyDetail.total')}</span>
+                      <span className="text-propertree-green">
+                        {formatCurrency(property.price_per_night * Math.ceil((new Date(bookingData.check_out) - new Date(bookingData.check_in)) / (1000 * 60 * 60 * 24)))}
+                      </span>
+                    </div>
                 </div>
               )}
 
@@ -653,7 +656,7 @@ const PropertyDetail = () => {
           </button>
 
           {/* Navigation Arrows */}
-          {photos.length > 1 && (
+          {normalizedPhotos.length > 1 && (
             <>
               <button
                 onClick={handlePreviousImage}
@@ -686,9 +689,9 @@ const PropertyDetail = () => {
           </div>
 
           {/* Image Counter */}
-          {photos.length > 1 && (
+          {normalizedPhotos.length > 1 && (
             <div className="absolute top-4 left-4 bg-black/70 text-white px-4 py-2 rounded-full text-sm">
-              {selectedImageIndex + 1} / {photos.length}
+              {selectedImageIndex + 1} / {normalizedPhotos.length}
             </div>
           )}
         </div>

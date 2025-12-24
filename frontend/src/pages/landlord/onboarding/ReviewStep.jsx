@@ -5,6 +5,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Card, Badge, Alert } from '../../../components/common';
 import { Check, AlertCircle } from 'lucide-react';
+import { formatCurrency } from '../../../utils/formatters';
 
 const ReviewStep = ({ formData }) => {
   const sections = [
@@ -19,7 +20,7 @@ const ReviewStep = ({ formData }) => {
     { title: 'Amenities', value: `${formData.amenities?.length || 0} selected`, key: 'amenities' },
     { title: 'Check-in', value: formData.check_in_time, key: 'check_in_time' },
     { title: 'Check-out', value: formData.check_out_time, key: 'check_out_time' },
-    { title: 'Base Price', value: `$ ${formData.base_price}`, key: 'base_price' },
+    { title: 'Base Price', value: formData.base_price ? formatCurrency(formData.base_price) : '', key: 'base_price' },
     { title: 'Title', value: formData.title, key: 'title' },
     { title: 'Description', value: formData.description?.substring(0, 100) + '...', key: 'description' },
   ];

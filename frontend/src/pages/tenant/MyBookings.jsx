@@ -4,7 +4,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container } from '../../components/layout';
 import { Card, Badge, Loading, EmptyState, Button } from '../../components/common';
-import { Calendar, MapPin, Home, DollarSign, User, Clock, X } from 'lucide-react';
+import { Calendar, MapPin, Home, Euro, User, Clock, X } from 'lucide-react';
+import { formatCurrency } from '../../utils/formatters';
 import { toast } from 'react-hot-toast';
 
 const MyBookings = () => {
@@ -180,8 +181,8 @@ const MyBookings = () => {
                       <div>
                         <div className="text-sm text-gray-600">Total Price</div>
                         <div className="font-semibold flex items-center gap-1 text-propertree-green">
-                          <DollarSign className="w-4 h-4" />
-                          {parseFloat(booking.total_price).toFixed(2)}
+                          <Euro className="w-4 h-4" />
+                          {formatCurrency(booking.total_price)}
                         </div>
                       </div>
                     </div>

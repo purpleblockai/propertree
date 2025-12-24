@@ -7,6 +7,7 @@ import { Container } from '../../components/layout';
 import { Card, Loading, Badge } from '../../components/common';
 import { Home as HomeIcon, MapPin, Users, Bed, Heart } from 'lucide-react';
 import { useFavorites, useFavorite } from '../../hooks/useProperties';
+import { formatCurrency } from '../../utils/formatters';
 
 const Favorites = () => {
   const { data: favoritesData, isLoading, error } = useFavorites();
@@ -130,7 +131,7 @@ const Favorites = () => {
                     <div className="flex items-center justify-between mb-4">
                       <div>
                         <span className="text-2xl font-bold text-propertree-green">
-                          ${property.price_per_night}
+                          {formatCurrency(property.price_per_night)}
                         </span>
                         <span className="text-gray-600 text-sm ml-1"> / night</span>
                       </div>

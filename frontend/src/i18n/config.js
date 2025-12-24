@@ -57,3 +57,5 @@ i18n.on('languageChanged', (lng) => {
 document.documentElement.lang = i18n.language;
 
 export default i18n;
+
+

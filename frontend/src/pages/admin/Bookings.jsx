@@ -7,6 +7,7 @@ import { Container } from '../../components/layout';
 import { Card, Button, Loading, Alert, Badge, Select, Input } from '../../components/common';
 import { Calendar, User, Home, CheckCircle, XCircle, Search, Filter, X } from 'lucide-react';
 import api from '../../services/api';
+import { formatCurrency } from '../../utils/formatters';
 
 const AdminBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -385,7 +386,7 @@ const AdminBookings = () => {
                           <span className="font-medium">Duration:</span> {booking.duration_nights} night{booking.duration_nights !== 1 ? 's' : ''}
                         </div>
                         <div className="text-gray-700">
-                          <span className="font-medium">Total Price:</span> ${parseFloat(booking.total_price).toFixed(2)}
+                          <span className="font-medium">Total Price:</span> {formatCurrency(parseFloat(booking.total_price) || 0)}
                         </div>
                         <div className="text-gray-700">
                           <span className="font-medium">Created:</span> {new Date(booking.created_at).toLocaleDateString()}

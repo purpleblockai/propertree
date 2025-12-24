@@ -53,8 +53,25 @@
     @apply text-white font-medium;
   }
 
-  .react-datepicker__day--disabled {
-    @apply text-gray-300 cursor-not-allowed opacity-50;
+  /* stronger specificity to override react-datepicker defaults */
+  .react-datepicker__day.react-datepicker__day--disabled {
+    position: relative;
+    @apply cursor-not-allowed;
+    color: rgba(55,65,81,1) !important; /* gray-700 */
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  .react-datepicker__day.react-datepicker__day--disabled::after {
+    content: "";
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    top: 50%;
+    height: 1px;
+    background-color: rgba(107,114,128,0.9); /* gray-500-ish line */
+    transform: translateY(-50%);
+    pointer-events: none;
   }
 
   .react-datepicker__day--selected {

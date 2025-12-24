@@ -12,6 +12,7 @@ from .admin_views import (
     AdminUsersListView,
     PropertyAnalyticsView,
     AssetPerformanceView
+    ,AdminDeletePropertyView
 )
 
 urlpatterns = [
@@ -26,6 +27,7 @@ urlpatterns = [
     path('properties/filter-options/', PropertyFilterOptionsView.as_view(), name='property_filter_options'),
     path('properties/<uuid:pk>/approve/', ApprovePropertyView.as_view(), name='approve_property'),
     path('properties/<uuid:pk>/reject/', RejectPropertyView.as_view(), name='reject_property'),
+        path('properties/<uuid:pk>/delete/', AdminDeletePropertyView.as_view(), name='delete_property'),
     
     # User management
     path('users/', AdminUsersListView.as_view(), name='admin_users_list'),

@@ -9,7 +9,7 @@ import { KPICard, DonutChart, BarChart, LineChart } from '../../components/dashb
 import { Button, Loading } from '../../components/common';
 import { 
   Home, 
-  DollarSign, 
+  Euro, 
   TrendingUp, 
   Calendar,
   Wrench,
@@ -24,6 +24,7 @@ import {
   Eye
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { formatCurrency } from '../../utils/formatters';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services';
 
@@ -223,9 +224,8 @@ const Dashboard = () => {
         />
         <KPICard
           title={t('dashboard.netOperatingIncome')}
-          value={dashboardData.noi.noi.toLocaleString()}
-          valuePrefix="€"
-          icon={DollarSign}
+          value={formatCurrency(dashboardData.noi.noi)}
+          icon={Euro}
           trend={dashboardData.noi.noi > 0 ? 'up' : 'down'}
           trendValue={`${roi}% ROI`}
           subtitle={t('dashboard.revenueMinusExpenses')}
@@ -239,8 +239,7 @@ const Dashboard = () => {
         />
         <KPICard
           title={t('dashboard.totalIncome')}
-          value={dashboardData.rental_income.toLocaleString()}
-          valuePrefix="€"
+          value={formatCurrency(dashboardData.rental_income)}
           icon={TrendingUp}
           subtitle={t('dashboard.fromConfirmedBookings')}
         />
@@ -253,6 +252,7 @@ const Dashboard = () => {
           title={t('dashboard.incomeVsExpenses')}
           centerLabel={t('dashboard.netIncome')}
           centerValue={`€${dashboardData.noi.noi.toLocaleString()}`}
+            centerValue={formatCurrency(dashboardData.noi.noi)}
           height={350}
         />
         <DonutChart
@@ -260,6 +260,7 @@ const Dashboard = () => {
           title={t('dashboard.expensesByCategory')}
           centerLabel={t('dashboard.totalExpenses')}
           centerValue={`€${dashboardData.noi.total_expenses.toLocaleString()}`}
+            centerValue={formatCurrency(dashboardData.noi.total_expenses)}
           height={350}
         />
       </div>
@@ -309,13 +310,13 @@ const Dashboard = () => {
             <h3 className="text-lg font-semibold text-gray-900">{t('dashboard.maintenance')}</h3>
           </div>
           <p className="text-3xl font-bold text-gray-900 mb-2">
-            €{dashboardData.maintenance_costs.total_cost.toLocaleString()}
+            {formatCurrency(dashboardData.maintenance_costs.total_cost)}
           </p>
           <p className="text-sm text-gray-600">
             {dashboardData.maintenance_costs.count} {t('dashboard.requestsResolved')}
           </p>
           <p className="text-xs text-gray-500 mt-2">
-            {t('dashboard.avg')}: €{dashboardData.maintenance_costs.average_cost.toFixed(2)}
+            {t('dashboard.avg')}: {formatCurrency(dashboardData.maintenance_costs.average_cost)}
           </p>
           <Button
             onClick={() => navigate('/landlord/services')}
@@ -367,7 +368,7 @@ const Dashboard = () => {
             {t('dashboard.awaitingConfirmation')}
           </p>
           <p className="text-xs text-gray-500 mt-2">
-            {t('dashboard.value')}: €{dashboardData.pending_bookings.pending_value.toLocaleString()}
+            {t('dashboard.value')}: {formatCurrency(dashboardData.pending_bookings.pending_value)}
           </p>
           <Button
             onClick={() => navigate('/landlord/bookings')}
@@ -398,7 +399,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
               <span className="text-sm font-medium text-gray-700">{t('dashboard.annualTotal')}</span>
               <span className="text-xl font-bold text-red-600">
-                €{dashboardData.annual_expenses?.total_expenses.toLocaleString() || 0}
+                {formatCurrency(dashboardData.annual_expenses?.total_expenses || 0)}
               </span>
             </div>
             {annualExpenseCategories.length > 0 ? (
@@ -409,7 +410,7 @@ const Dashboard = () => {
                       {cat.category.replace('_', ' ')}
                     </span>
                     <span className="text-sm font-semibold text-gray-900">
-                      €{cat.amount.toLocaleString()}
+                      {formatCurrency(cat.amount)}
                     </span>
                   </div>
                 ))}

@@ -7,6 +7,7 @@ import { Container } from '../components/layout';
 import { Card, Input, Button, Loading, EmptyState, Badge } from '../components/common';
 import { Search, MapPin, Users, Bed, Home } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { formatCurrency } from '../utils/formatters';
 
 const PropertySearch = () => {
   const [properties, setProperties] = useState([]);
@@ -206,7 +207,7 @@ const PropertySearch = () => {
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <span className="text-2xl font-bold text-propertree-green">
-                        ${property.price_per_night}
+                        {formatCurrency(property.price_per_night)}
                       </span>
                       <span className="text-gray-600 text-sm ml-1"> / night</span>
                     </div>

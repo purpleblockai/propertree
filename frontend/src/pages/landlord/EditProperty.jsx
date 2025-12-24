@@ -640,7 +640,7 @@ const EditProperty = () => {
               </Card.Header>
               <Card.Body className="space-y-4">
                 <Input
-                  label="Price per Night ($)"
+                  label="Price per Night (€)"
                   type="number"
                   name="price_per_night"
                   value={formData.price_per_night}

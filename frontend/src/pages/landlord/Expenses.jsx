@@ -7,7 +7,7 @@ import { Container } from '../../components/layout';
 import { Button, Card, Loading, EmptyState, Modal } from '../../components/common';
 import { 
   Plus, 
-  DollarSign, 
+  Euro, 
   Edit, 
   Trash2,
   Filter,
@@ -15,6 +15,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { formatCurrency } from '../../utils/formatters';
 
 const Expenses = () => {
   const [loading, setLoading] = useState(true);
@@ -208,13 +209,13 @@ const Expenses = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-red-600" />
+              <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
+              <Euro className="w-5 h-5 text-red-600" />
             </div>
             <h3 className="text-sm font-medium text-gray-600">Total Expenses</h3>
           </div>
           <p className="text-3xl font-bold text-gray-900">
-            €{totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatCurrency(totalExpenses)}
           </p>
           <p className="text-sm text-gray-500 mt-2">{filteredExpenses.length} transactions</p>
         </Card>
@@ -227,10 +228,9 @@ const Expenses = () => {
             <h3 className="text-sm font-medium text-gray-600">This Month</h3>
           </div>
           <p className="text-3xl font-bold text-gray-900">
-            €{filteredExpenses
+            {formatCurrency(filteredExpenses
               .filter(exp => new Date(exp.expense_date).getMonth() === new Date().getMonth())
-              .reduce((sum, exp) => sum + parseFloat(exp.amount), 0)
-              .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              .reduce((sum, exp) => sum + parseFloat(exp.amount), 0))}
           </p>
           <p className="text-sm text-gray-500 mt-2">Current month expenses</p>
         </Card>
@@ -243,7 +243,7 @@ const Expenses = () => {
             <h3 className="text-sm font-medium text-gray-600">Average</h3>
           </div>
           <p className="text-3xl font-bold text-gray-900">
-            €{(totalExpenses / (filteredExpenses.length || 1)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatCurrency(totalExpenses / (filteredExpenses.length || 1))}
           </p>
           <p className="text-sm text-gray-500 mt-2">Per transaction</p>
         </Card>
@@ -298,7 +298,7 @@ const Expenses = () => {
       {/* Expenses Table */}
       {filteredExpenses.length === 0 ? (
         <EmptyState
-          icon={<DollarSign className="w-16 h-16" />}
+          icon={<Euro className="w-16 h-16" />}
           title="No expenses yet"
           message="Start tracking your property expenses by adding your first transaction."
           action={() => setShowAddModal(true)}
@@ -357,8 +357,8 @@ const Expenses = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="text-sm font-semibold text-red-600">
-                        €{parseFloat(expense.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <div className="text-sm font-semibold text-red-600">
+                        {formatCurrency(parseFloat(expense.amount))}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">

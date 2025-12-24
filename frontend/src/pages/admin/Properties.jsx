@@ -5,8 +5,9 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { 
   Home, Search, Filter, CheckCircle, XCircle, 
-  Eye, Clock, MapPin, DollarSign, Edit, Trash2, Plus, X
+  Eye, Clock, MapPin, Euro, Edit, Trash2, Plus, X
 } from 'lucide-react';
+  import { formatCurrency } from '../../utils/formatters';
 import { useNavigate } from 'react-router-dom';
 import { Container } from '../../components/layout';
 import { Card, Button, Input, Badge, Modal, Loading, EmptyState, Select } from '../../components/common';
@@ -190,7 +191,7 @@ const Properties = () => {
 
     try {
       const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
-      const response = await fetch(`${API_BASE_URL}/properties/${selectedProperty.id}/`, {
+      const response = await fetch(`${API_BASE_URL}/admin/properties/${selectedProperty.id}/delete/`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
@@ -458,8 +459,8 @@ const Properties = () => {
                       <div>
                         <p className="text-xs text-gray-500">Price/Night</p>
                         <p className="font-semibold text-gray-900 flex items-center">
-                          <DollarSign className="w-4 h-4" />
-                          {property.price_per_night}
+                            <span className="text-lg mr-2">€</span>
+                            {formatCurrency(property.price_per_night)}
                         </p>
                       </div>
                     </div>

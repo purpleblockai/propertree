@@ -353,6 +353,22 @@ def reset_service_catalog(apps, schema_editor):
             'icon': 'file-badge-check',
         },
         {
+            'name': 'Painting',
+            'category': 'painting',
+            'description': 'Access to legal advice on short-term rental regulations and disputes.',
+            'price': 25,
+            'estimated_duration_minutes': 60,
+            'icon': 'gavel',
+        },
+        {
+            'name': 'Pest control',
+            'category': 'pest_control',
+            'description': 'Access to legal advice on short-term rental regulations and disputes.',
+            'price': 25,
+            'estimated_duration_minutes': 60,
+            'icon': 'gavel',
+        },
+        {
             'name': 'Guest identity verification',
             'category': 'other',
             'description': 'Verification of guest identity and documentation prior to arrival.',
@@ -383,4 +399,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(reset_service_catalog, migrations.RunPython.noop),
     ]
+
+
 

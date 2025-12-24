@@ -36,8 +36,8 @@
     "performance": "Performance"
   },
   "landing": {
-    "title": "Connect. Manage. Grow.",
-    "subtitle": "Beyond bookings: short-, mid- and long-term rentals on one platform.",
+    "title": "Find it. Book it. Live it.",
+    "subtitle": "From new branches to new beginnings, choose your next home.",
     "searchProperties": "Search Properties",
     "searching": "Searching...",
     "city": "City",
@@ -270,4 +270,6 @@
     "detailedInsights": "Detailed insights"
   }
 }
+
+
 

@@ -5,12 +5,13 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { 
-  Home, Users, Calendar, DollarSign, 
+  Home, Users, Calendar, Euro, 
   TrendingUp, Clock, CheckCircle, XCircle, 
   BarChart3, PieChart, Activity, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
 import { Container } from '../../components/layout';
 import { Card, Loading } from '../../components/common';
+import { formatCurrency } from '../../utils/formatters';
 import { LineChart, Line, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const Dashboard = () => {
@@ -147,14 +148,14 @@ const Dashboard = () => {
               <div>
                 <p className="text-sm text-gray-600">{t('adminDashboard.totalRevenue')}</p>
                 <p className="text-3xl font-bold text-gray-900 mt-1">
-                  ${stats?.revenue.total.toFixed(0) || 0}
+                  {formatCurrency(stats?.revenue.total || 0)}
                 </p>
                 <p className="text-sm text-green-600 mt-2">
-                  ${stats?.revenue.monthly.toFixed(0) || 0} {t('adminDashboard.thisMonth')}
+                  {formatCurrency(stats?.revenue.monthly || 0)} {t('adminDashboard.thisMonth')}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-green-600" />
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <Euro className="w-6 h-6 text-green-600" />
               </div>
             </div>
           </Card.Body>
