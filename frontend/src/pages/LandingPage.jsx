@@ -429,35 +429,36 @@ const LandingPage = () => {
                     </div>
                   </div>
 
-                  {/* Dummy Filters */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3">
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-2 text-left">
-                        {t('landing.minArea', { defaultValue: 'Minimum Area (m2)' })}
-                      </label>
-                      <Select
-                        name="min_area"
-                        value={filters.min_area}
-                        onChange={(e) => handleFilterChange('min_area', e.target.value)}
-                        options={minAreaOptions}
-                        placeholder={t('landing.anyArea', { defaultValue: 'Any size' })}
-                        className="w-full"
-                      />
+                  {(term === 'mid' || term === 'long') && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3">
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-600 mb-2 text-left">
+                          {t('landing.minArea', { defaultValue: 'Minimum Area (m2)' })}
+                        </label>
+                        <Select
+                          name="min_area"
+                          value={filters.min_area}
+                          onChange={(e) => handleFilterChange('min_area', e.target.value)}
+                          options={minAreaOptions}
+                          placeholder={t('landing.anyArea', { defaultValue: 'Any size' })}
+                          className="w-full"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-600 mb-2 text-left">
+                          {t('landing.vicinity', { defaultValue: 'Vicinity' })}
+                        </label>
+                        <Select
+                          name="vicinity"
+                          value={filters.vicinity}
+                          onChange={(e) => handleFilterChange('vicinity', e.target.value)}
+                          options={vicinityOptions}
+                          placeholder={t('landing.anyVicinity', { defaultValue: 'Any vicinity' })}
+                          className="w-full"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-gray-600 mb-2 text-left">
-                        {t('landing.vicinity', { defaultValue: 'Vicinity' })}
-                      </label>
-                      <Select
-                        name="vicinity"
-                        value={filters.vicinity}
-                        onChange={(e) => handleFilterChange('vicinity', e.target.value)}
-                        options={vicinityOptions}
-                        placeholder={t('landing.anyVicinity', { defaultValue: 'Any vicinity' })}
-                        className="w-full"
-                      />
-                    </div>
-                  </div>
+                  )}
                 </form>
               </div>
             </div>
