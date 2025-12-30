@@ -3,7 +3,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Container } from '../components/layout';
 import { Card, Button, Badge, Loading, EmptyState } from '../components/common';
 import { MapPin, Users, Bed, Bath, Home, ChevronLeft, ChevronRight, Check, X, Wifi, Car, Utensils, Tv, Wind, Waves, Dumbbell, Coffee, Phone } from 'lucide-react';
@@ -16,6 +16,8 @@ const PropertyDetail = () => {
   const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const bookingTerm = searchParams.get('term') || sessionStorage.getItem('bookingTerm') || '';
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -31,6 +33,73 @@ const PropertyDetail = () => {
   useEffect(() => {
     fetchProperty();
   }, [id]);
+
+  const normalizeDate = (dateValue) => {
+    const d = new Date(dateValue);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
+
+  const addDays = (dateValue, days) => {
+    const d = new Date(dateValue);
+    d.setDate(d.getDate() + days);
+    return d;
+  };
+
+  const addMonths = (dateValue, months) => {
+    const d = new Date(dateValue);
+    const origDay = d.getDate();
+    d.setMonth(d.getMonth() + months);
+    if (d.getDate() < origDay) {
+      d.setDate(0);
+    }
+    return d;
+  };
+
+  const getCheckoutBounds = (checkInValue) => {
+    if (!checkInValue) return { minDate: null, maxDate: null };
+    const checkIn = normalizeDate(checkInValue);
+
+    if (bookingTerm === 'short') {
+      return { minDate: addDays(checkIn, 1), maxDate: addDays(checkIn, 28) };
+    }
+    if (bookingTerm === 'mid') {
+      return { minDate: addMonths(checkIn, 1), maxDate: addMonths(checkIn, 12) };
+    }
+    if (bookingTerm === 'long') {
+      return { minDate: addDays(addMonths(checkIn, 12), 1), maxDate: null };
+    }
+
+    return { minDate: addDays(checkIn, 1), maxDate: null };
+  };
+
+  const isCheckoutWithinBounds = (checkOutDate, checkInValue) => {
+    if (!bookingTerm || !checkInValue || !checkOutDate) return true;
+    const { minDate, maxDate } = getCheckoutBounds(checkInValue);
+    const checkout = normalizeDate(checkOutDate);
+    if (minDate && checkout < minDate) return false;
+    if (maxDate && checkout > maxDate) return false;
+    return true;
+  };
+
+  const getTermLimitMessage = () => {
+    if (bookingTerm === 'short') {
+      return t('propertyDetail.shortTermLimit', {
+        defaultValue: 'Short-term stays allow check-out up to 4 weeks from check-in.',
+      });
+    }
+    if (bookingTerm === 'mid') {
+      return t('propertyDetail.midTermLimit', {
+        defaultValue: 'Mid-term stays require check-out between 1 month and 1 year from check-in.',
+      });
+    }
+    if (bookingTerm === 'long') {
+      return t('propertyDetail.longTermLimit', {
+        defaultValue: 'Long-term stays require check-out at least 1 year after check-in.',
+      });
+    }
+    return '';
+  };
 
   // Helper function to check if a date is available
   const isDateAvailable = (dateString) => {
@@ -90,6 +159,24 @@ const PropertyDetail = () => {
     return false;
   };
 
+  const isCheckoutDateDisabled = (date) => {
+    if (isDateDisabled(new Date(date))) {
+      return true;
+    }
+
+    if (!bookingData.check_in || !bookingTerm) {
+      return false;
+    }
+
+    const { minDate, maxDate } = getCheckoutBounds(bookingData.check_in);
+    const target = normalizeDate(date);
+
+    if (minDate && target < minDate) return true;
+    if (maxDate && target > maxDate) return true;
+
+    return false;
+  };
+
   const fetchProperty = async () => {
     setLoading(true);
     try {
@@ -126,6 +213,12 @@ const PropertyDetail = () => {
     
     if (checkIn >= checkOut) {
       toast.error(t('propertyDetail.checkoutAfterCheckin'));
+      return;
+    }
+
+    if (!isCheckoutWithinBounds(checkOut, bookingData.check_in)) {
+      const message = getTermLimitMessage();
+      toast.error(message || t('propertyDetail.checkoutAfterCheckin'));
       return;
     }
 
@@ -528,7 +621,17 @@ const PropertyDetail = () => {
                   onChange={(date) => {
                     if (date) {
                       const dateString = date.toISOString().split('T')[0];
-                      setBookingData({ ...bookingData, check_in: dateString });
+                      const nextData = { ...bookingData, check_in: dateString };
+                      if (bookingData.check_out) {
+                        const isValid = isCheckoutWithinBounds(
+                          new Date(bookingData.check_out),
+                          dateString
+                        );
+                        if (!isValid) {
+                          nextData.check_out = '';
+                        }
+                      }
+                      setBookingData(nextData);
                     }
                   }}
                   filterDate={(date) => !isDateDisabled(date)}
@@ -563,6 +666,12 @@ const PropertyDetail = () => {
                         return;
                       }
 
+                      if (checkInDate && !isCheckoutWithinBounds(checkOutDate, bookingData.check_in)) {
+                        const message = getTermLimitMessage();
+                        toast.error(message || t('propertyDetail.checkoutAfterCheckin'));
+                        return;
+                      }
+
                       // Check if the date range overlaps with any booking
                       let hasConflict = false;
                       if (checkInDate && property?.booked_dates) {
@@ -585,8 +694,13 @@ const PropertyDetail = () => {
                       }
                     }
                   }}
-                  filterDate={(date) => !isDateDisabled(date)}
-                  minDate={bookingData.check_in ? new Date(bookingData.check_in) : new Date()}
+                  filterDate={(date) => !isCheckoutDateDisabled(date)}
+                  minDate={
+                    bookingData.check_in
+                      ? (getCheckoutBounds(bookingData.check_in).minDate || new Date(bookingData.check_in))
+                      : new Date()
+                  }
+                  maxDate={getCheckoutBounds(bookingData.check_in).maxDate || null}
                   dateFormat="dd-MM-yyyy"
                   placeholderText={t('propertyDetail.selectCheckOutDate')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-propertree-green"

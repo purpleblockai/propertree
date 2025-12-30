@@ -47,11 +47,13 @@ const LandingPage = () => {
     check_in: '',
     check_out: '',
     min_price: '',
-    max_price: ''
+    max_price: '',
+    min_area: '',
+    vicinity: ''
   });
 
   // Term selection: '', 'short', 'mid', 'long'
-  const [term, setTerm] = useState('');
+  const [term, setTerm] = useState(() => sessionStorage.getItem('bookingTerm') || '');
 
   const propertyTypes = [
     { value: '', label: t('landing.allTypes') },
@@ -78,6 +80,23 @@ const LandingPage = () => {
     { value: 'price_high_low', label: t('sortOptions.priceHighLow') },
     { value: 'newest', label: t('sortOptions.newest') },
     { value: 'bedrooms', label: t('sortOptions.bedrooms') },
+  ];
+
+  const minAreaOptions = [
+    { value: '', label: t('landing.anyArea', { defaultValue: 'Any size' }) },
+    { value: '25', label: '25 m2+' },
+    { value: '50', label: '50 m2+' },
+    { value: '75', label: '75 m2+' },
+    { value: '100', label: '100 m2+' },
+    { value: '150', label: '150 m2+' },
+  ];
+
+  const vicinityOptions = [
+    { value: '', label: t('landing.anyVicinity', { defaultValue: 'Any vicinity' }) },
+    { value: '2', label: t('landing.vicinityWithin', { defaultValue: 'Within {{distance}} km', distance: 2 }) },
+    { value: '5', label: t('landing.vicinityWithin', { defaultValue: 'Within {{distance}} km', distance: 5 }) },
+    { value: '10', label: t('landing.vicinityWithin', { defaultValue: 'Within {{distance}} km', distance: 10 }) },
+    { value: '20', label: t('landing.vicinityWithin', { defaultValue: 'Within {{distance}} km', distance: 20 }) },
   ];
 
   useEffect(() => {
@@ -213,6 +232,12 @@ const LandingPage = () => {
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleTermSelect = (nextTerm) => {
+    setTerm(nextTerm);
+    sessionStorage.setItem('bookingTerm', nextTerm);
+    setFilters(prev => ({ ...prev, check_out: '' }));
+  };
+
   // Date helpers and term-based bounds
   const addDays = (dateStr, days) => {
     const d = new Date(dateStr);
@@ -288,196 +313,153 @@ const LandingPage = () => {
     <div className="min-h-screen">
       {/* Hero Section with Search */}
       <section
-        className="relative py-14 md:py-16 lg:py-20 text-white"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.30), rgba(0,0,0,0.30)), url('/landing-bg.jpg')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
-      >
-        <Container>
-          <div className="text-center mb-8">
-            <h1 className="text-5xl md:text-6xl font-bold mb-4 leading-tight">
-              {t('landing.title')}
-            </h1>
-            <p className="text-xl mb-12 text-white/90 max-w-3xl mx-auto">
-              {t('landing.subtitle')}
-            </p>
-
-            {/* Search Form */}
-            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-6xl mx-auto">
-              <form onSubmit={handleSearch}>
-                {/* Term toggles: Short / Mid / Long */}
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <button
-                    type="button"
-                    onClick={() => { setTerm('short'); setFilters(prev => ({ ...prev, check_out: '' })); }}
-                    className={`px-4 py-2 rounded-full font-semibold ${term === 'short' ? 'bg-emerald-700 text-white' : 'bg-white text-gray-700 border'}`}
-                  >
-                    {t('landing.shortTerm', { defaultValue: 'Short-term' })}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setTerm('mid'); setFilters(prev => ({ ...prev, check_out: '' })); }}
-                    className={`px-4 py-2 rounded-full font-semibold ${term === 'mid' ? 'bg-emerald-700 text-white' : 'bg-white text-gray-700 border'}`}
-                  >
-                    {t('landing.midTerm', { defaultValue: 'Mid-term' })}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setTerm('long'); setFilters(prev => ({ ...prev, check_out: '' })); }}
-                    className={`px-4 py-2 rounded-full font-semibold ${term === 'long' ? 'bg-emerald-700 text-white' : 'bg-white text-gray-700 border'}`}
-                  >
-                    {t('landing.longTerm', { defaultValue: 'Long-term' })}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setTerm(''); setFilters(prev => ({ ...prev, check_out: '' })); }}
-                    className={`px-3 py-1 rounded-full font-medium ${term === '' ? 'bg-emerald-700 text-white' : 'bg-white text-gray-600 border'}`}
-                    title={t('landing.clearTerm', { defaultValue: 'Clear' })}
-                  >
-                    ×
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                  {/* City */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2 text-left">
-                      {t('landing.city')}
-                    </label>
-                    <Select
-                      name="city"
-                      value={filters.city}
-                      onChange={(e) => handleFilterChange('city', e.target.value)}
-                      options={cities}
-                      placeholder={t('landing.allCities')}
-                      className="w-full"
-                    />
+          className="relative min-h-[calc(100vh-4rem)] pt-6 md:pt-10 lg:pt-12 pb-0 text-propertree-green-800"
+          style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.55), rgba(255,255,255,0.55)), url('/new2.png')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center 0%',
+            backgroundRepeat: 'no-repeat',
+            backgroundBlendMode: 'soft-light'
+          }}
+        >
+        <Container className="flex flex-col min-h-[calc(100vh-4rem)]">
+          <div className="flex flex-col min-h-full">
+            <div className="text-center">
+              <h1 className="text-5xl md:text-5xl font-bold mb-3 leading-tight">
+                {t('landing.title')}
+              </h1>
+              <p className="text-lg md:text-xl mb-6 text-propertree-green-800 max-w-2xl mx-auto">
+                {t('landing.subtitle')}
+              </p>
+            </div>
+            <div className="mt-auto pb-0">
+              {/* Search Form */}
+              <div className="bg-white rounded-2xl shadow-2xl p-4 md:p-5 max-w-6xl mx-auto border border-gray-200">
+                <form onSubmit={handleSearch} className="">
+                  {/* Term toggles like the reference */}
+                  <div className="mb-4">
+                    <div className="bg-gray-100/90 rounded-full p-1.5 border border-gray-200 shadow-inner">
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleTermSelect('short')}
+                          className={`py-2.5 rounded-full text-sm md:text-base font-semibold transition-all ${term === 'short' ? 'bg-propertree-green text-white shadow-sm' : 'text-gray-700 hover:text-gray-900'}`}
+                        >
+                          {t('landing.shortTerm', { defaultValue: 'Short-term' })}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleTermSelect('mid')}
+                          className={`py-2.5 rounded-full text-sm md:text-base font-semibold transition-all ${term === 'mid' ? 'bg-propertree-green text-white shadow-sm' : 'text-gray-700 hover:text-gray-900'}`}
+                        >
+                          {t('landing.midTerm', { defaultValue: 'Mid-term' })}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleTermSelect('long')}
+                          className={`py-2.5 rounded-full text-sm md:text-base font-semibold transition-all ${term === 'long' ? 'bg-propertree-green text-white shadow-sm' : 'text-gray-700 hover:text-gray-900'}`}
+                        >
+                          {t('landing.longTerm', { defaultValue: 'Long-term' })}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px] md:text-[11px] text-gray-500 text-center mt-1">
+                      <span>{t('landing.shortTermHint', { defaultValue: 'Nights to a few weeks' })}</span>
+                      <span>{t('landing.midTermHint', { defaultValue: '1-11 months stays' })}</span>
+                      <span>{t('landing.longTermHint', { defaultValue: '12+ months rental contracts' })}</span>
+                    </div>
                   </div>
 
-                  {/* Property Type */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2 text-left">
-                      {t('landing.propertyType')}
-                    </label>
-                    <Select
-                      name="property_type"
-                      value={filters.property_type}
-                      onChange={(e) => handleFilterChange('property_type', e.target.value)}
-                      options={propertyTypes}
-                      placeholder={t('landing.allTypes')}
-                      className="w-full"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-2 items-end">
+                    {/* City */}
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-2 text-left">
+                        {t('landing.city')}
+                      </label>
+                      <Select
+                        name="city"
+                        value={filters.city}
+                        onChange={(e) => handleFilterChange('city', e.target.value)}
+                        options={cities}
+                        placeholder={t('landing.allCities')}
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Property Type */}
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-2 text-left">
+                        {t('landing.propertyType')}
+                      </label>
+                      <Select
+                        name="property_type"
+                        value={filters.property_type}
+                        onChange={(e) => handleFilterChange('property_type', e.target.value)}
+                        options={propertyTypes}
+                        placeholder={t('landing.allTypes')}
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Guests */}
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-2 text-left">
+                        {t('landing.guests')}
+                      </label>
+                      <Select
+                        name="guests"
+                        value={filters.guests}
+                        onChange={(e) => handleFilterChange('guests', e.target.value)}
+                        options={guestOptions}
+                        placeholder={`1 ${t('landing.guest')}`}
+                        className="w-full"
+                      />
+                    </div>
+
+                    <div className="flex items-end">
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        size="lg"
+                        className="w-full h-12 whitespace-nowrap"
+                        disabled={searchLoading}
+                      >
+                        {searchLoading ? t('landing.searching') : 'Show offers'}
+                      </Button>
+                    </div>
                   </div>
 
-                  {/* Guests */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2 text-left">
-                      {t('landing.guests')}
-                    </label>
-                    <Select
-                      name="guests"
-                      value={filters.guests}
-                      onChange={(e) => handleFilterChange('guests', e.target.value)}
-                      options={guestOptions}
-                      placeholder={`1 ${t('landing.guest')}`}
-                      className="w-full"
-                    />
+                  {/* Dummy Filters */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-2 text-left">
+                        {t('landing.minArea', { defaultValue: 'Minimum Area (m2)' })}
+                      </label>
+                      <Select
+                        name="min_area"
+                        value={filters.min_area}
+                        onChange={(e) => handleFilterChange('min_area', e.target.value)}
+                        options={minAreaOptions}
+                        placeholder={t('landing.anyArea', { defaultValue: 'Any size' })}
+                        className="w-full"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-600 mb-2 text-left">
+                        {t('landing.vicinity', { defaultValue: 'Vicinity' })}
+                      </label>
+                      <Select
+                        name="vicinity"
+                        value={filters.vicinity}
+                        onChange={(e) => handleFilterChange('vicinity', e.target.value)}
+                        options={vicinityOptions}
+                        placeholder={t('landing.anyVicinity', { defaultValue: 'Any vicinity' })}
+                        className="w-full"
+                      />
+                    </div>
                   </div>
-
-                  {/* Sort By */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2 text-left">
-                      {t('landing.sortBy')}
-                    </label>
-                    <Select
-                      name="sort_by"
-                      value={filters.sort_by}
-                      onChange={(e) => handleFilterChange('sort_by', e.target.value)}
-                      options={sortOptions}
-                      placeholder={t('landing.sortBy')}
-                      className="w-full"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  {/* Check-in */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2 text-left">
-                      {t('landing.checkIn')}
-                    </label>
-                    <Input
-                      name="check_in"
-                      type="date"
-                      value={filters.check_in}
-                      onChange={(e) => { handleFilterChange('check_in', e.target.value); setFilters(prev => ({ ...prev, check_out: '' })); }}
-                      className="w-full"
-                      min={todayString}
-                    />
-                  </div>
-
-                  {/* Check-out */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2 text-left">
-                      {t('landing.checkOut')}
-                    </label>
-                    <Input
-                      name="check_out"
-                      type="date"
-                      value={filters.check_out}
-                      onChange={(e) => handleFilterChange('check_out', e.target.value)}
-                      className="w-full"
-                      min={coBounds.min || filters.check_in || todayString}
-                      max={coBounds.max || undefined}
-                    />
-                  </div>
-
-                  {/* Min Price */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2 text-left">
-                      {t('landing.minPrice')}
-                    </label>
-                    <Input
-                      name="min_price"
-                      type="number"
-                      placeholder="0"
-                      value={filters.min_price}
-                      onChange={(e) => handleFilterChange('min_price', e.target.value)}
-                      className="w-full"
-                    />
-                  </div>
-
-                  {/* Max Price */}
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-800 mb-2 text-left">
-                      {t('landing.maxPrice')}
-                    </label>
-                    <Input
-                      name="max_price"
-                      type="number"
-                      placeholder="500"
-                      value={filters.max_price}
-                      onChange={(e) => handleFilterChange('max_price', e.target.value)}
-                      className="w-full"
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-8 pt-6 border-t border-gray-200">
-                  <Button 
-                    type="submit" 
-                    variant="primary" 
-                    size="lg"
-                    className="w-full md:w-auto px-16"
-                    disabled={searchLoading}
-                  >
-                    {searchLoading ? t('landing.searching') : t('landing.searchProperties')}
-                  </Button>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
           </div>
         </Container>
@@ -600,4 +582,3 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
-

@@ -251,16 +251,14 @@ const Dashboard = () => {
           data={incomeVsExpensesData}
           title={t('dashboard.incomeVsExpenses')}
           centerLabel={t('dashboard.netIncome')}
-          centerValue={`€${dashboardData.noi.noi.toLocaleString()}`}
-            centerValue={formatCurrency(dashboardData.noi.noi)}
+          centerValue={formatCurrency(dashboardData.noi.noi)}
           height={350}
         />
         <DonutChart
           data={expenseBreakdownData.length > 0 ? expenseBreakdownData : [{ name: t('dashboard.noExpensesRecorded'), value: 1, category: 'other' }]}
           title={t('dashboard.expensesByCategory')}
           centerLabel={t('dashboard.totalExpenses')}
-          centerValue={`€${dashboardData.noi.total_expenses.toLocaleString()}`}
-            centerValue={formatCurrency(dashboardData.noi.total_expenses)}
+          centerValue={formatCurrency(dashboardData.noi.total_expenses)}
           height={350}
         />
       </div>
