@@ -459,7 +459,6 @@ const Properties = () => {
                       <div>
                         <p className="text-xs text-gray-500">Price/Night</p>
                         <p className="font-semibold text-gray-900 flex items-center">
-                            <span className="text-lg mr-2">€</span>
                             {formatCurrency(property.price_per_night)}
                         </p>
                       </div>

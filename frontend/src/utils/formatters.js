@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Formatting utility functions
  */
 import { format, formatDistance, parseISO, differenceInDays } from 'date-fns';
@@ -37,28 +37,29 @@ export const formatRelativeTime = (date) => {
 };
 
 /**
- * Format price/currency
+ * Format plain number without commas or decimals.
  */
-export const formatCurrency = (amount, currency = 'BRL') => {
-  if (amount === null || amount === undefined || amount === '') return '';
-  const n = Number(amount);
+export const formatPlainNumber = (value) => {
+  if (value === null || value === undefined || value === '') return '';
+  const n = Number(value);
   if (Number.isNaN(n)) return '';
-
-  // Format as Euro, no grouping (no thousands separators). Keep up to 2 decimals.
-  // If value is whole number, drop decimals.
-  let formatted = n.toFixed(2);
-  // Remove trailing .00 for whole numbers
-  formatted = formatted.replace(/\.00$/, '');
-
-  // Ensure there's no grouping commas — toFixed doesn't include grouping
-  return `€${formatted}`;
+  return Math.round(n).toString();
 };
 
 /**
- * Format number with thousands separator
+ * Format price/currency without commas or decimals.
+ */
+export const formatCurrency = (amount, currencySymbol = '€') => {
+  const formatted = formatPlainNumber(amount);
+  if (!formatted) return '';
+  return `${currencySymbol}${formatted}`;
+};
+
+/**
+ * Format number without commas or decimals.
  */
 export const formatNumber = (number) => {
-  return new Intl.NumberFormat('pt-BR').format(number);
+  return formatPlainNumber(number);
 };
 
 /**
@@ -117,7 +118,7 @@ export const formatFileSize = (bytes) => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  return Math.round(bytes / Math.pow(k, i)) + ' ' + sizes[i];
 };
 
 /**
@@ -126,4 +127,3 @@ export const formatFileSize = (bytes) => {
 export const generateId = () => {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 };
-
