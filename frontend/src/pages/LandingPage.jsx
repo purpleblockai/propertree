@@ -313,29 +313,33 @@ const LandingPage = () => {
     <div className="min-h-screen">
       {/* Hero Section with Search */}
       <section
-          className="relative min-h-[calc(100vh-4rem)] pt-6 md:pt-10 lg:pt-12 pb-0 text-propertree-green-800"
-          style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,0.55), rgba(255,255,255,0.55)), url('/new2.png')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center 0%',
-            backgroundRepeat: 'no-repeat',
-            backgroundBlendMode: 'soft-light'
-          }}
-        >
-        <Container className="flex flex-col min-h-[calc(100vh-4rem)]">
-          <div className="flex flex-col min-h-full">
+        className="landing-hero relative flex flex-col min-h-[calc(100vh-4rem)] min-h-[calc(100dvh-4rem)] text-propertree-green-800"
+        style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.55), rgba(255,255,255,0.55)), url('/new2.png')`,
+          backgroundSize: 'cover',
+          backgroundRepeat: 'no-repeat',
+          backgroundBlendMode: 'soft-light',
+        }}
+      >
+        {/* Background content */}
+        <div className="flex-1 pt-6 md:pt-10 lg:pt-12 pb-8">
+          <Container>
             <div className="text-center">
               <h1 className="text-5xl md:text-5xl font-bold mb-3 leading-tight">
                 {t('landing.title')}
               </h1>
-              <p className="text-lg md:text-xl mb-6 text-propertree-green-800 max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl text-propertree-green-800 max-w-2xl mx-auto">
                 {t('landing.subtitle')}
               </p>
             </div>
-            <div className="mt-auto pb-0">
-              {/* Search Form */}
-              <div className="bg-white rounded-2xl shadow-2xl p-4 md:p-5 max-w-6xl mx-auto border border-gray-200">
-                <form onSubmit={handleSearch} className="">
+          </Container>
+        </div>
+
+        {/* Bottom filters area */}
+        <div className="pb-4 md:pb-6">
+          <Container>
+            <div className="bg-white rounded-2xl shadow-2xl p-4 md:p-5 max-w-6xl mx-auto border border-gray-200">
+              <form onSubmit={handleSearch} className="">
                   {/* Term toggles like the reference */}
                   <div className="mb-4">
                     <div className="bg-gray-100/90 rounded-full p-1.5 border border-gray-200 shadow-inner">
@@ -460,10 +464,9 @@ const LandingPage = () => {
                     </div>
                   )}
                 </form>
-              </div>
             </div>
-          </div>
-        </Container>
+          </Container>
+        </div>
       </section>
 
       {/* Properties Grid */}
