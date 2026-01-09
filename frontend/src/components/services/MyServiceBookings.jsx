@@ -7,6 +7,7 @@ import { Calendar, Clock, MapPin, AlertCircle } from 'lucide-react';
 import { getServiceBookings } from '../../services/serviceService';
 import Card from '../common/Card';
 import Badge from '../common/Badge';
+import { formatCurrency } from '../../utils/formatters';
 
 const STATUS_CONFIG = {
   open: { variant: 'warning', label: 'Pending Confirmation' },
@@ -148,7 +149,7 @@ const MyServiceBookings = () => {
                 {booking.cost && (
                   <div className="mt-3">
                     <span className="text-sm font-medium text-gray-700">
-                      Cost: ${parseFloat(booking.cost).toFixed(2)}
+                      Cost: {formatCurrency(booking.cost)}
                     </span>
                   </div>
                 )}

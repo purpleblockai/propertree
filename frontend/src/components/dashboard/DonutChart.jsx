@@ -4,24 +4,25 @@
  */
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { formatCurrency } from '../../utils/formatters';
 
 const COLORS = {
-  income: '#10B981',    // green
-  expenses: '#EF4444',  // red
+  income: '#10B981', // green
+  expenses: '#EF4444', // red
   maintenance: '#F59E0B', // amber
-  utilities: '#3B82F6',   // blue
-  taxes: '#8B5CF6',       // purple
-  insurance: '#EC4899',   // pink
-  other: '#6B7280'        // gray
+  utilities: '#3B82F6', // blue
+  taxes: '#8B5CF6', // purple
+  insurance: '#EC4899', // pink
+  other: '#6B7280', // gray
 };
 
-const DonutChart = ({ 
-  data, 
-  title, 
+const DonutChart = ({
+  data,
+  title,
   centerLabel,
   centerValue,
   height = 300,
-  showLegend = true 
+  showLegend = true,
 }) => {
   const CustomLabel = ({ cx, cy }) => (
     <g>
@@ -48,12 +49,12 @@ const DonutChart = ({
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
-      const data = payload[0];
+      const datum = payload[0];
       return (
         <div className="bg-white px-4 py-2 rounded-lg shadow-lg border border-gray-200">
-          <p className="text-sm font-medium text-gray-900">{data.name}</p>
-          <p className="text-lg font-bold" style={{ color: data.payload.fill }}>
-            €{data.value.toLocaleString()}
+          <p className="text-sm font-medium text-gray-900">{datum.name}</p>
+          <p className="text-lg font-bold" style={{ color: datum.payload.fill }}>
+            {formatCurrency(datum.value)}
           </p>
         </div>
       );
@@ -77,20 +78,11 @@ const DonutChart = ({
             label={false}
           >
             {data.map((entry, index) => (
-              <Cell 
-                key={`cell-${index}`} 
-                fill={COLORS[entry.category] || COLORS.other}
-              />
+              <Cell key={`cell-${index}`} fill={COLORS[entry.category] || COLORS.other} />
             ))}
           </Pie>
           <Tooltip content={<CustomTooltip />} />
-          {showLegend && (
-            <Legend 
-              verticalAlign="bottom" 
-              height={36}
-              iconType="circle"
-            />
-          )}
+          {showLegend && <Legend verticalAlign="bottom" height={36} iconType="circle" />}
           {centerLabel && <CustomLabel />}
         </PieChart>
       </ResponsiveContainer>
@@ -99,7 +91,3 @@ const DonutChart = ({
 };
 
 export default DonutChart;
-
-
-
-

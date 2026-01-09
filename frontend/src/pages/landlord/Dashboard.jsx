@@ -439,7 +439,7 @@ const Dashboard = () => {
               <div className="p-4 bg-amber-50 rounded-lg">
                 <p className="text-xs text-gray-600 mb-1">{t('dashboard.total')}</p>
                 <p className="text-2xl font-bold text-amber-600">
-                  €{dashboardData.maintenance_costs.total_cost.toLocaleString()}
+                  {formatCurrency(dashboardData.maintenance_costs.total_cost)}
                 </p>
               </div>
               <div className="p-4 bg-blue-50 rounded-lg">
@@ -452,7 +452,7 @@ const Dashboard = () => {
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-sm text-gray-600 mb-1">{t('dashboard.averageCostPerRequest')}</p>
               <p className="text-xl font-bold text-gray-900">
-                €{dashboardData.maintenance_costs.average_cost.toFixed(2)}
+                {formatCurrency(dashboardData.maintenance_costs.average_cost)}
               </p>
             </div>
             <Button
@@ -548,19 +548,19 @@ const Dashboard = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="text-sm font-medium text-green-600">
-                        €{property.total_income.toLocaleString()}
+                        {formatCurrency(property.total_income)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="text-sm font-medium text-red-600">
-                        €{property.total_expenses.toLocaleString()}
+                        {formatCurrency(property.total_expenses)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className={`text-sm font-bold ${
                         property.net_income >= 0 ? 'text-green-600' : 'text-red-600'
                       }`}>
-                        €{property.net_income.toLocaleString()}
+                        {formatCurrency(property.net_income)}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">

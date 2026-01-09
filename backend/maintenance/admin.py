@@ -20,7 +20,7 @@ class ServiceCatalogAdmin(admin.ModelAdmin):
         }),
         ('Pricing', {
             'fields': ('price', 'estimated_duration_minutes'),
-            'description': 'Price must be under $100'
+            'description': 'Price must be under EUR 100'
         }),
         ('Status', {
             'fields': ('is_active',)

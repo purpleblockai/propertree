@@ -15,6 +15,7 @@ import {
   Area,
   AreaChart,
 } from 'recharts';
+import { formatCurrency } from '../../utils/formatters';
 
 const LineChart = ({ 
   data, 
@@ -23,7 +24,7 @@ const LineChart = ({
   lines = [{ dataKey: 'value', stroke: '#10B981', name: 'Value' }],
   height = 300,
   showArea = false,
-  yAxisFormatter = (value) => `€${value}`
+  yAxisFormatter = (value) => formatCurrency(value)
 }) => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {

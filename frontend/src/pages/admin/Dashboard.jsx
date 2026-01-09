@@ -277,7 +277,7 @@ const Dashboard = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">{t('adminDashboard.averageBookingValue')}</span>
                   <span className="text-lg font-bold text-gray-900">
-                    ${stats?.revenue.average_booking.toFixed(2) || 0}
+                    {formatCurrency(stats?.revenue?.average_booking ?? 0)}
                   </span>
                 </div>
               </div>

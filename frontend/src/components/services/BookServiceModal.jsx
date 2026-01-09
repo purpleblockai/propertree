@@ -11,6 +11,7 @@ import Input from '../common/Input';
 import TextArea from '../common/TextArea';
 import { createServiceBooking } from '../../services/serviceService';
 import api from '../../services/api';
+import { formatCurrency } from '../../utils/formatters';
 
 const BookServiceModal = ({ service, isOpen, onClose, onSuccess }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -151,8 +152,7 @@ const BookServiceModal = ({ service, isOpen, onClose, onSuccess }) => {
           <p className="text-sm text-gray-600 mt-1">{service?.description}</p>
           {service?.estimated_price_min && service?.estimated_price_max && (
             <p className="text-sm text-gray-700 mt-2">
-              <strong>Estimated Cost:</strong> ${service.estimated_price_min} - $
-              {service.estimated_price_max}
+              <strong>Estimated Cost:</strong> {formatCurrency(service.estimated_price_min)} - {formatCurrency(service.estimated_price_max)}
             </p>
           )}
         </div>

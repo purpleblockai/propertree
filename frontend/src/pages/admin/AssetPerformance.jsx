@@ -14,6 +14,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area
 } from 'recharts';
 import { toast } from 'react-hot-toast';
+import { formatCurrency } from '../../utils/formatters';
 
 const AssetPerformance = () => {
   const [loading, setLoading] = useState(true);
@@ -481,7 +482,7 @@ const AssetPerformance = () => {
             </div>
             <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
             <p className="text-2xl font-bold text-gray-900">
-              €{totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrency(totalRevenue)}
             </p>
           </Card.Body>
         </Card>
@@ -551,7 +552,7 @@ const AssetPerformance = () => {
             </div>
             <p className="text-sm text-gray-600 mb-1">Avg Booking Value</p>
             <p className="text-2xl font-bold text-gray-900">
-              €{averageBookingValue.toFixed(2)}
+              {formatCurrency(averageBookingValue)}
             </p>
           </Card.Body>
         </Card>
@@ -618,7 +619,7 @@ const AssetPerformance = () => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
-                  <Tooltip formatter={(value) => `€${value.toLocaleString()}`} />
+                  <Tooltip formatter={(value) => formatCurrency(value)} />
                   <Legend />
                   <Bar dataKey="revenue" fill="#10b981" name="Revenue" />
                   <Bar dataKey="expenses" fill="#ef4444" name="Expenses" />
@@ -656,7 +657,7 @@ const AssetPerformance = () => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
-                  <Tooltip formatter={(value) => `€${value.toLocaleString()}`} />
+                  <Tooltip formatter={(value) => formatCurrency(value)} />
                   <Area type="monotone" dataKey="profit" stroke="#10b981" fill="#10b981" fillOpacity={0.6} name="Profit" />
                 </AreaChart>
               </ResponsiveContainer>
@@ -705,7 +706,7 @@ const AssetPerformance = () => {
                         {property.property}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-gray-900">
-                        €{property.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatCurrency(property.revenue)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-gray-900">
                         {property.bookings}
@@ -756,7 +757,7 @@ const AssetPerformance = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <ResponsiveContainer width="100%" height={300}>
                 <RechartsPieChart>
-                  <Tooltip formatter={(value) => `€${value.toLocaleString()}`} />
+                  <Tooltip formatter={(value) => formatCurrency(value)} />
                   <Legend />
                   <Pie
                     data={data.expense_categories}
@@ -783,7 +784,7 @@ const AssetPerformance = () => {
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm font-medium text-gray-700">{category.name}</span>
                         <span className="text-sm font-bold text-gray-900">
-                          €{category.value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ({percentage}%)
+                          {formatCurrency(category.value)} ({percentage}%)
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
@@ -826,5 +827,3 @@ const AssetPerformance = () => {
 };
 
 export default AssetPerformance;
-
-
