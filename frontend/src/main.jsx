@@ -8,6 +8,13 @@ import { AuthProvider } from './contexts/AuthContext'
 import './i18n/config' // Initialize i18n
 import './styles/index.css'
 
+const __originalToLocaleString = Number.prototype.toLocaleString
+Number.prototype.toLocaleString = function (locales, options) {
+  const nextOptions =
+    options && typeof options === 'object' ? { ...options, useGrouping: false } : { useGrouping: false }
+  return __originalToLocaleString.call(this, locales, nextOptions)
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
