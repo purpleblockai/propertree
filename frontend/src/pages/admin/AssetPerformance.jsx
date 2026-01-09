@@ -14,7 +14,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area
 } from 'recharts';
 import { toast } from 'react-hot-toast';
-import { formatCurrency } from '../../utils/formatters';
+import { formatCurrency, formatNumber } from '../../utils/formatters';
 
 const AssetPerformance = () => {
   const [loading, setLoading] = useState(true);
@@ -618,7 +618,7 @@ const AssetPerformance = () => {
                 <BarChart data={data.monthly_revenue}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
-                  <YAxis />
+                  <YAxis tickFormatter={(value) => formatNumber(value, { maximumFractionDigits: 0 })} />
                   <Tooltip formatter={(value) => formatCurrency(value)} />
                   <Legend />
                   <Bar dataKey="revenue" fill="#10b981" name="Revenue" />
@@ -656,7 +656,7 @@ const AssetPerformance = () => {
                 <AreaChart data={data.monthly_revenue}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
-                  <YAxis />
+                  <YAxis tickFormatter={(value) => formatNumber(value, { maximumFractionDigits: 0 })} />
                   <Tooltip formatter={(value) => formatCurrency(value)} />
                   <Area type="monotone" dataKey="profit" stroke="#10b981" fill="#10b981" fillOpacity={0.6} name="Profit" />
                 </AreaChart>

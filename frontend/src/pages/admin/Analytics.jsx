@@ -10,7 +10,7 @@ import {
 import { Container } from '../../components/layout';
 import { Card, Loading, Modal, Select, Button, Input } from '../../components/common';
 import { toast } from 'react-hot-toast';
-import { formatCurrency } from '../../utils/formatters';
+import { formatCurrency, formatNumber } from '../../utils/formatters';
 import { 
   LineChart as RechartsLineChart, Line, BarChart as RechartsBarChart, Bar, 
   PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, 
@@ -565,7 +565,7 @@ const Analytics = () => {
                   height={100}
                   tick={{ fontSize: 12 }}
                 />
-                <YAxis />
+                <YAxis tickFormatter={(value) => formatNumber(value, { maximumFractionDigits: 0 })} />
                 <Tooltip 
                   formatter={(value) => formatCurrency(value)}
                   labelFormatter={(label) => `City: ${label}`}
@@ -601,8 +601,12 @@ const Analytics = () => {
               <ComposedChart data={analytics.revenue_by_type}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="property_type" angle={-45} textAnchor="end" height={80} />
-                <YAxis yAxisId="left" />
-                <YAxis yAxisId="right" orientation="right" />
+                <YAxis yAxisId="left" tickFormatter={(value) => formatNumber(value, { maximumFractionDigits: 0 })} />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  tickFormatter={(value) => formatNumber(value, { maximumFractionDigits: 0 })}
+                />
                 <Tooltip 
                   formatter={(value, name) => {
                     if (name === 'Total Revenue') return formatCurrency(value);
@@ -648,7 +652,7 @@ const Analytics = () => {
                   height={100}
                   tick={{ fontSize: 12 }}
                 />
-                <YAxis domain={[0, 100]} />
+                <YAxis domain={[0, 100]} tickFormatter={(value) => formatNumber(value, { maximumFractionDigits: 0 })} />
                 <Tooltip 
                   formatter={(value) => `${value}%`}
                   labelFormatter={(label) => `City: ${label}`}
@@ -806,8 +810,17 @@ const Analytics = () => {
               <ComposedChart data={analytics.monthly_trend}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
-                <YAxis yAxisId="left" label={{ value: 'Properties Created', angle: -90, position: 'insideLeft' }} />
-                <YAxis yAxisId="right" orientation="right" label={{ value: 'Revenue (€)', angle: 90, position: 'insideRight' }} />
+                <YAxis
+                  yAxisId="left"
+                  label={{ value: 'Properties Created', angle: -90, position: 'insideLeft' }}
+                  tickFormatter={(value) => formatNumber(value, { maximumFractionDigits: 0 })}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  label={{ value: 'Revenue (€)', angle: 90, position: 'insideRight' }}
+                  tickFormatter={(value) => formatNumber(value, { maximumFractionDigits: 0 })}
+                />
                 <Tooltip 
                   formatter={(value, name) => {
                     if (name === 'Properties Created') return value;

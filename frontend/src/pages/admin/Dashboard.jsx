@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { Container } from '../../components/layout';
 import { Card, Loading } from '../../components/common';
-import { formatCurrency } from '../../utils/formatters';
+import { formatCurrency, formatNumber } from '../../utils/formatters';
 import { LineChart, Line, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const Dashboard = () => {
@@ -303,7 +303,7 @@ const Dashboard = () => {
                   <LineChart data={analytics.monthly_trend}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
-                    <YAxis />
+                    <YAxis tickFormatter={(value) => formatNumber(value, { maximumFractionDigits: 0 })} />
                     <Tooltip />
                     <Legend />
                     <Line type="monotone" dataKey="count" stroke="#10b981" strokeWidth={2} name={t('adminDashboard.totalProperties')} />
