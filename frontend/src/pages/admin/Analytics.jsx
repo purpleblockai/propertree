@@ -10,6 +10,7 @@ import {
 import { Container } from '../../components/layout';
 import { Card, Loading, Modal, Select, Button, Input } from '../../components/common';
 import { toast } from 'react-hot-toast';
+import { formatCurrency } from '../../utils/formatters';
 import { 
   LineChart as RechartsLineChart, Line, BarChart as RechartsBarChart, Bar, 
   PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, 
@@ -364,7 +365,7 @@ const Analytics = () => {
               <div>
                 <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
                 <p className="text-2xl font-bold text-purple-600">
-                  €{analytics?.summary?.total_revenue?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+                  {formatCurrency(analytics?.summary?.total_revenue ?? 0)}
                 </p>
               </div>
               <Euro className="w-10 h-10 text-purple-600" />
@@ -401,13 +402,13 @@ const Analytics = () => {
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <p className="text-sm text-gray-600 mb-2">Last 3 Months Revenue</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  €{analytics.time_comparison.last_3_months.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {formatCurrency(analytics.time_comparison.last_3_months.revenue)}
                 </p>
               </div>
               <div className="text-center p-4 bg-gray-50 rounded-lg">
                 <p className="text-sm text-gray-600 mb-2">Previous 3 Months Revenue</p>
                 <p className="text-2xl font-bold text-gray-600">
-                  €{analytics.time_comparison.prev_3_months.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {formatCurrency(analytics.time_comparison.prev_3_months.revenue)}
                 </p>
               </div>
               <div className="text-center p-4 bg-green-50 rounded-lg">
@@ -566,7 +567,7 @@ const Analytics = () => {
                 />
                 <YAxis />
                 <Tooltip 
-                  formatter={(value) => `€${value.toLocaleString()}`}
+                  formatter={(value) => formatCurrency(value)}
                   labelFormatter={(label) => `City: ${label}`}
                 />
                 <Legend />
@@ -604,8 +605,8 @@ const Analytics = () => {
                 <YAxis yAxisId="right" orientation="right" />
                 <Tooltip 
                   formatter={(value, name) => {
-                    if (name === 'Total Revenue') return `€${value.toLocaleString()}`;
-                    if (name === 'Avg Price') return `€${value.toFixed(2)}/night`;
+                    if (name === 'Total Revenue') return formatCurrency(value);
+                    if (name === 'Avg Price') return `${formatCurrency(value)}/night`;
                     return value;
                   }}
                 />
@@ -684,7 +685,7 @@ const Analytics = () => {
                         <p className="text-xs text-gray-500">{item.country || ''}</p>
                         {item.avg_price && (
                           <p className="text-xs text-gray-600 mt-1">
-                            Avg: €{item.avg_price.toFixed(2)}/night
+                            Avg: {formatCurrency(item.avg_price)}/night
                           </p>
                         )}
                       </div>
@@ -693,7 +694,7 @@ const Analytics = () => {
                         <p className="text-xs text-gray-500">properties</p>
                         {item.total_revenue && (
                           <p className="text-xs text-green-600 mt-1">
-                            €{item.total_revenue.toLocaleString()}
+                            {formatCurrency(item.total_revenue)}
                           </p>
                         )}
                       </div>
@@ -731,7 +732,7 @@ const Analytics = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-lg font-bold text-green-600">
-                          €{item.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          {formatCurrency(item.revenue)}
                         </p>
                         <p className="text-xs text-gray-500">{item.bookings} bookings</p>
                       </div>
@@ -768,7 +769,7 @@ const Analytics = () => {
                         {item.property_type?.replace('_', ' ')}
                       </span>
                       <span className="text-sm font-bold text-green-600">
-                        €{parseFloat(item.avg_price || 0).toFixed(2)} / night
+                        {formatCurrency(item.avg_price || 0)} / night
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-4">
@@ -777,7 +778,7 @@ const Analytics = () => {
                         style={{ width: `${barWidth}%` }}
                       >
                         <span className="text-xs text-white font-semibold">
-                          {barWidth > 15 ? `€${parseFloat(item.avg_price || 0).toFixed(0)}` : ''}
+                          {barWidth > 15 ? formatCurrency(item.avg_price || 0, '€', { maximumFractionDigits: 0 }) : ''}
                         </span>
                       </div>
                     </div>
@@ -810,7 +811,7 @@ const Analytics = () => {
                 <Tooltip 
                   formatter={(value, name) => {
                     if (name === 'Properties Created') return value;
-                    if (name === 'Revenue') return `€${value.toLocaleString()}`;
+                    if (name === 'Revenue') return formatCurrency(value);
                     if (name === 'Bookings') return value;
                     return value;
                   }}

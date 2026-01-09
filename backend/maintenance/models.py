@@ -33,14 +33,14 @@ class ServiceCatalog(models.Model):
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
     description = models.TextField()
 
-    # Pricing Information (static price, must be under $100)
+    # Pricing Information (static price, must be under EUR 100)
     price = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         null=True,
         blank=True,
         validators=[MinValueValidator(0), MaxValueValidator(100)],
-        help_text="Service price (must be under $100)"
+        help_text="Service price (must be under EUR 100)"
     )
 
     # Duration estimate (in minutes)
@@ -68,7 +68,7 @@ class ServiceCatalog(models.Model):
     def formatted_price(self):
         """Return formatted price."""
         if self.price:
-            return f"${self.price}"
+            return f"EUR {self.price:,.2f}"
         return "Price on request"
 
 

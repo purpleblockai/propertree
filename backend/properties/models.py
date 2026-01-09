@@ -230,7 +230,7 @@ class PropertyExpense(models.Model):
         ]
     
     def __str__(self):
-        return f"{self.get_category_display()} - €{self.amount} ({self.property.title})"
+        return f"{self.get_category_display()} - €{self.amount:,.2f} ({self.property.title})"
 
 
 class Favorite(models.Model):

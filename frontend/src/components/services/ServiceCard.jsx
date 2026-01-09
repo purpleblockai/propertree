@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import Button from '../common/Button';
 import Card from '../common/Card';
+import { formatCurrency } from '../../utils/formatters';
 
 // Map service categories to icons
 const ICON_MAP = {
@@ -66,7 +67,7 @@ const ServiceCard = ({ service, onBook }) => {
 
   const formatPriceRange = () => {
     if (service.estimated_price_min && service.estimated_price_max) {
-      return `$${service.estimated_price_min} - $${service.estimated_price_max}`;
+      return `${formatCurrency(service.estimated_price_min)} - ${formatCurrency(service.estimated_price_max)}`;
     }
     return 'Price on request';
   };
