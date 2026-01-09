@@ -140,7 +140,7 @@ const Properties = () => {
 
       {/* Stats Cards */}
       {stats.total > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           <Card>
             <Card.Body className="text-center">
               <div className="text-3xl font-bold text-propertree-green">{stats.total}</div>
@@ -227,7 +227,7 @@ const Properties = () => {
                 </div>
 
                 {/* Property Details */}
-                <div className="grid grid-cols-3 gap-3 mb-5 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-5 text-sm">
                   <div className="flex items-center text-gray-600">
                     <Bed className="w-4 h-4 mr-1.5" />
                     {property.bedrooms}

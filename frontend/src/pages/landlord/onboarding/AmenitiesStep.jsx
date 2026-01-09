@@ -29,7 +29,7 @@ const AmenitiesStep = ({ formData, updateFormData }) => {
   return (
     <div>
       <p className="text-gray-600 mb-6">What amenities do you offer?</p>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {AMENITIES.map(amenity => {
           const Icon = amenity.icon;
           const isSelected = (formData.amenities || []).includes(amenity.id);
@@ -61,4 +61,3 @@ AmenitiesStep.propTypes = {
 };
 
 export default AmenitiesStep;
-

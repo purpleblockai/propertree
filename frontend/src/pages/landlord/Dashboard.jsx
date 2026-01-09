@@ -435,7 +435,7 @@ const Dashboard = () => {
             </Button>
           </div>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-4 bg-amber-50 rounded-lg">
                 <p className="text-xs text-gray-600 mb-1">{t('dashboard.total')}</p>
                 <p className="text-2xl font-bold text-amber-600">

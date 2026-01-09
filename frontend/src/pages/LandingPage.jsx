@@ -325,10 +325,10 @@ const LandingPage = () => {
         <div className="flex-1 pt-6 md:pt-10 lg:pt-12 pb-8">
           <Container>
             <div className="text-center">
-              <h1 className="text-5xl md:text-5xl font-bold mb-3 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 leading-tight">
                 {t('landing.title')}
               </h1>
-              <p className="text-lg md:text-xl text-propertree-green-800 max-w-2xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-propertree-green-800 max-w-2xl mx-auto">
                 {t('landing.subtitle')}
               </p>
             </div>
@@ -338,36 +338,36 @@ const LandingPage = () => {
         {/* Bottom filters area */}
         <div className="pb-4 md:pb-6">
           <Container>
-            <div className="bg-white rounded-2xl shadow-2xl p-4 md:p-5 max-w-6xl mx-auto border border-gray-200">
+            <div className="bg-white rounded-2xl shadow-2xl p-3 sm:p-4 md:p-5 max-w-6xl mx-auto border border-gray-200">
               <form onSubmit={handleSearch} className="">
                   {/* Term toggles like the reference */}
                   <div className="mb-4">
                     <div className="bg-gray-100/90 rounded-full p-1.5 border border-gray-200 shadow-inner">
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                         <button
                           type="button"
                           onClick={() => handleTermSelect('short')}
-                          className={`py-2.5 rounded-full text-sm md:text-base font-semibold transition-all ${term === 'short' ? 'bg-propertree-green text-white shadow-sm' : 'text-gray-700 hover:text-gray-900'}`}
+                          className={`py-2 sm:py-2.5 rounded-full text-[11px] sm:text-sm md:text-base font-semibold transition-all whitespace-nowrap ${term === 'short' ? 'bg-propertree-green text-white shadow-sm' : 'text-gray-700 hover:text-gray-900'}`}
                         >
                           {t('landing.shortTerm', { defaultValue: 'Short-term' })}
                         </button>
                         <button
                           type="button"
                           onClick={() => handleTermSelect('mid')}
-                          className={`py-2.5 rounded-full text-sm md:text-base font-semibold transition-all ${term === 'mid' ? 'bg-propertree-green text-white shadow-sm' : 'text-gray-700 hover:text-gray-900'}`}
+                          className={`py-2 sm:py-2.5 rounded-full text-[11px] sm:text-sm md:text-base font-semibold transition-all whitespace-nowrap ${term === 'mid' ? 'bg-propertree-green text-white shadow-sm' : 'text-gray-700 hover:text-gray-900'}`}
                         >
                           {t('landing.midTerm', { defaultValue: 'Mid-term' })}
                         </button>
                         <button
                           type="button"
                           onClick={() => handleTermSelect('long')}
-                          className={`py-2.5 rounded-full text-sm md:text-base font-semibold transition-all ${term === 'long' ? 'bg-propertree-green text-white shadow-sm' : 'text-gray-700 hover:text-gray-900'}`}
+                          className={`py-2 sm:py-2.5 rounded-full text-[11px] sm:text-sm md:text-base font-semibold transition-all whitespace-nowrap ${term === 'long' ? 'bg-propertree-green text-white shadow-sm' : 'text-gray-700 hover:text-gray-900'}`}
                         >
                           {t('landing.longTerm', { defaultValue: 'Long-term' })}
                         </button>
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px] md:text-[11px] text-gray-500 text-center mt-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px] sm:text-[11px] text-gray-500 text-center mt-1">
                       <span>{t('landing.shortTermHint', { defaultValue: 'Nights to a few weeks' })}</span>
                       <span>{t('landing.midTermHint', { defaultValue: '1-11 months stays' })}</span>
                       <span>{t('landing.longTermHint', { defaultValue: '12+ months rental contracts' })}</span>
@@ -425,7 +425,7 @@ const LandingPage = () => {
                         type="submit"
                         variant="primary"
                         size="lg"
-                        className="w-full h-12 whitespace-nowrap"
+                        className="w-full h-11 sm:h-12 whitespace-nowrap"
                         disabled={searchLoading}
                       >
                         {searchLoading ? t('landing.searching') : 'Show offers'}

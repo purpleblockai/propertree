@@ -73,7 +73,7 @@ const PhotosStep = ({ formData, updateFormData }) => {
 
       {/* Photo Grid */}
       {previews.length > 0 && (
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {previews.map((photo) => (
             <div key={photo.id} className="relative group">
               <img
@@ -128,4 +128,3 @@ PhotosStep.propTypes = {
 };
 
 export default PhotosStep;
-

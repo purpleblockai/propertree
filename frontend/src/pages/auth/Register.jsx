@@ -217,7 +217,7 @@ const Register = () => {
             <label className="block text-sm font-medium text-gray-700 mb-3">
               I am a:
             </label>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 type="button"
                 onClick={() => formik.setFieldValue('role', 'tenant')}

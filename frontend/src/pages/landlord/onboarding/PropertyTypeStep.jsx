@@ -27,7 +27,7 @@ const PropertyTypeStep = ({ formData, updateFormData }) => {
         Select the type of property you want to list
       </p>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         {PROPERTY_TYPES.map((type) => {
           const Icon = type.icon;
           const isSelected = formData.property_type === type.value;
@@ -76,4 +76,3 @@ PropertyTypeStep.propTypes = {
 };
 
 export default PropertyTypeStep;
-

@@ -29,12 +29,12 @@ const Navbar = () => {
   return (
     <nav className="bg-white shadow-subtle sticky top-0 z-40 border-b border-propertree-cream-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 gap-4">
+        <div className="flex justify-between items-center h-14 sm:h-16 gap-4">
           {/* Logo */}
           <div className="flex items-center flex-shrink-0">
-            <Link to="/" className="flex items-center space-x-3">
-              <img src="/logo.jpg" alt="Propertree" className="h-10 w-auto object-contain" />
-              <span className="text-2xl font-bold text-propertree-dark whitespace-nowrap">Propertree</span>
+            <Link to="/" className="flex items-center space-x-2 sm:space-x-3">
+              <img src="/logo.jpg" alt="Propertree" className="h-8 sm:h-10 w-auto object-contain" />
+              <span className="text-lg sm:text-2xl font-bold text-propertree-dark whitespace-nowrap">Propertree</span>
             </Link>
           </div>
 
@@ -243,7 +243,7 @@ const Navbar = () => {
               <>
                 <Link
                   to={getDashboardLink()}
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
+                  className="block px-3 py-2 rounded-md text-sm sm:text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {t('common.dashboard')}
@@ -252,21 +252,21 @@ const Navbar = () => {
                   <>
                     <Link
                       to="/landlord/properties"
-                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
+                      className="block px-3 py-2 rounded-md text-sm sm:text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {t('navbar.myProperties')}
                     </Link>
                     <Link
                       to="/landlord/bookings"
-                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
+                      className="block px-3 py-2 rounded-md text-sm sm:text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {t('navbar.bookings')}
                     </Link>
                     <Link
                       to="/landlord/services"
-                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
+                      className="block px-3 py-2 rounded-md text-sm sm:text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {t('navbar.services')}
@@ -277,14 +277,14 @@ const Navbar = () => {
                   <>
                     <Link
                       to="/tenant/bookings"
-                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
+                      className="block px-3 py-2 rounded-md text-sm sm:text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {t('navbar.myBookings')}
                     </Link>
                     <Link
                       to="/tenant/favorites"
-                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
+                      className="block px-3 py-2 rounded-md text-sm sm:text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {t('navbar.favorites')}
@@ -295,42 +295,42 @@ const Navbar = () => {
                   <>
                     <Link
                       to="/admin/properties"
-                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
+                      className="block px-3 py-2 rounded-md text-sm sm:text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {t('navbar.properties')}
                     </Link>
                     <Link
                       to="/admin/bookings"
-                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
+                      className="block px-3 py-2 rounded-md text-sm sm:text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {t('navbar.bookings')}
                     </Link>
                     <Link
                       to="/admin/service-bookings"
-                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
+                      className="block px-3 py-2 rounded-md text-sm sm:text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {t('navbar.serviceRequests')}
                     </Link>
                     <Link
                       to="/admin/users"
-                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
+                      className="block px-3 py-2 rounded-md text-sm sm:text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {t('navbar.users')}
                     </Link>
                     <Link
                       to="/admin/analytics"
-                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
+                      className="block px-3 py-2 rounded-md text-sm sm:text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {t('navbar.analytics')}
                     </Link>
                     <Link
                       to="/admin/performance"
-                      className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
+                      className="block px-3 py-2 rounded-md text-sm sm:text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {t('navbar.performance')}
@@ -339,7 +339,7 @@ const Navbar = () => {
                 )}
                 <Link
                   to="/profile"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
+                  className="block px-3 py-2 rounded-md text-sm sm:text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {t('common.profile')}
@@ -349,7 +349,7 @@ const Navbar = () => {
                     handleLogout();
                     setMobileMenuOpen(false);
                   }}
-                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50"
+                  className="block w-full text-left px-3 py-2 rounded-md text-sm sm:text-base font-medium text-red-600 hover:bg-red-50"
                 >
                   {t('common.logout')}
                 </button>
@@ -361,14 +361,14 @@ const Navbar = () => {
                 </div>
                 <Link
                   to="/login"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
+                  className="block px-3 py-2 rounded-md text-sm sm:text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {t('common.login')}
                 </Link>
                 <Link
                   to="/register"
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
+                  className="block px-3 py-2 rounded-md text-sm sm:text-base font-medium text-gray-700 hover:text-propertree-blue hover:bg-gray-50"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {t('common.signUp')}
@@ -383,4 +383,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

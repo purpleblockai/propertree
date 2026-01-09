@@ -26,7 +26,7 @@ const TextArea = ({
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label htmlFor={name} className="block text-sm font-medium text-propertree-dark mb-1.5">
+        <label htmlFor={name} className="block text-xs sm:text-sm font-medium text-propertree-dark mb-1.5">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -42,25 +42,25 @@ const TextArea = ({
         disabled={disabled}
         rows={rows}
         maxLength={maxLength}
-        className={`
-          block w-full rounded-xl border ${hasError ? 'border-red-500' : 'border-propertree-cream-300'}
-          px-4 py-2.5 text-propertree-dark placeholder-propertree-dark/40 shadow-subtle
+          className={`
+          block w-full rounded-lg sm:rounded-xl border ${hasError ? 'border-red-500' : 'border-propertree-cream-300'}
+          px-3 sm:px-4 py-2.5 text-propertree-dark placeholder-propertree-dark/40 shadow-subtle
           focus:outline-none focus:ring-2 ${hasError ? 'focus:ring-red-500' : 'focus:ring-propertree-green-500'} focus:border-transparent
           disabled:bg-propertree-cream-200 disabled:cursor-not-allowed
-          resize-vertical transition-all duration-200
+          resize-vertical transition-all duration-200 text-sm sm:text-base
         `}
         {...props}
       />
       
       <div className="flex justify-between mt-1.5">
         {hasError ? (
-          <p className="text-sm text-red-600">{error}</p>
+          <p className="text-xs sm:text-sm text-red-600">{error}</p>
         ) : (
           <span />
         )}
         
         {maxLength && (
-          <p className="text-sm text-propertree-dark/60">
+          <p className="text-xs sm:text-sm text-propertree-dark/60">
             {charCount}/{maxLength}
           </p>
         )}
@@ -86,4 +86,3 @@ TextArea.propTypes = {
 };
 
 export default TextArea;
-

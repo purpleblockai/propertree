@@ -61,24 +61,24 @@ const Modal = ({
       className="fixed inset-0 z-50 flex items-center justify-center bg-propertree-dark bg-opacity-60 p-4 overflow-y-auto backdrop-blur-sm"
       onClick={handleOverlayClick}
     >
-      <div className={`bg-white rounded-2xl shadow-card-hover w-full ${sizes[size]} my-8 animate-in fade-in duration-200`}>
+      <div className={`bg-white rounded-2xl shadow-card-hover w-full ${sizes[size]} my-6 sm:my-8 animate-in fade-in duration-200`}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-propertree-cream-300">
-          <h2 className="text-2xl font-semibold text-propertree-dark">{title}</h2>
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-propertree-cream-300">
+          <h2 className="text-lg sm:text-2xl font-semibold text-propertree-dark">{title}</h2>
           <button
             onClick={onClose}
             className="p-1.5 rounded-lg text-propertree-dark/40 hover:text-propertree-dark hover:bg-propertree-cream-100 transition-colors"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-6">{children}</div>
+        <div className="p-4 sm:p-6">{children}</div>
 
         {/* Footer */}
         {footer && (
-          <div className="flex items-center justify-end gap-3 p-6 border-t border-propertree-cream-300 bg-propertree-cream rounded-b-2xl">
+          <div className="flex items-center justify-end gap-3 p-4 sm:p-6 border-t border-propertree-cream-300 bg-propertree-cream rounded-b-2xl">
             {footer}
           </div>
         )}
@@ -98,4 +98,3 @@ Modal.propTypes = {
 };
 
 export default Modal;
-

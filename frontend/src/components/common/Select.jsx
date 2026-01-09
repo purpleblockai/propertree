@@ -117,7 +117,7 @@ const Select = ({
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label htmlFor={name} className="block text-sm font-medium text-propertree-dark mb-1.5">
+        <label htmlFor={name} className="block text-xs sm:text-sm font-medium text-propertree-dark mb-1.5">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -131,13 +131,13 @@ const Select = ({
           onClick={handleToggle}
           disabled={disabled}
           className={`
-            w-full rounded-xl border-2 ${hasError ? 'border-red-500' : 'border-gray-200'}
-            px-4 py-3 pr-10 text-left text-gray-900 bg-white
+            w-full rounded-lg sm:rounded-xl border-2 ${hasError ? 'border-red-500' : 'border-gray-200'}
+            px-3 sm:px-4 py-2.5 sm:py-3 pr-10 text-left text-gray-900 bg-white
             shadow-sm hover:shadow-md hover:border-gray-300 hover:bg-gray-50
             focus:outline-none focus:ring-2 focus:ring-propertree-green/20 focus:border-propertree-green focus:shadow-md
             disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500 disabled:shadow-none
             transition-all duration-300 ease-in-out
-            font-medium text-sm
+            font-medium text-sm sm:text-base
             ${!selectedOption ? 'text-gray-400' : ''}
             ${isOpen ? 'ring-2 ring-propertree-green/20 border-propertree-green shadow-md' : ''}
           `}
@@ -188,7 +188,7 @@ const Select = ({
                     onClick={() => handleOptionSelect(option.value)}
                     onMouseEnter={() => setFocusedIndex(index)}
                     className={`
-                      w-full text-left px-4 py-2.5 text-sm font-medium
+                      w-full text-left px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium
                       transition-colors duration-150 ease-in-out
                       ${
                         isSelected
@@ -238,4 +238,3 @@ Select.propTypes = {
 };
 
 export default Select;
-

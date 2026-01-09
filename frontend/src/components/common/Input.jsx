@@ -26,7 +26,7 @@ const Input = ({
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label htmlFor={name} className="block text-sm font-medium text-propertree-dark mb-1.5">
+        <label htmlFor={name} className="block text-xs sm:text-sm font-medium text-propertree-dark mb-1.5">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -49,13 +49,13 @@ const Input = ({
           placeholder={placeholder}
           disabled={disabled}
           className={`
-            block w-full rounded-xl border-2 ${hasError ? 'border-red-500' : 'border-gray-200'}
-            ${leftIcon ? 'pl-10' : 'pl-4'} ${rightIcon ? 'pr-10' : 'pr-4'} py-3
+            block w-full rounded-lg sm:rounded-xl border-2 ${hasError ? 'border-red-500' : 'border-gray-200'}
+            ${leftIcon ? 'pl-10' : 'pl-3 sm:pl-4'} ${rightIcon ? 'pr-10' : 'pr-3 sm:pr-4'} py-2.5 sm:py-3
             text-gray-900 placeholder-gray-400 bg-white
             shadow-sm hover:shadow-md hover:border-gray-300 hover:bg-gray-50
             focus:outline-none focus:ring-2 focus:ring-propertree-green/20 focus:border-propertree-green focus:shadow-md focus:bg-white
             disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500 disabled:shadow-none
-            transition-all duration-300 ease-in-out font-medium text-sm
+            transition-all duration-300 ease-in-out font-medium text-sm sm:text-base
           `}
           {...props}
         />
@@ -92,4 +92,3 @@ Input.propTypes = {
 };
 
 export default Input;
-

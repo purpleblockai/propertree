@@ -345,7 +345,7 @@ const EditProperty = () => {
                   <label className="block text-sm font-medium text-gray-900 mb-3">
                     Property Type <span className="text-red-500">*</span>
                   </label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                     {PROPERTY_TYPES.map((type) => {
                       const Icon = type.icon;
                       const isSelected = formData.property_type === type.value;
@@ -383,7 +383,7 @@ const EditProperty = () => {
                 <Card.Title>Property Details</Card.Title>
               </Card.Header>
               <Card.Body className="space-y-4">
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-900 mb-2">
                       Bedrooms <span className="text-red-500">*</span>
@@ -493,7 +493,7 @@ const EditProperty = () => {
                   required
                 />
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
                     label="City"
                     name="city"
@@ -513,7 +513,7 @@ const EditProperty = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input
                     label="Country"
                     name="country"
@@ -558,7 +558,7 @@ const EditProperty = () => {
                 </div>
 
                 {formData.photos.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {formData.photos.map((photo) => (
                       <div key={photo.id} className="relative group">
                         <img
@@ -605,7 +605,7 @@ const EditProperty = () => {
                 <Card.Title>Amenities</Card.Title>
               </Card.Header>
               <Card.Body>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {AMENITIES.map(amenity => {
                     const Icon = amenity.icon;
                     const isSelected = formData.amenities.includes(amenity.id);

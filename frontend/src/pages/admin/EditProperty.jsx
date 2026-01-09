@@ -301,7 +301,7 @@ const EditProperty = () => {
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Bedrooms
@@ -361,7 +361,7 @@ const EditProperty = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   City
@@ -386,7 +386,7 @@ const EditProperty = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Country
@@ -462,7 +462,7 @@ const EditProperty = () => {
             <Card.Title>Amenities</Card.Title>
           </Card.Header>
           <Card.Body>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               {AMENITIES.map((amenity) => {
                 const IconComponent = amenity.icon;
                 const isSelected = formData.amenities.includes(amenity.id);
@@ -515,7 +515,7 @@ const EditProperty = () => {
             </div>
 
             {formData.photos.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 {formData.photos.map((photo, index) => (
                   <div key={photo.id || index} className="relative group">
                     <img

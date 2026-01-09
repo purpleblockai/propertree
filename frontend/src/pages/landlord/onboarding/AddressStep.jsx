@@ -28,7 +28,7 @@ const AddressStep = ({ formData, updateFormData }) => {
           required
         />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="City"
             name="city"
@@ -48,7 +48,7 @@ const AddressStep = ({ formData, updateFormData }) => {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             label="Country"
             name="country"
@@ -84,4 +84,3 @@ AddressStep.propTypes = {
 };
 
 export default AddressStep;
-
