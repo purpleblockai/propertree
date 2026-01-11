@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '../hooks';
 import { Container } from '../components/layout';
 import { Card, Button, Badge, Loading, EmptyState } from '../components/common';
 import { MapPin, Users, Bed, Bath, Home, ChevronLeft, ChevronRight, Check, X, Wifi, Car, Utensils, Tv, Wind, Waves, Dumbbell, Coffee, Phone } from 'lucide-react';
@@ -14,6 +15,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 const PropertyDetail = () => {
   const { t } = useTranslation();
+  const { isAdmin } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -199,6 +201,14 @@ const PropertyDetail = () => {
     }
   };
 
+  const handleClose = () => {
+    if (isAdmin()) {
+      navigate('/admin/properties');
+      return;
+    }
+    navigate('/');
+  };
+
   const handleBooking = async (e) => {
     e.preventDefault();
     
@@ -350,10 +360,10 @@ const PropertyDetail = () => {
     <div className="min-h-screen bg-white">
       {/* Close Button */}
       <button
-        onClick={() => navigate('/')}
-        className="fixed top-4 right-4 z-40 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors"
+        onClick={handleClose}
+        className="fixed top-4 right-4 z-40 w-9 h-9 sm:w-10 sm:h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors"
       >
-        <X className="w-6 h-6" />
+        <X className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
 
       {/* Property Content */}
@@ -362,7 +372,7 @@ const PropertyDetail = () => {
           {/* Image Gallery */}
           <div className="mb-8">
             {/* Main Image */}
-            <div className="relative h-[500px] rounded-2xl overflow-hidden bg-gray-200 mb-4">
+            <div className="relative detail-hero rounded-2xl overflow-hidden bg-gray-200 mb-4">
               {selectedPhoto ? (
                 <img
                   src={selectedPhoto.preview || selectedPhoto.url}
@@ -381,15 +391,15 @@ const PropertyDetail = () => {
                 <>
                   <button
                     onClick={handlePreviousImage}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 rounded-full shadow-lg flex items-center justify-center hover:bg-white transition-colors"
+                    className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/90 rounded-full shadow-lg flex items-center justify-center hover:bg-white transition-colors"
                   >
-                    <ChevronLeft className="w-6 h-6" />
+                    <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
                   <button
                     onClick={handleNextImage}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 rounded-full shadow-lg flex items-center justify-center hover:bg-white transition-colors"
+                    className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 bg-white/90 rounded-full shadow-lg flex items-center justify-center hover:bg-white transition-colors"
                   >
-                    <ChevronRight className="w-6 h-6" />
+                    <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
                   
                   {/* Image Counter */}
@@ -407,7 +417,7 @@ const PropertyDetail = () => {
                   <button
                     key={index}
                     onClick={() => setSelectedImageIndex(index)}
-                    className={`relative h-24 rounded-lg overflow-hidden border-2 transition-all ${
+                    className={`relative detail-thumb rounded-lg overflow-hidden border-2 transition-all ${
                       index === selectedImageIndex
                         ? 'border-propertree-green shadow-md'
                         : 'border-gray-300 hover:border-gray-400'
@@ -444,8 +454,8 @@ const PropertyDetail = () => {
                 {property.city}, {property.country}
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-4xl font-bold text-gray-900">
+            <div className="text-left md:text-right mt-4 md:mt-0">
+              <div className="text-3xl sm:text-4xl font-bold text-gray-900">
                 {formatCurrency(property.price_per_night)}
               </div>
               <div className="text-gray-600">{t('propertyDetail.perNight')}</div>
@@ -496,7 +506,7 @@ const PropertyDetail = () => {
           )}
 
           {/* Ready to Book Section */}
-          <div className="bg-gray-50 rounded-2xl p-8 border border-gray-200">
+          <div className="bg-gray-50 rounded-2xl p-5 sm:p-6 lg:p-8 border border-gray-200">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">{t('propertyDetail.readyToBook')}</h3>
@@ -506,7 +516,7 @@ const PropertyDetail = () => {
                 onClick={() => setShowBookingModal(true)}
                 variant="primary"
                 size="lg"
-                className="md:w-auto whitespace-nowrap px-8"
+                className="w-full sm:w-auto md:w-auto whitespace-nowrap px-8"
               >
                 {t('propertyDetail.bookNow')}
               </Button>
@@ -516,7 +526,7 @@ const PropertyDetail = () => {
           {/* Host Information */}
           <div className="mt-8 pt-8 border-t">
             <h2 className="text-xl font-semibold mb-6">{t('propertyDetail.hostedBy')}</h2>
-            <Card className="p-6">
+            <Card className="p-4 sm:p-6">
               <div className="flex flex-col md:flex-row gap-6">
                 {/* Profile Picture */}
                 <div className="flex-shrink-0 relative">
@@ -525,7 +535,7 @@ const PropertyDetail = () => {
                       <img
                         src={property.landlord_profile.profile_photo}
                         alt={property.landlord_name || 'Host'}
-                        className="w-24 h-24 rounded-full object-cover border-4 border-gray-100 shadow-md"
+                        className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-gray-100 shadow-md"
                         onError={(e) => {
                           // Hide image and show fallback
                           e.target.style.display = 'none';
@@ -534,13 +544,13 @@ const PropertyDetail = () => {
                         }}
                       />
                       <div
-                        className="profile-fallback w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white items-center justify-center text-3xl font-bold shadow-md hidden"
+                        className="profile-fallback w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white items-center justify-center text-3xl font-bold shadow-md hidden"
                       >
                         {property.landlord_name?.charAt(0)?.toUpperCase() || property.landlord_email?.charAt(0)?.toUpperCase() || 'H'}
                       </div>
                     </>
                   ) : (
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-3xl font-bold shadow-md">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-3xl font-bold shadow-md">
                       {property.landlord_name?.charAt(0)?.toUpperCase() || property.landlord_email?.charAt(0)?.toUpperCase() || 'H'}
                     </div>
                   )}
@@ -601,14 +611,14 @@ const PropertyDetail = () => {
       {/* Booking Modal - Will show when Book Now is clicked */}
       {showBookingModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl p-5 sm:p-6 md:p-8 max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold">{t('propertyDetail.bookThisProperty')}</h3>
               <button
                 onClick={() => setShowBookingModal(false)}
                 className="text-gray-500 hover:text-gray-700"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
             </div>
             <form onSubmit={handleBooking} className="space-y-4">
@@ -764,9 +774,9 @@ const PropertyDetail = () => {
           {/* Close Button */}
           <button
             onClick={() => setShowLightbox(false)}
-            className="absolute top-4 right-4 w-12 h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
+            className="absolute top-4 right-4 w-10 h-10 sm:w-12 sm:h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
           >
-            <X className="w-8 h-8" />
+            <X className="w-6 h-6 sm:w-8 sm:h-8" />
           </button>
 
           {/* Navigation Arrows */}
@@ -774,15 +784,15 @@ const PropertyDetail = () => {
             <>
               <button
                 onClick={handlePreviousImage}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
               >
-                <ChevronLeft className="w-8 h-8" />
+                <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
               </button>
               <button
                 onClick={handleNextImage}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
+                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
               >
-                <ChevronRight className="w-8 h-8" />
+                <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
               </button>
             </>
           )}

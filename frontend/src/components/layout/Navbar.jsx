@@ -29,12 +29,12 @@ const Navbar = () => {
   return (
     <nav className="bg-white shadow-subtle sticky top-0 z-40 border-b border-propertree-cream-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-14 sm:h-16 gap-4">
+        <div className="flex justify-between items-center h-14 sm:h-16 gap-3 sm:gap-4">
           {/* Logo */}
           <div className="flex items-center flex-shrink-0">
             <Link to="/" className="flex items-center space-x-2 sm:space-x-3">
               <img src="/logo.jpg" alt="Propertree" className="h-8 sm:h-10 w-auto object-contain" />
-              <span className="text-lg sm:text-2xl font-bold text-propertree-dark whitespace-nowrap">Propertree</span>
+              <span className="text-base sm:text-lg lg:text-2xl font-bold text-propertree-dark whitespace-nowrap">Propertree</span>
             </Link>
           </div>
 

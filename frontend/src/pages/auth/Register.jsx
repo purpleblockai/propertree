@@ -189,7 +189,7 @@ const Register = () => {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="bg-white rounded-2xl shadow-lg p-8 relative">
+      <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 relative">
         {/* Close Button */}
         <button
           onClick={() => navigate('/')}
@@ -362,7 +362,7 @@ const Register = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Profile Photo <span className="text-gray-400 text-xs">(Optional)</span>
               </label>
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                 {/* Photo Preview */}
                 <div className="flex-shrink-0">
                   {photoPreview ? (
@@ -370,7 +370,7 @@ const Register = () => {
                       <img
                         src={photoPreview}
                         alt="Profile preview"
-                        className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-gray-200"
                       />
                       <button
                         type="button"
@@ -382,7 +382,7 @@ const Register = () => {
                       </button>
                     </div>
                   ) : (
-                    <div className="w-20 h-20 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gray-100 border-2 border-gray-200 flex items-center justify-center">
                       <User className="w-8 h-8 text-gray-400" />
                     </div>
                   )}

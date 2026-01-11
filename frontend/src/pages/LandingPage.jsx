@@ -501,7 +501,7 @@ const LandingPage = () => {
                 <Link key={property.id} to={`/properties/${property.id}`}>
                   <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer overflow-hidden relative">
                     {/* Property Image */}
-                    <div className="h-56 bg-gray-200 overflow-hidden rounded-t-2xl relative">
+                    <div className="card-media bg-gray-200 overflow-hidden rounded-t-2xl relative">
                       {property.primary_photo ? (
                         <img 
                           src={property.primary_photo} 
@@ -529,7 +529,7 @@ const LandingPage = () => {
                       </button>
                     </div>
 
-                    <Card.Body className="p-5">
+                    <Card.Body className="p-4 sm:p-5">
                       {/* Location */}
                       <div className="flex items-center text-sm text-gray-600 mb-3">
                         <MapPin className="w-4 h-4 mr-1.5" />
@@ -547,7 +547,7 @@ const LandingPage = () => {
                       </p>
 
                       {/* Property Details */}
-                      <div className="flex items-center gap-5 text-sm text-gray-600 mb-5">
+                      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-gray-600 mb-5">
                         <div className="flex items-center">
                           <Bed className="w-4 h-4 mr-1.5" />
                           {property.bedrooms} {property.bedrooms > 1 ? t('landing.beds') : t('landing.bed')}
@@ -561,7 +561,7 @@ const LandingPage = () => {
                       {/* Price */}
                       <div className="flex items-center justify-between mb-4">
                         <div>
-                          <span className="text-2xl font-bold text-propertree-green">
+                          <span className="text-xl sm:text-2xl font-bold text-propertree-green">
                             {formatCurrency(property.price_per_night)}
                           </span>
                           <span className="text-gray-600 text-sm ml-1">{t('landing.night')}</span>

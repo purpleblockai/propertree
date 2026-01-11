@@ -126,7 +126,7 @@ const Properties = () => {
   return (
     <Container className="py-8">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-propertree-dark">My Properties</h1>
           <p className="text-gray-600 mt-1">Manage your property listings and view bookings</p>
@@ -175,7 +175,7 @@ const Properties = () => {
       )}
 
       {/* Quick Actions */}
-      <div className="mb-6 flex gap-4">
+      <div className="mb-6 flex flex-wrap gap-4">
         <Link to="/landlord/bookings">
           <Button variant="outline" leftIcon={<Calendar />}>
             View Bookings
@@ -197,7 +197,7 @@ const Properties = () => {
           {properties.map((property) => (
             <Card key={property.id} className="hover:shadow-lg transition-shadow overflow-hidden">
               {/* Property Image */}
-              <div className="h-56 bg-gray-200 overflow-hidden rounded-t-2xl">
+              <div className="card-media bg-gray-200 overflow-hidden rounded-t-2xl">
                 {property.primary_photo ? (
                   <img 
                     src={property.primary_photo} 
@@ -211,7 +211,7 @@ const Properties = () => {
                 )}
               </div>
 
-              <Card.Body className="p-5">
+              <Card.Body className="p-4 sm:p-5">
                 {/* Status Badge */}
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="text-xl font-semibold text-gray-900 line-clamp-1 flex-1">
@@ -249,9 +249,9 @@ const Properties = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   {property.status === 'approved' && (
-                    <Link to={`/properties/${property.id}`} className="flex-1">
+                    <Link to={`/properties/${property.id}`} className="w-full sm:flex-1">
                       <Button variant="outline" size="sm" leftIcon={<Eye />} className="w-full h-10 px-4">
                         View Live
                       </Button>
@@ -259,7 +259,7 @@ const Properties = () => {
                   )}
                   <Link 
                     to={`/landlord/properties/${property.id}/edit`} 
-                    className={property.status === 'approved' ? 'flex-1' : 'w-full'}
+                    className={property.status === 'approved' ? 'w-full sm:flex-1' : 'w-full'}
                   >
                     <Button variant="primary" size="sm" className="w-full h-10 px-4">
                       {property.status === 'draft' ? 'Complete' : 'Edit'}
@@ -267,13 +267,13 @@ const Properties = () => {
                   </Link>
 
                   {/* Delete Button */}
-                  <div>
+                  <div className="w-full sm:w-auto">
                     <Button
                       variant="danger"
                       size="sm"
                       leftIcon={<Trash2 />}
                       onClick={() => handleDeleteProperty(property.id)}
-                      className="h-10 px-4"
+                      className="w-full sm:w-auto h-10 px-4"
                     >
                       Delete
                     </Button>

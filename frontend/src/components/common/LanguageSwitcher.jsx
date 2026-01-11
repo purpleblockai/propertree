@@ -1,17 +1,17 @@
-/**
+﻿/**
  * LanguageSwitcher - Component for switching between languages
  */
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Globe } from 'lucide-react';
+import { Globe, Check } from 'lucide-react';
 
 const languages = [
-  { code: 'en', name: 'English', flag: '🇬🇧' },
-  { code: 'es', name: 'Español', flag: '🇪🇸' },
-  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-  { code: 'fr', name: 'Français', flag: '🇫🇷' },
-  { code: 'it', name: 'Italiano', flag: '🇮🇹' },
-  { code: 'pt', name: 'Português', flag: '🇵🇹' },
+  { code: 'en', name: 'English' },
+  { code: 'es', name: 'Español' },
+  { code: 'de', name: 'Deutsch' },
+  { code: 'fr', name: 'Français' },
+  { code: 'it', name: 'Italiano' },
+  { code: 'pt', name: 'Português' },
 ];
 
 const LanguageSwitcher = () => {
@@ -50,8 +50,7 @@ const LanguageSwitcher = () => {
         aria-label={t('language.selectLanguage')}
       >
         <Globe className="w-4 h-4" />
-        <span className="hidden sm:inline">{currentLanguage.flag}</span>
-        <span className="hidden md:inline">{currentLanguage.code.toUpperCase()}</span>
+        <span className="hidden md:inline">{currentLanguage.name}</span>
       </button>
 
       {isOpen && (
@@ -64,10 +63,9 @@ const LanguageSwitcher = () => {
                 i18n.language === lang.code ? 'bg-propertree-cream-100 text-propertree-green font-medium' : 'text-gray-700'
               }`}
             >
-              <span className="text-xl">{lang.flag}</span>
               <span>{lang.name}</span>
               {i18n.language === lang.code && (
-                <span className="ml-auto text-propertree-green">✓</span>
+                <Check className="w-4 h-4 ml-auto text-propertree-green" />
               )}
             </button>
           ))}
@@ -78,6 +76,8 @@ const LanguageSwitcher = () => {
 };
 
 export default LanguageSwitcher;
+
+
 
 
 
