@@ -37,7 +37,7 @@
   },
   "landing": {
     "title": "Find it. Book it. Live it.",
-    "subtitle": "From new branches to new beginnings, choose your next home.",
+    "subtitle": "From new branches to new beginnings, choose your next home!",
     "searchProperties": "Search Properties",
     "searching": "Searching...",
     "city": "City",
@@ -50,7 +50,7 @@
     "checkOut": "Check-out",
     "minPrice": "Min Price (€)",
     "maxPrice": "Max Price (€)",
-    "featuredProperties": "Featured Properties",
+    "featuredProperties": "Featured properties",
     "searchResults": "Search Results",
     "propertiesAvailable": "{{count}} properties found",
     "noPropertiesFound": "No properties found",
@@ -270,7 +270,6 @@
     "detailedInsights": "Detailed insights"
   }
 }
-
 
 
 
