@@ -943,13 +943,13 @@ const LandingPage = () => {
                       >
                         <div className="flex flex-1 items-center gap-2 overflow-x-auto text-xs font-semibold text-slate-700 sm:gap-3 sm:text-sm">
                           <span className="truncate">{compactLocationSummary}</span>
-                          <span className="text-slate-300 sm:hidden">•</span>
+                          <span className="text-slate-300 sm:hidden">|</span>
                           <span className="hidden h-4 w-px bg-slate-200 sm:inline-block" />
                           <span className="truncate">{compactDateSummary}</span>
-                          <span className="text-slate-300 sm:hidden">•</span>
+                          <span className="text-slate-300 sm:hidden">|</span>
                           <span className="hidden h-4 w-px bg-slate-200 sm:inline-block" />
                           <span className="truncate">{compactGuestSummary}</span>
-                          <span className="text-slate-300 sm:hidden">•</span>
+                          <span className="text-slate-300 sm:hidden">|</span>
                           <span className="hidden h-4 w-px bg-slate-200 sm:inline-block" />
                           <span className="truncate">{compactTypeSummary}</span>
                         </div>
@@ -977,31 +977,35 @@ const LandingPage = () => {
                           <button
                             type="button"
                             onClick={() => handleTermSelect('short')}
-                            className={`py-2.5 sm:py-3 rounded-full font-semibold leading-snug text-sm sm:text-base whitespace-nowrap transition-[color,transform] duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-propertree-green/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${term === 'short' ? 'text-white' : 'text-slate-500 hover:text-slate-800 active:scale-[0.99]'}`}
+                            className={`py-2 sm:py-2.5 rounded-full font-semibold leading-snug text-sm sm:text-base whitespace-nowrap transition-[color,transform] duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-propertree-green/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${term === 'short' ? 'text-white' : 'text-slate-500 hover:text-slate-800 active:scale-[0.99]'}`}
                           >
-                            {t('landing.shortTerm', { defaultValue: 'Short-term' })}
+                            <span className="block">{t('landing.shortTerm', { defaultValue: 'Short-term' })}</span>
+                            <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] opacity-80">
+                              {t('landing.shortTermHint', { defaultValue: '< 1 month' })}
+                            </span>
                           </button>
                           <button
                             type="button"
                             onClick={() => handleTermSelect('mid')}
-                            className={`py-2.5 sm:py-3 rounded-full font-semibold leading-snug text-sm sm:text-base whitespace-nowrap transition-[color,transform] duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-propertree-green/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${term === 'mid' ? 'text-white' : 'text-slate-500 hover:text-slate-800 active:scale-[0.99]'}`}
+                            className={`py-2 sm:py-2.5 rounded-full font-semibold leading-snug text-sm sm:text-base whitespace-nowrap transition-[color,transform] duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-propertree-green/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${term === 'mid' ? 'text-white' : 'text-slate-500 hover:text-slate-800 active:scale-[0.99]'}`}
                           >
-                            {t('landing.midTerm', { defaultValue: 'Mid-term' })}
+                            <span className="block">{t('landing.midTerm', { defaultValue: 'Mid-term' })}</span>
+                            <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] opacity-80">
+                              {t('landing.midTermHint', { defaultValue: '1-12 months' })}
+                            </span>
                           </button>
                           <button
                             type="button"
                             onClick={() => handleTermSelect('long')}
-                            className={`py-2.5 sm:py-3 rounded-full font-semibold leading-snug text-sm sm:text-base whitespace-nowrap transition-[color,transform] duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-propertree-green/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${term === 'long' ? 'text-white' : 'text-slate-500 hover:text-slate-800 active:scale-[0.99]'}`}
+                            className={`py-2 sm:py-2.5 rounded-full font-semibold leading-snug text-sm sm:text-base whitespace-nowrap transition-[color,transform] duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-propertree-green/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${term === 'long' ? 'text-white' : 'text-slate-500 hover:text-slate-800 active:scale-[0.99]'}`}
                           >
-                            {t('landing.longTerm', { defaultValue: 'Long-term' })}
+                            <span className="block">{t('landing.longTerm', { defaultValue: 'Long-term' })}</span>
+                            <span className="block text-[10px] font-semibold uppercase tracking-[0.12em] opacity-80">
+                              {t('landing.longTermHint', { defaultValue: '12+ months' })}
+                            </span>
                           </button>
                         </div>
                       </div>
-                    </div>
-                    <div className={`hidden sm:grid grid-cols-3 gap-2 px-2 ${T.label} text-center mt-0.5`}>
-                      <span>{t('landing.shortTermHint', { defaultValue: '< 1 month' })}</span>
-                      <span>{t('landing.midTermHint', { defaultValue: '1–12 months' })}</span>
-                      <span>{t('landing.longTermHint', { defaultValue: '12+ months' })}</span>
                     </div>
                   </div>
 
