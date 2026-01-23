@@ -939,14 +939,17 @@ const LandingPage = () => {
                         }}
                         aria-expanded={false}
                         aria-controls="landing-search-panel"
-                        className="group flex w-full flex-col gap-3 rounded-full border border-slate-200 bg-white/95 px-3 py-2.5 text-left shadow-[0_8px_20px_rgba(15,23,42,0.08)] transition-[box-shadow,transform] duration-200 hover:shadow-[0_12px_30px_rgba(15,23,42,0.12)] active:scale-[0.99] sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-4"
+                        className="group flex w-full items-center gap-3 rounded-full border border-slate-200 bg-white/95 px-3 py-2.5 text-left shadow-[0_8px_20px_rgba(15,23,42,0.08)] transition-[box-shadow,transform] duration-200 hover:shadow-[0_12px_30px_rgba(15,23,42,0.12)] active:scale-[0.99] sm:justify-between sm:gap-4 sm:px-4"
                       >
-                        <div className="flex flex-1 flex-col gap-2 text-sm font-semibold text-slate-700 sm:flex-row sm:items-center sm:gap-3">
+                        <div className="flex flex-1 items-center gap-2 overflow-x-auto text-xs font-semibold text-slate-700 sm:gap-3 sm:text-sm">
                           <span className="truncate">{compactLocationSummary}</span>
+                          <span className="text-slate-300 sm:hidden">•</span>
                           <span className="hidden h-4 w-px bg-slate-200 sm:inline-block" />
                           <span className="truncate">{compactDateSummary}</span>
+                          <span className="text-slate-300 sm:hidden">•</span>
                           <span className="hidden h-4 w-px bg-slate-200 sm:inline-block" />
                           <span className="truncate">{compactGuestSummary}</span>
+                          <span className="text-slate-300 sm:hidden">•</span>
                           <span className="hidden h-4 w-px bg-slate-200 sm:inline-block" />
                           <span className="truncate">{compactTypeSummary}</span>
                         </div>
@@ -1453,11 +1456,11 @@ const LandingPage = () => {
                     <div
                       id="more-filters-panel"
                       aria-hidden={!showMoreFilters}
-                      className={`transition-[max-height,opacity,transform,margin] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${showMoreFilters ? 'mt-2 max-h-[420px] opacity-100 translate-y-0 overflow-visible' : 'mt-0 max-h-0 opacity-0 -translate-y-1 pointer-events-none overflow-hidden'}`}
+                      className={`transition-[max-height,opacity,transform,margin] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${showMoreFilters ? 'mt-2 max-h-[70vh] sm:max-h-[420px] opacity-100 translate-y-0 overflow-y-auto sm:overflow-visible' : 'mt-0 max-h-0 opacity-0 -translate-y-1 pointer-events-none overflow-hidden'}`}
                     >
                       <div className="rounded-2xl border border-slate-200 bg-white/70 p-3 sm:p-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div>
+                        <div className="flex gap-3 overflow-x-auto md:grid md:grid-cols-2 md:overflow-visible">
+                          <div className="min-w-[240px] sm:min-w-0">
                             <label className={`block ${T.label} mb-2 text-left`}>
                               {t('landing.minArea', { defaultValue: 'Minimum Area' })} (m<sup>2</sup>)
                             </label>
@@ -1515,7 +1518,7 @@ const LandingPage = () => {
                               )}
                             </div>
                           </div>
-                          <div>
+                          <div className="min-w-[240px] sm:min-w-0">
                             <label className={`block ${T.label} mb-2 text-left`}>
                               {t('landing.vicinity', { defaultValue: 'Vicinity' })}
                             </label>
